@@ -1,0 +1,19 @@
+[project]
+name = "dotmgr"
+version = "0.1.0"
+authors = [
+    { name = "Glitch752", email = "xxGlitch752xx@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "jinja2>=3.1.6",
+    "toml>=0.10.2",
+    "watchdog>=6.0.0",
+]
+
+[project.scripts]
+dotmgr = "dotmgr:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

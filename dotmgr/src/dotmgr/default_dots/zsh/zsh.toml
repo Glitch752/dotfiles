@@ -1,0 +1,4 @@
+[configurations.zsh]
+render = [
+    { source = ".zshrc", destination = "~/.zshrc" }
+]

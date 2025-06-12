@@ -1,0 +1,1 @@
+# This will become the contents of your ~/.{{shell}}rc file.

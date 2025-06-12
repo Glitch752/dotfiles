@@ -1,0 +1,16 @@
+# Import merges the configuration from the specified file.
+imports = [
+    "./zsh/zsh.toml"
+]
+
+# Configurations are a set of dotfiles and variables that will be managed. Each profile can have multiple active configurations.
+[configurations.default]
+subconfigs = ["zsh"]
+    
+    [configurations.default.variables]
+    # Define any variables that can be used in the configurations.
+    shell = "zsh"
+
+[profiles.default]
+name = "Default"
+configurations = ["default"]
