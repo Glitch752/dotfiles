@@ -1,0 +1,9 @@
+imports = [
+    "interception-tools/window-binds.toml"
+]
+
+[configurations.niri]
+render = [
+    { source = "config.kdl", destination = "~/.config/niri/config.kdl" }
+]
+subconfigs = ["window-binds"]

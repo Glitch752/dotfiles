@@ -20,6 +20,8 @@ def main():
         manager.render_templates()
     elif args.command == "watch":
         manager = DotfileManager(dots_dir, profile)
+        with manager.log.info("Rendering templates once before watching"):
+            manager.render_templates()
         manager.watch()
 
 if __name__ == "__main__":

@@ -1,0 +1,23 @@
+gestures {
+    dnd-edge-view-scroll {
+        trigger-width 30
+        delay-ms 100
+        max-speed 2000
+    }
+
+    dnd-edge-workspace-switch {
+        trigger-height 50
+        delay-ms 100
+        max-speed 1500
+    }
+
+    hot-corners {
+        // Uncomment this to disable hot corners.
+        // off
+    }
+}
+
+// Niri, please allow users to change the interactive window resize gesture shortcut!
+// Gesture keybinds are a work-in-progress [here](https://github.com/YaLTeR/niri/issues/372),
+// but I may want to help get this merged sooner because it's a usability problem for me.
+// For now, I use `interception-tools` and `interception-dual-function-keys` to remap the gesture keybinds to something more usable.

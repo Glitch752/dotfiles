@@ -1,16 +1,26 @@
 # Import merges the configuration from the specified file.
 imports = [
-    "./zsh/zsh.toml"
+    "./zsh/zsh.toml",
+    "./niri/niri.toml"
 ]
 
 # Configurations are a set of dotfiles and variables that will be managed. Each profile can have multiple active configurations.
 [configurations.default]
-subconfigs = ["zsh"]
-    
-    [configurations.default.variables]
-    # Define any variables that can be used in the configurations.
-    shell = "zsh"
+subconfigs = ["zsh", "niri"]
 
-[profiles.default]
-name = "Default"
-configurations = ["default"]
+[configurations.laptop.variables]
+device = "laptop"
+keyboard_device = "/dev/input/by-path/platform-i8042-serio-0-event-kbd"
+mouse_device = "/dev/input/by-path/pci-0000:00:15.3-platform-i2c_designware.2-event-mouse"
+[configurations.desktop.variables]
+device = "desktop"
+keyboard_device = "/dev/input/by-path/platform-i8042-serio-0-event-kbd"
+mouse_device = "/dev/input/by-path/platform-i8042-serio-1-event-mouse"
+
+[profiles.laptop]
+name = "Laptop"
+configurations = ["default", "laptop"]
+
+[profiles.desktop]
+name = "Desktop"
+configurations = ["default", "desktop"]

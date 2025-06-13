@@ -1,0 +1,21 @@
+// This config is in the KDL format: https://kdl.dev
+// Check the wiki for a full description of the configuration:
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Introduction
+
+{% include "niri/input.kdl" %}
+
+{% include "niri/gestures.kdl" %}
+
+{% include "niri/outputs.kdl" %}
+
+{% include "niri/layout.kdl" %}
+
+{% include "niri/startup.kdl" %}
+
+{% include "niri/animations.kdl" %}
+
+{% include "niri/window-rules.kdl" %}
+
+{% include "niri/binds.kdl" %}
+
+{% include "niri/appearance.kdl" %}

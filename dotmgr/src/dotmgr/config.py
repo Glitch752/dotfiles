@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Optional
 import jinja2
 import toml
 from dataclasses import dataclass
@@ -9,13 +10,19 @@ class RenderConfig:
     """
     source: Path
     destination: Path
+    user: Optional[str]
     
-    def __init__(self, source: str | Path, destination: str | Path):
+    def __init__(self, source: str | Path, destination: str | Path, user: Optional[str] = None):
         self.source = Path(source)
         dest = Path(destination).expanduser()
         if not dest.is_absolute():
             raise ValueError(f"Render destination path '{destination}' must be absolute.")
         self.destination = dest
+        self.user = user
+    
+    def source_relative(self, diff: Path) -> 'RenderConfig':
+        self.source = diff / self.source
+        return self
 
 @dataclass
 class Configuration:
@@ -87,8 +94,6 @@ class DotsConfig:
                 import_config = DotsConfig(self.config_path.parent / import_path).with_paths_relative_to(self.config_path)
                 self.configurations.update(import_config.configurations)
                 self.profiles.update(import_config.profiles)
-        except FileNotFoundError:
-            raise FileNotFoundError(f"Configuration file not found: {self.config_path}")
         except toml.TomlDecodeError as e:
             raise ValueError(f"Error decoding TOML configuration file: {self.config_path}\n{e}")
     
@@ -104,10 +109,7 @@ class DotsConfig:
         for name, config in self.configurations.items():
             new_config.configurations[name] = Configuration(
                 variables={k: v for k, v in config.variables.items()},
-                render=[RenderConfig(
-                    source=diff / r.source,
-                    destination=r.destination
-                ) for r in config.render],
+                render=[r.source_relative(diff) for r in config.render],
                 subconfigs=config.subconfigs
             )
         return new_config

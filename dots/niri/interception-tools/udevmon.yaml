@@ -1,0 +1,24 @@
+# A udevmon configuration for intercepting L Win + L Alt + LMB and replacing it with L Win + RMB.
+
+# 1: Create a muxer between the keyboard and mouse to combine their events
+- CMD: mux -c fix_niri_altdrag -c keyboard -c mouse
+# 2: Define muxer pipelines:
+# - All events go to fix_niri_altdrag
+# - dual-function-keys processes the events and sends them to the muxer
+# - The muxer outputs to the keyboard and mouse uinput devices
+- JOB:
+  - mux -i fix_niri_altdrag | /etc/interception/fix-niri-altdrag | mux -o keyboard -o mouse
+  - mux -i keyboard | uinput -d {{keyboard_device}}
+  - mux -i mouse | uinput -d {{mouse_device}}
+# 3: The keyboard needs to intercept L Win and L Alt keys
+- JOB: intercept -g $DEVNODE | mux -o fix_niri_altdrag
+  DEVICE:
+    LINK: {{keyboard_device}}
+    EVENTS:
+      EV_KEY: [KEY_LEFTALT, KEY_LEFTMETA]
+# 4: The mouse needs to intercept LMB clicks
+- JOB: intercept -g $DEVNODE | mux -o fix_niri_altdrag
+  DEVICE:
+    LINK: {{mouse_device}}
+    EVENTS:
+      EV_KEY: [BTN_LEFT]
