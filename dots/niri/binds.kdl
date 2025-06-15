@@ -22,12 +22,19 @@ binds {
     // Note: the entire command goes as a single argument in the end.
     // Mod+T { spawn "bash" "-c" "notify-send hello && exec alacritty"; }
 
-    // Example volume keys mappings for PipeWire & WirePlumber.
     // The allow-when-locked=true property makes them work even when the session is locked.
-    XF86AudioRaiseVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+"; }
-    XF86AudioLowerVolume allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-"; }
-    XF86AudioMute        allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
-    XF86AudioMicMute     allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
+    XF86AudioRaiseVolume  allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%+"; }
+    XF86AudioLowerVolume  allow-when-locked=true { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%-"; }
+    XF86AudioMute         allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+    XF86AudioMicMute      allow-when-locked=true { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
+
+    XF86MonBrightnessUp   allow-when-locked=true { spawn "brillo" "-A" "10%" "-u" "100000"; }
+    XF86MonBrightnessDown allow-when-locked=true { spawn "brillo" "-U" "10%" "-u" "100000"; }
+
+    XF86AudioNext         allow-when-locked=true { spawn "playerctl" "next"; }
+    XF86AudioPause        allow-when-locked=true { spawn "playerctl" "play-pause"; }
+    XF86AudioPlay         allow-when-locked=true { spawn "playerctl" "play-pause"; }
+    XF86AudioPrev         allow-when-locked=true { spawn "playerctl" "previous"; }
 
     // Open/close the Overview: a zoomed-out view of workspaces and windows.
     // You can also move the mouse into the top-left hot corner,
@@ -162,9 +169,9 @@ binds {
     // Expel the bottom window from the focused column to the right.
     // Mod+Period { expel-window-from-column; }
 
-    Mod+R { switch-preset-column-width; }
-    Mod+Shift+R { switch-preset-window-height; }
-    Mod+Ctrl+R { reset-window-height; }
+    Mod+X { switch-preset-column-width; }
+    Mod+Shift+X { switch-preset-window-height; }
+    Mod+Ctrl+X { reset-window-height; }
     Mod+F { maximize-column; }
     Mod+Shift+F { fullscreen-window; }
 

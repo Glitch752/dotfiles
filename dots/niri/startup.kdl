@@ -3,5 +3,11 @@
 // which may be more convenient to use.
 // See the binds section below for more spawn examples.
 
-// This line starts waybar, a commonly used bar for Wayland compositors.
-spawn-at-startup "waybar"
+// spawn-at-startup "waybar"
+
+spawn-at-startup "xwayland-satellite :0"
+spawn-at-startup "/usr/lib/polkit-kde-authentication-agent-1"
+
+hotkey-overlay {
+    skip-at-startup
+}

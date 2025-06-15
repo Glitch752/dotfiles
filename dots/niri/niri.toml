@@ -4,6 +4,6 @@ imports = [
 
 [configurations.niri]
 render = [
-    { source = "config.kdl", destination = "~/.config/niri/config.kdl" }
+    { source = "config.kdl", destination = "~brody/.config/niri/config.kdl" }
 ]
 subconfigs = ["window-binds"]

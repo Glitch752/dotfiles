@@ -8,11 +8,9 @@
 
 {% include "niri/outputs.kdl" %}
 
-{% include "niri/layout.kdl" %}
-
 {% include "niri/startup.kdl" %}
 
-{% include "niri/animations.kdl" %}
+{% include "niri/environment.kdl" %}
 
 {% include "niri/window-rules.kdl" %}
 

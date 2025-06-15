@@ -1,0 +1,16 @@
+environment {
+    // Enable wayland support in various applications and libraries.
+    ELECTRON_OZONE_PLATFORM_HINT "auto"
+    ELECTRON_OZONE_PLATFORM "auto"
+    SDL_VIDEODRIVER "wayland,x11"
+    MOZ_ENABLE_WAYLAND "1"
+    QT_QPA_PLATFORM "wayland;xcb"
+    CLUTTER_BACKEND "wayland"
+    QT_WAYLAND_DISABLE_WINDOWDECORATION "1"
+    
+    // Fix scaling issues
+    QT_AUTO_SCREEN_SCALE_FACTOR "1"
+
+    // XWayland
+    DISPLAY ":0"
+}

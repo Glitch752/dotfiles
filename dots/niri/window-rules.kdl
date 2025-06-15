@@ -1,24 +1,21 @@
-// Window rules let you adjust behavior for individual windows.
-// Find more information on the wiki:
-// https://github.com/YaLTeR/niri/wiki/Configuration:-Window-Rules
+// Window and layer rules.
+// See https://github.com/YaLTeR/niri/wiki/Configuration:-Window-Rules and 
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Layer-Rules
 
-// Work around WezTerm's initial configure bug
-// by setting an empty default-column-width.
+// Rules for the appearance of all windows
 window-rule {
-    // This regular expression is intentionally made as specific as possible,
-    // since this is the default config, and we want no false positives.
-    // You can get away with just app-id="wezterm" if you want.
-    match app-id=r#"^org\.wezfurlong\.wezterm$"#
-    default-column-width {}
+    geometry-corner-radius 5
+    clip-to-geometry true
+    // baba-is-float true // Niri is the silliest compositor :3
 }
 
-// Open the Firefox picture-in-picture player as floating by default.
+// Open a few windows as maximized by default: VSCode, Firefox, Discord, and probably others I forgot.
 window-rule {
-    // This app-id regular expression will work for both:
-    // - host Firefox (app-id is "firefox")
-    // - Flatpak Firefox (app-id is "org.mozilla.firefox")
-    match app-id=r#"firefox$"# title="^Picture-in-Picture$"
-    open-floating true
+    match app-id=r#"firefox$"#
+    match app-id=r#"^com\.microsoft\.VSCode$"#
+    match app-id=r#"^com\.discordapp\.Discord$"#
+
+    open-maximized true
 }
 
 // Example: block out two password managers from screen capture.
@@ -31,10 +28,4 @@ window-rule {
 
     // Use this instead if you want them visible on third-party screenshot tools.
     // block-out-from "screencast"
-}
-
-// Enable rounded corners for all windows.
-window-rule {
-    geometry-corner-radius 5
-    clip-to-geometry true
 }

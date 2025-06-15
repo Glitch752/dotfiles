@@ -1,6 +1,141 @@
-// Uncomment this line to ask the clients to omit their client-side decorations if possible.
+// Ask the clients to omit their client-side decorations if possible.
 // If the client will specifically ask for CSD, the request will be honored.
 // Additionally, clients will be informed that they are tiled, removing some client-side rounded corners.
 // This option will also fix border/focus ring drawing behind some semitransparent windows.
 // After enabling or disabling this, you need to restart the apps for this to take effect.
 prefer-no-csd
+
+// Settings that influence how windows are positioned and sized.
+// Find more information on the wiki:
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Layout
+layout {
+    gaps 8
+    struts {
+        left 2
+        right 2
+        top 2
+        bottom 2
+    }
+
+    // center-focused-column "on-overflow"
+    always-center-single-column
+    empty-workspace-above-first
+    default-column-display "normal"
+    background-color "#222222"
+
+    preset-column-widths {
+        proportion 0.33333
+        proportion 0.5
+        proportion 0.66667
+        proportion 1.0
+    }
+
+    default-column-width { proportion 0.5; }
+
+    preset-window-heights {
+        proportion 0.5
+        proportion 1.0
+    }
+
+    // Focus ring and border are drawn around windows and indicate the active window.
+    // They have the same options; the difference is that the focus ring is drawn only around the active window,
+    // whereas borders are drawn around all windows and affect their sizes (windows shrink to make space for the borders).
+
+    focus-ring {
+        off
+    }
+    border {
+        width 2
+
+        // active-color "#7fc8ff"
+        // inactive-color "#fff"
+        // urgent-color "#9b0000"
+        active-gradient from="#c33764" to="#1d2671" angle=45 relative-to="workspace-view" in="oklch shorter hue"
+        inactive-gradient from="#c3376440" to="#1d267140" angle=45 relative-to="workspace-view" in="oklch shorter hue"
+        // urgent-gradient from="#800" to="#a33" angle=45
+    }
+
+    shadow {
+        on
+        softness 4
+        spread 2
+        offset x=0 y=0
+        draw-behind-window true
+        color "#1a1a1aee"
+        // inactive-color "#00000054"
+    }
+
+    tab-indicator {
+        // off
+        hide-when-single-tab
+        place-within-column
+        gap 5
+        width 4
+        length total-proportion=1.0
+        position "right"
+        gaps-between-tabs 2
+        corner-radius 8
+        active-color "red"
+        inactive-color "gray"
+        urgent-color "blue"
+        // active-gradient from="#80c8ff" to="#bbddff" angle=45
+        // inactive-gradient from="#505050" to="#808080" angle=45 relative-to="workspace-view"
+        // urgent-gradient from="#800" to="#a33" angle=45
+    }
+
+    insert-hint {
+        // off
+        gradient from="#c3376480" to="#1d267180" angle=45 relative-to="workspace-view"
+    }
+}
+
+// Put swaybg inside the overview backdrop.
+layer-rule {
+    match namespace="^wallpaper$"
+
+    place-within-backdrop true
+}
+
+// Animation settings.
+// The wiki explains how to configure individual animations:
+// https://github.com/YaLTeR/niri/wiki/Configuration:-Animations
+animations {
+    workspace-switch {
+        spring damping-ratio=1.0 stiffness=1000 epsilon=0.0001
+    }
+
+    window-open {
+        duration-ms 150
+        curve "ease-out-expo"
+    }
+
+    window-close {
+        duration-ms 150
+        curve "ease-out-quad"
+    }
+
+    horizontal-view-movement {
+        spring damping-ratio=1.0 stiffness=800 epsilon=0.0001
+    }
+
+    window-movement {
+        spring damping-ratio=1.0 stiffness=800 epsilon=0.0001
+    }
+
+    window-resize {
+        spring damping-ratio=1.0 stiffness=800 epsilon=0.0001
+    }
+
+    config-notification-open-close {
+        spring damping-ratio=0.6 stiffness=1000 epsilon=0.001
+    }
+
+    screenshot-ui-open {
+        duration-ms 200
+        curve "ease-out-quad"
+    }
+
+    overview-open-close {
+        spring damping-ratio=1.0 stiffness=800 epsilon=0.0001
+    }
+}

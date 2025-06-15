@@ -1,6 +1,6 @@
 [configurations.zsh]
 render = [
-    { source = ".zshrc", destination = "~/.zshrc" },
+    { source = ".zshrc", destination = "~brody/.zshrc" },
     { source = "aliases.zsh", destination = "/home/brody/.oh-my-zsh/custom/aliases.zsh" }
 ]
 

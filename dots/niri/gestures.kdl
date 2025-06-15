@@ -8,7 +8,7 @@ gestures {
     dnd-edge-workspace-switch {
         trigger-height 50
         delay-ms 100
-        max-speed 1500
+        max-speed 2000
     }
 
     hot-corners {
