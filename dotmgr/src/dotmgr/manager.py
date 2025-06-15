@@ -35,6 +35,34 @@ os.replace(tmp_path, output_path)
         check=True
     )
 
+def copy_atomic_as_user(username: Optional[str], src: Path, dst: Path):
+    # If the user is ourself, we can copy directly
+    if username is None or username == os.getenv("USER"):
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        dst.write_bytes(src.read_bytes())
+        return
+    # Otherwise, we need to run a subprocess as that user
+    script = f"""
+import os
+from pathlib import Path
+src_path = Path("{src.absolute().as_posix()}")
+dst_path = Path("{dst.absolute().as_posix()}")
+
+if not src_path.exists():
+    print(f"Source file does not exist: {{src_path}}")
+    os._exit(2)
+dst_path.parent.mkdir(parents=True, exist_ok=True)
+with open(src_path, "rb") as src_file:
+    content = src_file.read()
+with open(dst_path.with_suffix(dst_path.suffix + ".tmp"), "wb") as dst_file:
+    dst_file.write(content)
+os.replace(dst_path.with_suffix(dst_path.suffix + ".tmp"), dst_path)
+"""
+    subprocess.run(
+        ['sudo', '-u', username, 'python3', '-c', script],
+        check=True
+    )
+
 class DotfileManager:
     dots_dir: Path
     config: ResolvedConfig
@@ -101,15 +129,23 @@ class DotfileManager:
             for to_render in self.config.render:
                 output_path = to_render.destination
                 
-                try:
-                    rendered = self.env.get_template(to_render.source.as_posix()).render(self.config.variables)
-                except Exception as e:
-                    self.log.error(f"Error rendering template {to_render.source}: {e}")
-                    continue
+                if to_render.copy:
+                    source = self.dots_dir / to_render.source
+                    if not source.exists():
+                        self.log.error(f"Source file does not exist: {source}")
+                        continue
+                    copy_atomic_as_user(to_render.user, source, output_path)
+                    self.log.info(f"Copied: {output_path}")
+                else:
+                    try:
+                        rendered = self.env.get_template(to_render.source.as_posix()).render(self.config.variables)
+                    except Exception as e:
+                        self.log.error(f"Error rendering template {to_render.source}: {e}")
+                        continue
 
-                # Write to temp file and rename atomically
-                write_atomic_as_user(to_render.user, output_path, rendered)
-                self.log.info(f"Rendered and updated: {output_path}")
+                    # Write to temp file and rename atomically
+                    write_atomic_as_user(to_render.user, output_path, rendered)
+                    self.log.info(f"Rendered and updated: {output_path}")
             
                 aconfmgr_ignores += f"IgnorePath '{output_path.as_posix()}'\n"
         

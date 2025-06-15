@@ -1,21 +1,38 @@
-use std::collections::HashSet;
-use std::thread;
-use std::time::Duration;
+use std::env;
 
-const LWIN: u16 = 0xE0;
-const LALT: u16 = 0x38;
-const LMB: u16 = 0x110;
-const RMB: u16 = 0x111;
+mod process;
+mod muxer;
+mod event;
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // Track the state of the modifiers and mouse buttons
-    let mut modifiers = HashSet::new();
-    let mut mouse_buttons = HashSet::new();
+// TODO: Restructure this to have fewer edge cases and more clear logic.
 
-    loop {
-        // TODO
+// Note: Do not use println!() in this program, as it will be piped to stdout. Use eprintln!() for debugging output instead.
 
-        // Sleep to prevent high CPU usage
-        thread::sleep(Duration::from_millis(5));
+fn main() {
+    // If the program is called with the "in" subcommand, it relays events from stdin to the ipc queue with the specified tag.
+    // If the program is called with the "out" subcommand, it relays events from the ipc queue with the specified tag to stdout.
+    // Otherwise, runs the normal processing logic.
+    if env::args().len() == 1 {
+        // Normal processing logic
+        process::process();
+    } else if env::args().nth(1) == Some("in".to_string()) {
+        // Tagging logic
+        if let Some(tag) = env::args().nth(2) {
+            muxer::input(tag);
+        } else {
+            eprintln!("No tag value provided.");
+            std::process::exit(1);
+        }
+    } else if env::args().nth(1) == Some("out".to_string()) {
+        // Filtering logic
+        if let Some(tag) = env::args().nth(2) {
+            muxer::output(tag);
+        } else {
+            eprintln!("No tag value provided.");
+            std::process::exit(1);
+        }
+    } else {
+        eprintln!("Unknown command. Use 'in <value>' to input events or 'out <value>' to output events.");
+        std::process::exit(1);
     }
 }

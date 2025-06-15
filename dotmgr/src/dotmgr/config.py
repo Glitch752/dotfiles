@@ -11,14 +11,16 @@ class RenderConfig:
     source: Path
     destination: Path
     user: Optional[str]
+    copy: bool
     
-    def __init__(self, source: str | Path, destination: str | Path, user: Optional[str] = None):
+    def __init__(self, source: str | Path, destination: str | Path, user: Optional[str] = None, copy: bool = False):
         self.source = Path(source)
         dest = Path(destination).expanduser()
         if not dest.is_absolute():
             raise ValueError(f"Render destination path '{destination}' must be absolute.")
         self.destination = dest
         self.user = user
+        self.copy = copy
     
     def source_relative(self, diff: Path) -> 'RenderConfig':
         self.source = diff / self.source
