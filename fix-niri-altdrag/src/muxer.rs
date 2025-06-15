@@ -1,4 +1,4 @@
-use crate::{event::{read_event, write_event, InputEvent}, muxer::fifo::FifoQueue};
+use crate::{event::{read_event, write_event, InputEvent, KeyAction}, muxer::fifo::FifoQueue};
 
 pub mod fifo;
 
@@ -76,21 +76,6 @@ impl MuxerServer {
     }
 
     pub fn write_output_event(&mut self, event: &InputEvent) {
-        // fn code_to_string(code: u16) -> String {
-        //     match code {
-        //         0x110 => "BTN_LEFT".to_string(),
-        //         0x111 => "BTN_RIGHT".to_string(),
-        //         330 => "BTN_TOUCH".to_string(),
-        //         325 => "BTN_TOOL_FINGER".to_string(),
-        //         _ => format!("{}", code),
-        //     }
-        // }
-        // if let InputEvent::Key { tag, key_code, action, .. } = event {
-        //     if *tag == MOUSE_TAG {
-        //         eprintln!("Synthetic key release: {}", code_to_string(*key_code));
-        //     }
-        // }
-
         if let Some(queue) = self.output_queues.get_mut(&event.tag()) {
             queue.write(event).expect("Failed to write to output FIFO");
         } else {
