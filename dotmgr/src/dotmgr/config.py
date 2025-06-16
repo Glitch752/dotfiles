@@ -1,6 +1,5 @@
 from pathlib import Path
 from typing import Optional
-import jinja2
 import toml
 from dataclasses import dataclass
 
@@ -10,17 +9,35 @@ class RenderConfig:
     """
     source: Path
     destination: Path
-    user: Optional[str]
+    as_user: Optional[str]
+    owner: Optional[str]
     copy: bool
+    permissions: Optional[str]
     
-    def __init__(self, source: str | Path, destination: str | Path, user: Optional[str] = None, copy: bool = False):
+    def __init__(
+        self,
+        source: str | Path,
+        destination: str | Path,
+        copy: bool = False,
+        owner: Optional[str] = None,
+        permissions: Optional[str] = None,
+        **kwargs
+    ):
         self.source = Path(source)
-        dest = Path(destination).expanduser()
-        if not dest.is_absolute():
-            raise ValueError(f"Render destination path '{destination}' must be absolute.")
-        self.destination = dest
-        self.user = user
+        self.owner = owner
+
+        self.destination = Path(destination)
         self.copy = copy
+        self.permissions = permissions
+        
+        # We use "as" in TOML, but it's a keyword so we need to use **kwargs in Python
+        self.as_user = kwargs.pop('as', None)
+        # Ensure it's a string or None
+        if self.as_user is not None and not isinstance(self.as_user, str):
+            raise ValueError(f"Invalid type for 'as' in RenderConfig: {type(self.as_user)}. Expected str or None.")
+        # Ensure no other parameters on kwargs are passed
+        if kwargs:
+            raise ValueError(f"Invalid parameters in RenderConfig: {kwargs}.")
     
     def source_relative(self, diff: Path) -> 'RenderConfig':
         self.source = diff / self.source

@@ -1,9 +1,11 @@
 imports = [
-    "interception-tools/window-binds.toml"
+    "interception-tools/window-binds.toml",
+    "wallpaper/swww.toml",
+    "lightdm/lightdm.toml"
 ]
 
 [configurations.niri]
 render = [
-    { source = "config.kdl", destination = "~brody/.config/niri/config.kdl" }
+    { source = "config.kdl", destination = "~/.config/niri/config.kdl" }
 ]
-subconfigs = ["window-binds"]
+subconfigs = ["window-binds", "swww", "lightdm"]

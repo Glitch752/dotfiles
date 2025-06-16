@@ -89,13 +89,6 @@ layout {
     }
 }
 
-// Put swaybg inside the overview backdrop.
-layer-rule {
-    match namespace="^wallpaper$"
-
-    place-within-backdrop true
-}
-
 // Animation settings.
 // The wiki explains how to configure individual animations:
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Animations

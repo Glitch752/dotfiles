@@ -76,7 +76,7 @@ plugins=(
     thefuck
     zsh-wakatime
     enhancd
-    zsh-autosuggestions
+    # zsh-autosuggestions
 )
 
 source $ZSH/oh-my-zsh.sh

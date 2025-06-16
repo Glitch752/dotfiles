@@ -5,7 +5,10 @@
 
 // spawn-at-startup "waybar"
 
-spawn-at-startup "xwayland-satellite :0"
+spawn-at-startup "swww-daemon"
+spawn-at-startup "sh" "{{randomize_wallpaper_script}}"
+
+spawn-at-startup "xwayland-satellite" ":0"
 spawn-at-startup "/usr/lib/polkit-kde-authentication-agent-1"
 
 hotkey-overlay {

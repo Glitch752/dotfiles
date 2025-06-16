@@ -1,0 +1,4 @@
+[configurations.lightdm]
+render = [
+    { source = "lightdm.conf", destination = "/etc/lightdm/lightdm.conf", as = "root", permissions = "0644" },
+]

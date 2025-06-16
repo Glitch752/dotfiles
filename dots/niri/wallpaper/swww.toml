@@ -1,0 +1,11 @@
+[configurations.swww]
+render = [
+    { source = "randomize_wallpaper.sh", destination = "/usr/local/bin/randomize_wallpaper.sh", copy = true, as = "root", owner = "brody", permissions = "0755" },
+    { source = "wallpapers/", destination = "~/Pictures/Wallpapers", copy = true } # TODO: Create a symlink instead
+]
+
+[configurations.swww.variables]
+randomize_wallpaper_script = "/usr/local/bin/randomize_wallpaper.sh"
+wallpapers_directory = "~/Pictures/Wallpapers"
+
+# TODO: Systemd service to periodically change wallpaper

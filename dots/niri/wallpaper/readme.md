@@ -1,0 +1,5 @@
+A set of wallpapers that are randomly selected by the wallpaper script.  
+
+They are primarily sourced from [Wallhaven](https://wallhaven.cc/) and miscellaneous GitHub repositories. I would love to credit them all, but I'm not sure where they all came from and I don't know how to organize that information. I'm not positive that I'm allowed to redistribute them, but I don't claim them as my own or anything. I could just make a shell script to run, but that makes it difficult to create a fully declarative configuration.
+
+A few of the wallpapers are pretty silly, but I just collected wallpapers I've found in the past or thought would make for good jokes. I try to avoid anything AI-generated, keep a good mix of light/dark wallpapers, and generally use saturated and colorful images. _Most_ of them are at least 1440p, but some are 1080p.

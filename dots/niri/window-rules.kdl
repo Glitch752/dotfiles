@@ -12,7 +12,7 @@ window-rule {
 // Open a few windows as maximized by default: VSCode, Firefox, Discord, and probably others I forgot.
 window-rule {
     match app-id=r#"firefox$"#
-    match app-id=r#"^com\.microsoft\.VSCode$"#
+    match app-id=r#"^code$"#
     match app-id=r#"^com\.discordapp\.Discord$"#
 
     open-maximized true

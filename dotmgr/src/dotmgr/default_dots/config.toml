@@ -6,13 +6,10 @@ import = [
 # Configurations are a set of dotfiles and variables that will be managed. Each profile can have multiple active configurations.
 [configurations.default]
 subconfigs = [ "zsh" ]
-variables = {
-    # Define any variables that can be used in the configurations.
-    shell = "zsh"
-}
+[configurations.default.variables]
+# Define any variables that can be used in the configurations.
+shell = "zsh"
 
-[profiles]
-default = {
-    name = "Default",
-    configurations = ["default"]
-}
+[profiles.default]
+name = "Default"
+configurations = ["default"]

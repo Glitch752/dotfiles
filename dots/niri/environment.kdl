@@ -13,4 +13,9 @@ environment {
 
     // XWayland
     DISPLAY ":0"
+
+    // Wallpapers
+    WALLPAPER_STATE_FILE "~/.wallpapers"
+    DISABLED_WALLPAPERS_STATE_FILE "~/.disabled_wallpapers"
+    WALLPAPERS_DIR "{{wallpapers_directory}}"
 }

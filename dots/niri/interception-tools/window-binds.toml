@@ -1,7 +1,7 @@
 [configurations.window-binds]
 render = [
-    { source = "udevmon.yaml", destination = "/etc/interception/udevmon.yaml", user="root" },
-    { source = "fix-niri-altdrag", destination = "/etc/interception/fix-niri-altdrag", user="root", copy=true }
+    { source = "udevmon.yaml", destination = "/etc/interception/udevmon.yaml", as = "root" },
+    { source = "fix-niri-altdrag", destination = "/etc/interception/fix-niri-altdrag", as = "root", copy=true, permissions="0755" }
 ]
 
 # Post-install: run `sudo systemctl enable --now udevmon`

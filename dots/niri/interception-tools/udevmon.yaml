@@ -2,7 +2,7 @@
 # Inputs: keyboard_device, mouse_device
 
 # LOL hack for lacking executable permission
-{% set program = "/lib64/ld-linux-x86-64.so.2 /etc/interception/fix-niri-altdrag" %}
+{% set program = "/etc/interception/fix-niri-altdrag" %}
 {% set out = program + " out" %}
 {% set in = program + " in" %}
 
