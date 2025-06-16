@@ -1,7 +1,7 @@
 [configurations.swww]
 render = [
-    { source = "randomize_wallpaper.sh", destination = "/usr/local/bin/randomize_wallpaper.sh", copy = true, as = "root", owner = "brody", permissions = "0755" },
-    { source = "wallpapers/", destination = "~/Pictures/Wallpapers", copy = true } # TODO: Create a symlink instead
+    { source = "randomize_wallpaper.sh", destination = "/usr/local/bin/randomize_wallpaper.sh", action = "copy", as = "root", owner = "brody", permissions = "0755" },
+    { source = "wallpapers/", destination = "~/Pictures/Wallpapers", action = "link" } # TODO: Create a symlink instead
 ]
 
 [configurations.swww.variables]

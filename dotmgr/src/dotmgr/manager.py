@@ -130,13 +130,26 @@ class DotfileManager:
                 os.setegid(pw.pw_gid)
                 os.seteuid(pw.pw_uid)
                     
-                if to_render.copy:
+                if to_render.action == "copy":
                     source = self.dots_dir / to_render.source
                     if not source.exists():
                         self.log.error(f"Source file does not exist: {source}")
                         continue
                     copy_atomic(source, output_path)
                     self.log.info(f"Copied: {output_path}")
+                elif to_render.action == "link":
+                    source = self.dots_dir / to_render.source
+                    if not source.exists():
+                        self.log.error(f"Source file does not exist: {source}")
+                        continue
+                    try:
+                        if output_path.exists():
+                            output_path.unlink()
+                        os.symlink(source, output_path)
+                        self.log.info(f"Linked: {output_path} -> {source}")
+                    except OSError:
+                        self.log.error(f"Link already exists: {output_path}. Skipping.")
+                        continue
                 else:
                     try:
                         rendered = self.env.get_template(to_render.source.as_posix()).render(self.config.variables)

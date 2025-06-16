@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Optional
 import toml
 from dataclasses import dataclass
 
@@ -11,14 +11,14 @@ class RenderConfig:
     destination: Path
     as_user: Optional[str]
     owner: Optional[str]
-    copy: bool
+    action: Literal['copy', 'link', None]
     permissions: Optional[str]
     
     def __init__(
         self,
         source: str | Path,
         destination: str | Path,
-        copy: bool = False,
+        action: Literal['copy', 'link', None] = None,
         owner: Optional[str] = None,
         permissions: Optional[str] = None,
         **kwargs
@@ -27,7 +27,7 @@ class RenderConfig:
         self.owner = owner
 
         self.destination = Path(destination)
-        self.copy = copy
+        self.action = action
         self.permissions = permissions
         
         # We use "as" in TOML, but it's a keyword so we need to use **kwargs in Python
