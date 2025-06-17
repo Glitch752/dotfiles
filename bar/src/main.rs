@@ -31,10 +31,6 @@ impl App {
     pub fn run(self) {
         let app = Rc::new(self);
         let app2 = app.clone();
-        
-        // TODO: Support multiple monitors
-        let bar = MonitorBars::new(app.clone());
-        app.bars.borrow_mut().push(bar);
 
         let application = gtk4::Application::new(
             Some("dev.glitch752.bar"),
@@ -54,9 +50,10 @@ impl App {
 
             let app = app2.clone();
             let mut bars = app.bars.borrow_mut();
-            for bar in bars.iter_mut() {
-                bar.activate(&application2);
-            }
+
+            // TODO: Support multiple monitors
+            let bar = MonitorBars::new(&application2, app.clone());
+            bars.push(bar);
 
             drop(hold);
         });

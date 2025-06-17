@@ -8,26 +8,25 @@ use crate::App;
 #[derive(Debug)]
 pub struct MonitorBars {
     app: Rc<App>,
-    top_window: Option<gtk4::ApplicationWindow>,
-    right_window: Option<gtk4::ApplicationWindow>
+    top_window: gtk4::ApplicationWindow,
+    right_window: gtk4::ApplicationWindow
 }
 
-impl MonitorBars {
-    pub fn new(app: Rc<App>) -> Self {
-        MonitorBars {
-            app,
-            top_window: None,
-            right_window: None
-        }
-    }
+static BAR_THICKNESS: i32 = 20;
 
-    pub fn activate(&mut self, application: &gtk4::Application) {
+impl MonitorBars {
+    pub fn new(
+        application: &gtk4::Application,
+        app: Rc<App>
+    ) -> Self {
         let top = gtk4::ApplicationWindow::new(application);
 
         top.init_layer_shell();
         top.set_layer(Layer::Top);
-        // Push other windows out of the way
-        top.auto_exclusive_zone_enable();
+        
+        // We manually set the exclusive zone because we extend beyond it for cosmetics
+        // right.auto_exclusive_zone_enable();
+        top.set_exclusive_zone(BAR_THICKNESS);
 
         top.set_anchor(Edge::Left, true);
         top.set_anchor(Edge::Right, true);
@@ -38,8 +37,7 @@ impl MonitorBars {
 
         right.init_layer_shell();
         right.set_layer(Layer::Top);
-        // Push other windows out of the way
-        right.auto_exclusive_zone_enable();
+        right.set_exclusive_zone(BAR_THICKNESS);
 
         right.set_anchor(Edge::Left, false);
         right.set_anchor(Edge::Right, true);
@@ -57,7 +55,10 @@ impl MonitorBars {
         right.set_child(Some(&label));
         right.show();
 
-        self.right_window = Some(right);
-        self.top_window = Some(top);
+        MonitorBars {
+            app,
+            top_window: top,
+            right_window: right
+        }
     }
 }
