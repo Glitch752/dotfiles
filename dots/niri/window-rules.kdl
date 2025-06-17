@@ -2,13 +2,6 @@
 // See https://github.com/YaLTeR/niri/wiki/Configuration:-Window-Rules and 
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Layer-Rules
 
-// Rules for the appearance of all windows
-window-rule {
-    geometry-corner-radius 5
-    clip-to-geometry true
-    // baba-is-float true // Niri is the silliest compositor :3
-}
-
 // Open a few windows as maximized by default: VSCode, Firefox, Discord, and probably others I forgot.
 window-rule {
     match app-id=r#"firefox$"#

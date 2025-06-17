@@ -2,7 +2,7 @@
 
 use gtk4::gdk::Display;
 use notify::{recommended_watcher, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
-use std::path::{Path, PathBuf};
+use std::{path::{Path, PathBuf}, time::Instant};
 use tokio::sync::mpsc;
 use notify::{Event, Error, EventHandler};
 
@@ -25,15 +25,22 @@ pub fn load_css() {
     let (tx, mut rx) = mpsc::channel(5);
 
     let mut watcher: RecommendedWatcher = recommended_watcher(TokioSenderHandler { sender: tx }).unwrap();
-    watcher.watch(Path::new("static/"), RecursiveMode::Recursive).unwrap();
+    watcher.watch(Path::new("static/style.css"), RecursiveMode::Recursive).unwrap();
 
     // Keep watcher alive by leaking it. This is sort of hacky, but meh.
     let _watcher_leak = Box::leak(Box::new(watcher));
 
     let css_provider_clone = css_provider.clone();
     glib::spawn_future_local(async move {
-        println!("{:?}", rx.recv().await);
+        // Slight debounce
+        let mut last_event_time = Instant::now();
+
         while let Some(Ok(event)) = rx.recv().await {
+            if last_event_time.elapsed().as_millis() < 100 {
+                continue;
+            }
+            last_event_time = Instant::now();
+
             println!("CSS file changed, reloading styles.");
             if matches!(event.kind, EventKind::Modify(_)) {
                 let _ = css_provider_clone.load_from_path("static/style.css");

@@ -89,6 +89,13 @@ layout {
     }
 }
 
+// Rules for the appearance of all windows
+window-rule {
+    geometry-corner-radius 8
+    clip-to-geometry true
+    // baba-is-float true // Niri is the silliest compositor :3
+}
+
 // Animation settings.
 // The wiki explains how to configure individual animations:
 // https://github.com/YaLTeR/niri/wiki/Configuration:-Animations
