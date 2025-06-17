@@ -41,7 +41,7 @@ impl App {
         let (activated_tx, activated_rx) = mpsc::channel();
 
         application.connect_activate(move |app| {
-            styles::load_css();
+            styles::load_css(Rc::new(app.clone()));
             activated_tx.send(app.hold()).unwrap();
         });
 

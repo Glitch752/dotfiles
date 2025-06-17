@@ -75,17 +75,51 @@ impl MonitorBars {
     }
 
     fn init_widgets(&mut self) {
-        let bars = gtk4::Overlay::builder()
+        let overlay = gtk4::Overlay::builder()
             .hexpand(true)
             .vexpand(true)
             .halign(gtk4::Align::Fill)
             .valign(gtk4::Align::Fill)
             .build();
-        bars.add_css_class("bars");
+        overlay.add_css_class("bars");
+        overlay.set_child(Some(self.border_widget.clone().widget().as_ref()));
+        self.bar.set_child(Some(&overlay));
 
-        bars.add_overlay(self.border_widget.clone().widget().as_ref());
+        let bars = gtk4::Box::builder()
+            .orientation(gtk4::Orientation::Vertical)
+            .halign(gtk4::Align::Fill)
+            .valign(gtk4::Align::Fill)
+            .vexpand(true)
+            .css_classes(["bars-container"])
+            .build();
+        overlay.add_overlay(&bars);
 
-        self.bar.set_child(Some(&bars));
+        let horizontal_bar = gtk4::CenterBox::builder()
+            .orientation(gtk4::Orientation::Horizontal)
+            .halign(gtk4::Align::Fill)
+            .height_request(BAR_THICKNESS-2)
+            .css_classes(["horizontal-bar", "bar"])
+            .build();
+        bars.append(&horizontal_bar);
+
+        let vertical_bar_container = gtk4::Box::builder()
+            .orientation(gtk4::Orientation::Horizontal)
+            .halign(gtk4::Align::Fill)
+            .valign(gtk4::Align::Fill)
+            .vexpand(true)
+            .css_classes(["vertical-bar-container"])
+            .build();
+        bars.append(&vertical_bar_container);
+
+        let vertical_bar = gtk4::CenterBox::builder()
+            .orientation(gtk4::Orientation::Vertical)
+            .valign(gtk4::Align::Fill)
+            .width_request(BAR_THICKNESS-2)
+            .css_classes(["vertical-bar", "bar"])
+            .build();
+        vertical_bar_container.append(&vertical_bar);
+
+        self.add_module_widgets(&horizontal_bar, &vertical_bar);
 
         self.bar.show();
 
@@ -98,5 +132,86 @@ impl MonitorBars {
                 cairo::RectangleInt::new(0, 0, BAR_THICKNESS, 10000)
             ])
         );
+    }
+
+    fn add_module_widgets(&mut self, horizontal_bar: &gtk4::CenterBox, vertical_bar: &gtk4::CenterBox) {
+        // Create start, center, and end sections for the horizontal bar
+        let horiz_start = gtk4::Box::builder()
+            .orientation(gtk4::Orientation::Horizontal)
+            .halign(gtk4::Align::Start)
+            .css_classes(["horizontal-bar-start"])
+            .build();
+        let horiz_center = gtk4::Box::builder()
+            .orientation(gtk4::Orientation::Horizontal)
+            .halign(gtk4::Align::Center)
+            .css_classes(["horizontal-bar-center"])
+            .build();
+        let horiz_end = gtk4::Box::builder()
+            .orientation(gtk4::Orientation::Horizontal)
+            .halign(gtk4::Align::End)
+            .css_classes(["horizontal-bar-end"])
+            .build();
+        horizontal_bar.set_start_widget(Some(&horiz_start));
+        horizontal_bar.set_center_widget(Some(&horiz_center));
+        horizontal_bar.set_end_widget(Some(&horiz_end));
+
+        // The first module is, of course, an Arch Linux logo
+        let arch_logo = gtk4::Image::from_icon_name("archlinux-logo-symbolic");
+        arch_logo.add_css_class("arch-icon");
+        horiz_start.append(&arch_logo);
+
+        // Current window title placeholder
+        let label = gtk4::Label::new(Some("Current window title here TODO"));
+        label.add_css_class("window-title");
+        horiz_start.append(&label);
+
+        // I haven't figured out what goes in the center yet lol
+
+        // Right widgets: battery and clock
+        // let battery_icon = gtk4::Image::from_icon_name("battery-full-symbolic");
+        // battery_icon.add_css_class("battery-icon");
+        // horiz_end.append(&battery_icon);
+        // let battery_label = gtk4::Label::new(Some("100%"));
+        // battery_label.add_css_class("battery-percentage");
+        // horiz_end.append(&battery_label);
+
+        let clock = gtk4::Label::new(Some("12:34 PM"));
+        clock.add_css_class("clock");
+        horiz_end.append(&clock);
+        
+        // let vertical_label = gtk4::Label::new(Some("Vertical Module Placeholder"));
+        // vertical_label.add_css_class("vertical-module-placeholder");
+        // vertical_bar.append(&vertical_label);
+
+        // Vertical bar modules
+        let vertical_start = gtk4::Box::builder()
+            .orientation(gtk4::Orientation::Vertical)
+            .halign(gtk4::Align::Start)
+            .css_classes(["vertical-bar-start"])
+            .build();
+        let vertical_center = gtk4::Box::builder()
+            .orientation(gtk4::Orientation::Vertical)
+            .halign(gtk4::Align::Center)
+            .css_classes(["vertical-bar-center"])
+            .build();
+        let vertical_end = gtk4::Box::builder()
+            .orientation(gtk4::Orientation::Vertical)
+            .halign(gtk4::Align::End)
+            .css_classes(["vertical-bar-end"])
+            .build();
+
+        vertical_bar.set_start_widget(Some(&vertical_start));
+        vertical_bar.set_center_widget(Some(&vertical_center));
+        vertical_bar.set_end_widget(Some(&vertical_end));
+
+        // Start and center todo
+
+        // End section: system tray
+        let tray = gtk4::Box::builder()
+            .orientation(gtk4::Orientation::Horizontal)
+            .halign(gtk4::Align::End)
+            .css_classes(["system-tray"])
+            .build();
+        vertical_end.append(&tray);
     }
 }

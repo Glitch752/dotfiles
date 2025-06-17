@@ -44,7 +44,6 @@ fn rounded_rect(cr: &Context, x: f64, y: f64, w: f64, h: f64, r: f64, inset: f64
 #[derive(Debug, Clone)]
 pub struct BorderWidget {
     canvas: Rc<gtk4::DrawingArea>,
-    bar: Rc<gtk4::ApplicationWindow>,
     cutin: Rc<RefCell<Option<Rectangle>>>
 }
 
@@ -88,14 +87,15 @@ impl BorderWidget {
         let canvas = Rc::new(canvas);
         let canvas2 = canvas.clone();
 
-        // let cutin = Rc::new(RefCell::new(None::<Rectangle>));
-        let cutin = Rc::new(RefCell::new(Some(Rectangle::new(
-            80.0, 200.0, 150.0, 150.0
-        ))));
+        let cutin = Rc::new(RefCell::new(None::<Rectangle>));
+        // let cutin = Rc::new(RefCell::new(Some(Rectangle::new(
+        //     80.0, 200.0, 150.0, 150.0
+        // ))));
         let cutin2 = cutin.clone();
 
-        let background_color = palette::Srgb::new(17. / 255., 18. / 255., 27. / 255.);
-        let corner_radius = 16.0;
+        // TODO: We ideally wouldn't hardcode this in both SCSS and here, but for now we do.
+        let background_color = palette::Srgb::new(17. / 255., 18. / 255., 27. / 255.); // #11121b
+        let corner_radius = 10.0;
         let border_thickness = 2.0;
 
         // Since cairo doesn't support interpolation in oklch, we use palette to generate a few colors,
@@ -155,8 +155,6 @@ impl BorderWidget {
                              cutin.width, cutin.height, corner_radius, border_thickness);
                 cr.fill().expect("Failed to fill cut-in rectangle background");
             }
-
-            println!("Drew border with width: {}, height: {}", width, height);
         });
 
         canvas.connect_resize(move |_, width, height| {
@@ -164,11 +162,7 @@ impl BorderWidget {
             canvas2.queue_draw();
         });
 
-        Self {
-            canvas,
-            bar,
-            cutin
-        }
+        Self { canvas, cutin }
     }
 
     pub fn widget(self) -> Rc<gtk4::DrawingArea> {

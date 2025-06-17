@@ -2,13 +2,27 @@ window {
     background-color: transparent;
 }
 
-// .bars {
-//     background-color: #11121A;
-//     color: #fff;
-//     font-family: Arial, sans-serif;
-//     border-right: 2px solid #c33764;
-// }
+.arch-icon {
+    min-width: 30px;
+    min-height: 25px;
+    margin-right: 4px;
+    -gtk-icon-size: 20px;
+    // Filter to be grayscale and make #932f80
+    filter: hue-rotate(100deg) saturate(1.0) brightness(0.9);
+}
 
-.border-widget {
-    // background-color: red;
+.bar {
+    background-color: #11121b;
+    color: #fff;
+    font-size: 14px;
+    font-family: "Consolas";
+}
+
+.window-title {
+    color: hsl(306, 30%, 40%);
+    margin-left: 4px;
+}
+.clock {
+    color: hsl(237, 54%, 60%);
+    margin-right: 8px;
 }

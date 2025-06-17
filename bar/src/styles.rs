@@ -1,8 +1,8 @@
 // TODO: Hot reload CSS
 
-use gtk4::gdk::Display;
+use gtk4::{gdk::Display, prelude::*};
 use notify::{recommended_watcher, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
-use std::{path::{Path, PathBuf}, time::Instant};
+use std::{path::{Path, PathBuf}, rc::Rc, time::Instant};
 use tokio::sync::mpsc;
 use notify::{Event, Error, EventHandler};
 
@@ -17,7 +17,7 @@ impl EventHandler for TokioSenderHandler {
     }
 }
 
-pub fn load_css() {
+pub fn load_css(app: Rc<gtk4::Application>) {
     let css_provider = gtk4::CssProvider::new();
     let css_file = PathBuf::from("static/style.css");
     css_provider.load_from_path(css_file);
@@ -36,14 +36,18 @@ pub fn load_css() {
         let mut last_event_time = Instant::now();
 
         while let Some(Ok(event)) = rx.recv().await {
-            if last_event_time.elapsed().as_millis() < 100 {
-                continue;
-            }
-            last_event_time = Instant::now();
-
-            println!("CSS file changed, reloading styles.");
             if matches!(event.kind, EventKind::Modify(_)) {
+                if last_event_time.elapsed().as_millis() < 100 {
+                    continue;
+                }
+                last_event_time = Instant::now();
+
+
                 let _ = css_provider_clone.load_from_path("static/style.css");
+                // Queue a redraw of the application
+                for window in app.windows() {
+                    window.queue_draw();
+                }
             }
         }
         println!("CSS watcher stopped.");
