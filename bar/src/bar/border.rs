@@ -1,12 +1,12 @@
 use std::{cell::RefCell, rc::Rc};
 
 use cairo::{Context, FillRule};
-use gtk4::prelude::*;
+use gtk4::{gdk::Surface, prelude::*};
 use palette::FromColor;
 
-use crate::bar::{border::geom::{BorderState, Path, Rectangle}, BAR_THICKNESS, NON_BAR_BORDER_THICKNESS};
+use crate::{bar::{border::geom::{BorderState, Path, Rectangle}, BAR_THICKNESS, NON_BAR_BORDER_THICKNESS}, popouts::OpenPopout};
 
-mod geom;
+pub mod geom;
 
 fn draw_path_with_rounded_corners(cr: &Context, mut path: Path, r: f64) {
     if path.is_empty() {
@@ -60,10 +60,12 @@ fn draw_path_with_rounded_corners(cr: &Context, mut path: Path, r: f64) {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct BorderWidget {
     canvas: Rc<gtk4::DrawingArea>,
-    dynamic_cutin_state: Rc<RefCell<BorderState>>
+    dynamic_cutin_state: Rc<RefCell<BorderState>>,
+    previous_rectangles: Vec<Rectangle>,
+    surface: Surface
 }
 
 /// Interpolates two angles in degrees, ensuring the shortest path is taken.
@@ -94,7 +96,7 @@ impl LerpOklch for palette::Oklch {
 }
 
 impl BorderWidget {
-    pub fn new(bar: Rc<gtk4::ApplicationWindow>) -> Self {
+    pub fn new(surface: Surface) -> Self {
         let canvas = gtk4::DrawingArea::builder()
             .css_classes(["border-widget"])
             .halign(gtk4::Align::Fill)
@@ -109,6 +111,7 @@ impl BorderWidget {
         let state = BorderState::new();
         let state = Rc::new(RefCell::new(state));
         let state2 = state.clone();
+        let state3 = state.clone();
 
         // TODO: We ideally wouldn't hardcode this in both SCSS and here, but for now we do.
         let background_color = palette::Srgb::new(17. / 255., 18. / 255., 27. / 255.); // #11121b
@@ -143,13 +146,6 @@ impl BorderWidget {
 
             let mut state = state2.borrow_mut();
 
-            let (x1, y1) = (BAR_THICKNESS as f64, BAR_THICKNESS as f64);
-            let (x2, y2) = (width as f64 - NON_BAR_BORDER_THICKNESS as f64, height as f64 - NON_BAR_BORDER_THICKNESS as f64);
-            state.update_rectangles(
-                Rectangle::filled_outward(x1, y1, x2, y2),
-                Some(Rectangle::filled_inward_center(1500.0, 450.0, 200.0, 200.0))
-            );
-
             // First, draw the borders
             cr.set_fill_rule(FillRule::EvenOdd);
             cr.set_source(&gradient).expect("Failed to set gradient source");
@@ -170,19 +166,72 @@ impl BorderWidget {
             cr.fill().expect("Failed to fill background path");
         });
 
-        canvas.connect_resize(move |_, _width, _height| {
+        canvas.connect_resize(move |_, width, height| {
             // Redraw the border when the widget is resized
+            let mut state = state3.borrow_mut();
+
+            let (x1, y1) = (BAR_THICKNESS as f64, BAR_THICKNESS as f64);
+            let (x2, y2) = (width as f64 - NON_BAR_BORDER_THICKNESS as f64, height as f64 - NON_BAR_BORDER_THICKNESS as f64);
+            state.set_border_rect(Rectangle::filled_outward(x1, y1, x2, y2));
+
             canvas2.queue_draw();
         });
 
-        Self { canvas, dynamic_cutin_state: state }
+        Self {
+            canvas,
+            dynamic_cutin_state: state,
+            previous_rectangles: Vec::new(),
+            surface
+        }
     }
 
-    pub fn widget(self) -> Rc<gtk4::DrawingArea> {
-        self.canvas
+    pub fn widget(&self) -> Rc<gtk4::DrawingArea> {
+        self.canvas.clone()
     }
 
-    pub fn set_color(&self, color: &str) {
-        self.canvas.set_css_classes(&[color]);
+    pub fn set_popout_positions(&mut self, popouts: &Vec<OpenPopout>) {
+        let mut state = self.dynamic_cutin_state.borrow_mut();
+
+        let mut rectangles = vec![];
+        for popout in popouts {
+            rectangles.push(popout.get_rectangle());
+        }
+
+        if rectangles == self.previous_rectangles {
+            // No change in rectangles, no need to update
+            return;
+        }
+        self.previous_rectangles = rectangles.clone();
+        state.set_widget_rectangles(rectangles);
+        self.canvas.queue_draw();
+
+        self.update_input_region(self.canvas.width(), self.canvas.height());
+    }
+
+    pub fn configure_input_region_handling(region: Rc<RefCell<Self>>) {
+        let canvas = region.borrow().canvas.clone();
+        region.borrow().update_input_region(canvas.width(), canvas.height());
+
+        let region2 = region.clone();
+        canvas.connect_resize(move |_, width, height| {
+            region2.borrow().update_input_region(width, height);
+        });
+    }
+
+    fn update_input_region(&self, width: i32, height: i32) {
+        let size = (width, height);
+
+        let mut rects = vec![
+            cairo::RectangleInt::new(0, 0, size.0, BAR_THICKNESS),
+            cairo::RectangleInt::new(0, 0, BAR_THICKNESS, size.1),
+            cairo::RectangleInt::new(size.0 - NON_BAR_BORDER_THICKNESS, 0, NON_BAR_BORDER_THICKNESS, size.1),
+            cairo::RectangleInt::new(0, size.1 - NON_BAR_BORDER_THICKNESS, size.0, NON_BAR_BORDER_THICKNESS)
+        ];
+
+        for rect in &self.previous_rectangles {
+            rects.push(rect.rectangle_int());
+        }
+
+        self.surface.set_input_region(&cairo::Region::create_rectangles(rects.as_slice()));
     }
 }

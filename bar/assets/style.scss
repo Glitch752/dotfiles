@@ -14,17 +14,34 @@ window {
 // TODO: Don't hardcode these colors; theming
 
 .bar {
-    // background-color: #11121b;
+    background-color: #11121b;
     color: #fff;
-    font-size: 14px;
+    font-size: 16px;
+    padding: 2px 0 0 0;
     font-family: "Consolas";
 }
 
+.module-wrapper {
+    padding: 0;
+    margin: 0;
+    background: none;
+    border: none;
+}
+
 .window-title {
-    color: hsl(306, 30%, 40%);
+    color: hsl(306, 40%, 40%);
     margin-left: 4px;
 }
 .clock {
     color: hsl(237, 54%, 60%);
     margin-right: 8px;
+}
+
+.launcher {
+    .search-box {
+        background-color: #1e1e2a;
+        border: none;
+        margin: 10px;
+        color: white;
+    }
 }

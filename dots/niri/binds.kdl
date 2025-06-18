@@ -15,8 +15,11 @@ binds {
 
     // Suggested binds for running programs: terminal, app launcher, screen locker.
     Mod+Q repeat=false hotkey-overlay-title="Open kitty" { spawn "kitty"; }
+    
     // TODO: Implement release bindings and use just mod instead
-    Mod+Space repeat=false hotkey-overlay-title="Run fuzzel" { spawn "fuzzel"; }
+    // Mod+Space repeat=false hotkey-overlay-title="Run fuzzel" { spawn "fuzzel"; }
+    Mod+Space repeat=false { spawn "bar" "launcher"; }
+
     Mod+L repeat=false hotkey-overlay-title="Lock" { spawn "swaylock"; }
 
     // You can also use a shell. Do this if you need pipes, multiple commands, etc.

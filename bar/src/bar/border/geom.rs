@@ -1,7 +1,5 @@
 use std::{collections::{HashMap, HashSet}, hash::Hasher};
-
 use palette::IntoColor;
-
 
 #[derive(Debug, Clone, Copy)]
 pub struct Point {
@@ -118,13 +116,13 @@ impl std::hash::Hash for Point {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 enum RectanglePolarity {
     FilledInward,
     FilledOutward
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Rectangle {
     center: Point,
     width: f64,
@@ -174,6 +172,11 @@ impl Rectangle {
             Point { x: self.center.x + self.width / 2., y: self.center.y - self.height / 2. },
             Point { x: self.center.x - self.width / 2., y: self.center.y - self.height / 2. }
         );
+    }
+
+    pub fn rectangle_int(&self) -> cairo::RectangleInt {
+        let (x, y) = (self.center.x - self.width / 2., self.center.y - self.height / 2.);
+        cairo::RectangleInt::new(x as i32, y as i32, self.width as i32, self.height as i32)
     }
 }
 
@@ -445,6 +448,7 @@ impl LineSegments {
 
 #[derive(Debug)]
 pub struct BorderState {
+    border_rect: Rectangle,
     rectangles: Vec<Rectangle>,
     line_segments: LineSegments
 }
@@ -452,18 +456,25 @@ pub struct BorderState {
 impl BorderState {
     pub fn new() -> Self {
         BorderState {
+            border_rect: Rectangle::filled_outward(0.0, 0.0, 0.0, 0.0),
             rectangles: vec![],
             line_segments: LineSegments::new()
         }
     }
 
-    // Temporary
-    pub fn update_rectangles(&mut self, outer: Rectangle, cutin: Option<Rectangle>) {
-        if let Some(cutin) = cutin {
-            self.rectangles = vec![outer, cutin];
-        } else {
-            self.rectangles = vec![outer];
+    pub fn set_border_rect(&mut self, border: Rectangle) {
+        self.border_rect = border.clone();
+
+        if self.rectangles.is_empty() {
+            self.rectangles.push(border);
+            return;
         }
+        self.rectangles[0] = border;
+    }
+    pub fn set_widget_rectangles(&mut self, rectangles: Vec<Rectangle>) {
+        self.rectangles.clear();
+        self.rectangles.push(self.border_rect.clone());
+        self.rectangles.extend(rectangles);
     }
 
     pub fn compute_border_path(&mut self) -> Path {
