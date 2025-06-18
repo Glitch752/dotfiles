@@ -11,8 +11,10 @@ window {
     filter: hue-rotate(100deg) saturate(1.0) brightness(0.9);
 }
 
+// TODO: Don't hardcode these colors; theming
+
 .bar {
-    background-color: #11121b;
+    // background-color: #11121b;
     color: #fff;
     font-size: 14px;
     font-family: "Consolas";

@@ -165,9 +165,9 @@ impl MonitorBars {
         label.add_css_class("window-title");
         horiz_start.append(&label);
 
-        // I haven't figured out what goes in the center yet lol
+        // I haven't figured out what goes in the center yet lol; mpris?
 
-        // Right widgets: battery and clock
+        // Right widgets: battery, performance, date, and clock
         // let battery_icon = gtk4::Image::from_icon_name("battery-full-symbolic");
         // battery_icon.add_css_class("battery-icon");
         // horiz_end.append(&battery_icon);
@@ -204,9 +204,11 @@ impl MonitorBars {
         vertical_bar.set_center_widget(Some(&vertical_center));
         vertical_bar.set_end_widget(Some(&vertical_end));
 
-        // Start and center todo
+        // Start: volume, microphone, and brightness todo
 
-        // End section: system tray
+        // Middle: audio player
+
+        // End section: system tray, network, bluetooth, and power
         let tray = gtk4::Box::builder()
             .orientation(gtk4::Orientation::Horizontal)
             .halign(gtk4::Align::End)

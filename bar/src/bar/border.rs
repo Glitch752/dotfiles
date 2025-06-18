@@ -4,47 +4,66 @@ use cairo::{Context, FillRule};
 use gtk4::prelude::*;
 use palette::FromColor;
 
-use crate::bar::{BAR_THICKNESS, NON_BAR_BORDER_THICKNESS};
+use crate::bar::{border::geom::{BorderState, Path, Rectangle}, BAR_THICKNESS, NON_BAR_BORDER_THICKNESS};
 
-#[derive(Debug, Clone)]
-struct Rectangle {
-    center_x: f64,
-    center_y: f64,
-    width: f64,
-    height: f64
-}
+mod geom;
 
-impl Rectangle {
-    fn new(center_x: f64, center_y: f64, width: f64, height: f64) -> Self {
-        Rectangle { center_x, center_y, width, height }
+fn draw_path_with_rounded_corners(cr: &Context, mut path: Path, r: f64) {
+    if path.is_empty() {
+        return;
     }
-}
 
-fn inverse_rounded_rect(cr: &Context, x: f64, y: f64, w: f64, h: f64, r: f64, screen_width: f64, screen_height: f64, inset: f64) {
-    // Even-odd fill rule causes this to invert the rectangle
-    cr.rectangle(0., 0., screen_width, screen_height);
-    rounded_rect(cr, x, y, w, h, r, -inset);
-}
-fn rounded_rect(cr: &Context, x: f64, y: f64, w: f64, h: f64, r: f64, inset: f64) {
-    let r = r - inset; // Adjust radius by inset
-    let (x, y, w, h) = (x + inset, y + inset, w - 2.0 * inset, h - 2.0 * inset);
-    
-    // top‑left corner
-    cr.new_sub_path();
-    cr.arc(x + r, y + r, r, std::f64::consts::PI, 3.0 * std::f64::consts::FRAC_PI_2);
-    // top edge → top‑right corner
-    cr.arc(x + w - r, y + r, r, 3.0 * std::f64::consts::FRAC_PI_2, 0.0);
-    // right edge → bottom‑right
-    cr.arc(x + w - r, y + h - r, r, 0.0, std::f64::consts::FRAC_PI_2);
-    // bottom edge → bottom‑left
-    cr.arc(x + r, y + h - r, r, std::f64::consts::FRAC_PI_2, std::f64::consts::PI);
-    cr.close_path();
+    if path.len() < 3 {
+        return;
+    }
+    path.unclose();
+    let count = path.len();
+
+    for i in 0..count+1 {
+        let prev = path[(i - 1) % count];
+        let cur = path[i % count];
+        let next = path[(i + 1) % count];
+
+        // The effective radius is the radius or half the distance to the next or previous point, whichever is smaller.
+        let dist_prev = (prev - cur).len();
+        let dist_next = (next - cur).len();
+        let radius = r.min(dist_prev / 2.0).min(dist_next / 2.0);
+        
+        // Find the arc point
+        let prev_norm = (prev - cur).unit();
+        let next_norm = (next - cur).unit();
+
+        if i == 0 {
+            // For the first point, move to the start
+            let start = path[0] + prev_norm * radius;
+            cr.move_to(start.x, start.y);
+        }
+
+        // Don't arc for the last point, as it will be closed by the first point.
+        if i == count {
+            let end = path[0] + prev_norm * radius;
+            cr.line_to(end.x, end.y);
+            continue;
+        }
+
+        let arc_point = cur + (prev_norm + next_norm) * radius;
+
+        let angle1 = next_norm.angle() + std::f64::consts::PI;
+        let angle2 = prev_norm.angle() + std::f64::consts::PI;
+
+        let outer_corner = prev_norm.cross(next_norm) < 0.0;
+        if outer_corner {
+            cr.arc(arc_point.x, arc_point.y, radius, angle1, angle2);
+        } else {
+            cr.arc_negative(arc_point.x, arc_point.y, radius, angle1, angle2);
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
 pub struct BorderWidget {
     canvas: Rc<gtk4::DrawingArea>,
-    cutin: Rc<RefCell<Option<Rectangle>>>
+    dynamic_cutin_state: Rc<RefCell<BorderState>>
 }
 
 /// Interpolates two angles in degrees, ensuring the shortest path is taken.
@@ -87,20 +106,17 @@ impl BorderWidget {
         let canvas = Rc::new(canvas);
         let canvas2 = canvas.clone();
 
-        let cutin = Rc::new(RefCell::new(None::<Rectangle>));
-        // let cutin = Rc::new(RefCell::new(Some(Rectangle::new(
-        //     80.0, 200.0, 150.0, 150.0
-        // ))));
-        let cutin2 = cutin.clone();
+        let state = BorderState::new();
+        let state = Rc::new(RefCell::new(state));
+        let state2 = state.clone();
 
         // TODO: We ideally wouldn't hardcode this in both SCSS and here, but for now we do.
         let background_color = palette::Srgb::new(17. / 255., 18. / 255., 27. / 255.); // #11121b
-        let corner_radius = 10.0;
+        let corner_radius = 16.0;
         let border_thickness = 2.0;
 
         // Since cairo doesn't support interpolation in oklch, we use palette to generate a few colors,
         // convert them to RGB, and use a linear gradient.
-
         // TODO: Sync this with niri configuration one way or the other
         let start_color: palette::Oklch = palette::Oklch::from_color(
             palette::Srgb::new(195. / 255., 55. / 255., 100. / 255.)
@@ -125,44 +141,41 @@ impl BorderWidget {
                 gradient.add_color_stop_rgba(*offset, *r, *g, *b, 1.0);
             }
 
-            cr.set_source(&gradient).expect("Failed to set gradient source");
+            let mut state = state2.borrow_mut();
 
             let (x1, y1) = (BAR_THICKNESS as f64, BAR_THICKNESS as f64);
-            let (x2, y2) =
-                (width as f64 - NON_BAR_BORDER_THICKNESS as f64, height as f64 - NON_BAR_BORDER_THICKNESS as f64);
-
-            cr.new_path();
+            let (x2, y2) = (width as f64 - NON_BAR_BORDER_THICKNESS as f64, height as f64 - NON_BAR_BORDER_THICKNESS as f64);
+            state.update_rectangles(
+                Rectangle::filled_outward(x1, y1, x2, y2),
+                Some(Rectangle::filled_inward_center(1500.0, 450.0, 200.0, 200.0))
+            );
 
             // First, draw the borders
             cr.set_fill_rule(FillRule::EvenOdd);
-            inverse_rounded_rect(&cr, x1, y1, x2 - x1, y2 - y1, corner_radius, width as f64, height as f64, 0.);
-            cr.fill().expect("Failed to fill rounded rectangle");
-            if let Some(cutin) = cutin2.borrow().as_ref() {
-                // Draw the cut-in rectangle
-                rounded_rect(&cr, cutin.center_x - cutin.width / 2.0, cutin.center_y - cutin.height / 2.0,
-                             cutin.width, cutin.height, corner_radius, 0.);
-                cr.fill().expect("Failed to fill cut-in rectangle");
-            }
+            cr.set_source(&gradient).expect("Failed to set gradient source");
+
+            let path = state.compute_border_path();
+
+            cr.new_path();
+            draw_path_with_rounded_corners(cr, path.clone(), corner_radius);
+            cr.set_line_width(border_thickness * 2.);
+            cr.stroke().expect("Failed to fill border path");
 
             // Now, draw the background
             cr.set_source_rgb(background_color.red as f64, background_color.green as f64, background_color.blue as f64);
-            inverse_rounded_rect(cr, x1, y1, x2 - x1, y2 - y1, corner_radius, width as f64, height as f64, border_thickness);
-            cr.fill().expect("Failed to fill background rectangle");
-            if let Some(cutin) = cutin2.borrow().as_ref() {
-                // Draw the cut-in rectangle background
-                cr.set_source_rgb(background_color.red as f64, background_color.green as f64, background_color.blue as f64);
-                rounded_rect(cr, cutin.center_x - cutin.width / 2.0, cutin.center_y - cutin.height / 2.0,
-                             cutin.width, cutin.height, corner_radius, border_thickness);
-                cr.fill().expect("Failed to fill cut-in rectangle background");
-            }
+            cr.new_path();
+            // Fill the screen to invert the background
+            cr.rectangle(0.0, 0.0, width as f64, height as f64);
+            draw_path_with_rounded_corners(cr, path.clone(), corner_radius);
+            cr.fill().expect("Failed to fill background path");
         });
 
-        canvas.connect_resize(move |_, width, height| {
+        canvas.connect_resize(move |_, _width, _height| {
             // Redraw the border when the widget is resized
             canvas2.queue_draw();
         });
 
-        Self { canvas, cutin }
+        Self { canvas, dynamic_cutin_state: state }
     }
 
     pub fn widget(self) -> Rc<gtk4::DrawingArea> {
