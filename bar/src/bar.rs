@@ -1,20 +1,28 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{rc::Rc, sync::atomic::{AtomicU32, Ordering}, time::Instant};
 
 use gtk4::prelude::*;
-use gtk4_layer_shell::{Edge, Layer, LayerShell};
+use gtk4_layer_shell::{Edge, KeyboardMode, Layer, LayerShell};
 
 use border::BorderWidget;
-use crate::App;
+use crate::{bar::popouts::Popouts, modules::Module, App};
 
 pub mod border;
+pub mod popouts;
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct BarId(u32);
 
 #[derive(Debug)]
 pub struct MonitorBars {
     app: Rc<App>,
+    pub id: BarId,
     /// Sadly, the only way I found to have multiple exclusive zones is to have multiple windows.
     exclusive_zones: Vec<gtk4::ApplicationWindow>,
-    bar: Rc<gtk4::ApplicationWindow>,
-    border_widget: Rc<RefCell<BorderWidget>>
+    window: Rc<gtk4::ApplicationWindow>,
+    border_widget: BorderWidget,
+    last_frame_time: Instant,
+    animating: bool,
+    popouts: Popouts
 }
 
 pub static BAR_THICKNESS: i32 = 28;
@@ -35,20 +43,27 @@ impl MonitorBars {
         bar.set_anchor(Edge::Top, true);
         bar.set_anchor(Edge::Bottom, true);
 
+        bar.set_keyboard_mode(KeyboardMode::OnDemand);
+
         bar.show();
 
         let surface = bar.surface().expect("Failed to get GDK surface");
 
+        static NEXT_ID: AtomicU32 = AtomicU32::new(0);
+        let id = BarId(NEXT_ID.fetch_add(1, Ordering::SeqCst));
+
         let mut bars = MonitorBars {
-            app,
+            app: app.clone(),
+            id,
             exclusive_zones: vec![],
-            border_widget: Rc::new(RefCell::new(BorderWidget::new(surface))),
-            bar
+            border_widget: BorderWidget::new(app, id, surface),
+            popouts: Popouts::new(),
+            last_frame_time: Instant::now(),
+            animating: false,
+            window: bar
         };
 
         bars.init_widgets();
-
-        BorderWidget::configure_input_region_handling(bars.border_widget.clone());
 
         // Add exclusive zones for each edge
         bars.add_exclusive_zone(Edge::Top, BAR_THICKNESS);
@@ -59,12 +74,17 @@ impl MonitorBars {
         bars
     }
 
+    pub fn open_popout<SourceModule: 'static + Module>(&mut self, id: &str, widget: gtk4::Widget, takes_keyboard_focus: bool) {
+        self.popouts.open_popout::<SourceModule>(id, widget, takes_keyboard_focus);
+        self.animate_until_finished();
+    }
+
     fn add_exclusive_zone(
         &mut self,
         edge: Edge,
         thickness: i32
     ) {
-        let window = gtk4::ApplicationWindow::new(self.bar.application().as_ref().unwrap());
+        let window = gtk4::ApplicationWindow::new(self.window.application().as_ref().unwrap());
         window.init_layer_shell();
         
         window.set_anchor(Edge::Bottom, edge != Edge::Top);
@@ -88,9 +108,9 @@ impl MonitorBars {
             .valign(gtk4::Align::Fill)
             .build();
         overlay.add_css_class("bars");
-        self.bar.set_child(Some(&overlay));
+        self.window.set_child(Some(&overlay));
         
-        overlay.set_child(Some(self.border_widget.borrow().widget().as_ref()));
+        overlay.set_child(Some(self.border_widget.widget()));
         
         let bars = gtk4::Box::builder()
             .orientation(gtk4::Orientation::Vertical)
@@ -100,8 +120,8 @@ impl MonitorBars {
             .css_classes(["bars-container"])
             .build();
         
-        overlay.add_overlay(&self.app.popouts.borrow_mut().init_container());
         overlay.add_overlay(&bars);
+        overlay.add_overlay(&self.popouts.init_container());
 
         let horizontal_bar = gtk4::CenterBox::builder()
             .orientation(gtk4::Orientation::Horizontal)
@@ -131,8 +151,41 @@ impl MonitorBars {
         self.app.modules.borrow_mut().add_module_widgets(self.app.clone(), &horizontal_bar, &vertical_bar);
     }
 
+    fn animate_until_finished(&mut self) {
+        if self.animating {
+            // We're already animating, so we don't need to do anything
+            return;
+        }
+        self.animating = true;
 
-    pub fn update(&mut self, app: &App) {
-        self.border_widget.borrow_mut().set_popout_positions(&app.popouts.borrow().open);
+        self.last_frame_time = Instant::now();
+        self.animate();
+    }
+
+    /// Performs animation. This is run per-bar so we can sync to the monitor's refresh rate.
+    pub fn animate(&mut self) {
+        if !self.animating {
+            return;
+        }
+
+        let dt = self.last_frame_time.elapsed();
+        println!("Delta: {:?}", dt);
+        self.last_frame_time = Instant::now();
+
+        let should_continue_animating = self.popouts.animate(dt);
+        self.border_widget.set_popout_positions(&self.popouts.open);
+
+        // Draw one last time even if we stop animating
+        let app = self.app.clone();
+        let id = self.id;
+        // Hack? I don't even know what to think of this garbage...
+        // TODO: Figure out the proper way to do this
+        glib::idle_add_local_once(move || {
+            app.borrow_bar_mut(id).border_widget.widget().queue_draw();
+        });
+
+        if !should_continue_animating {
+            self.animating = false;
+        }
     }
 }

@@ -26,7 +26,7 @@ impl Launcher {
 
         launcher_widget.append(&search_box);
 
-        app.popouts.borrow_mut().open_popout::<Self>("launcher", launcher_widget.upcast(), true);
+        app.borrow_current_bar_mut().open_popout::<Self>("launcher", launcher_widget.upcast(), true);
     }
 }
 

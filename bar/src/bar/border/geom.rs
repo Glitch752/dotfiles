@@ -1,6 +1,8 @@
 use std::{collections::{HashMap, HashSet}, hash::Hasher};
 use palette::IntoColor;
 
+const EPSILON: f64 = 1e-5;
+
 #[derive(Debug, Clone, Copy)]
 pub struct Point {
     pub x: f64,
@@ -13,7 +15,7 @@ impl Point {
     }
     pub fn unit(self) -> Self {
         let len = self.len();
-        if len < 1e-10 {
+        if len < EPSILON {
             return Point { x: 0.0, y: 0.0 }; // Avoid division by zero
         }
         Point { x: self.x / len, y: self.y / len }
@@ -100,16 +102,16 @@ impl std::ops::Index<usize> for Path {
 // Perhaps it would instead be better to use fixed-position coordinates, but this is fine for now.
 impl PartialEq for Point {
     fn eq(&self, other: &Self) -> bool {
-        (self.x - other.x).abs() < 1e-10 && (self.y - other.y).abs() < 1e-10
+        (self.x - other.x).abs() < EPSILON && (self.y - other.y).abs() < EPSILON
     }
 }
 impl Eq for Point {}
 
 impl std::hash::Hash for Point {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        // Round x and y to 1e-10 to avoid floating point precision issues
-        let x_rounded = (self.x * 1e10).round() / 1e10;
-        let y_rounded = (self.y * 1e10).round() / 1e10;
+        // Round x and y to EPSILON to avoid floating point precision issues
+        let x_rounded = (self.x / EPSILON).round() * EPSILON;
+        let y_rounded = (self.y / EPSILON).round() * EPSILON;
         // Hash the rounded values
         x_rounded.to_bits().hash(state);
         y_rounded.to_bits().hash(state);
@@ -212,7 +214,11 @@ impl LineSegments {
         self.segments.retain(|&(p1, p2)| {
             if rect.polarity == RectanglePolarity::FilledInward {
                 // Prune segments that are inside the rectangle
-                let inside = |p: &Point| p.x > x0 && p.x < x1 && p.y > y0 && p.y < y1;
+                let inside = |p: &Point|
+                    p.x - EPSILON > x0 &&
+                    p.x + EPSILON < x1 &&
+                    p.y - EPSILON > y0 &&
+                    p.y + EPSILON < y1;
                 if inside(&p1) || inside(&p2) {
                     return false; // Segment is completely inside, prune it
                 } else {
@@ -220,7 +226,11 @@ impl LineSegments {
                 }
             } else {
                 // Prune segments that are outside the rectangle
-                let outside = |p: &Point| p.x < x0 || p.x > x1 || p.y < y0 || p.y > y1;
+                let outside = |p: &Point|
+                    p.x + EPSILON < x0 ||
+                    p.x - EPSILON > x1 ||
+                    p.y + EPSILON < y0 ||
+                    p.y - EPSILON > y1;
                 if outside(&p1) || outside(&p2) {
                     return false; // Segment is completely outside, prune it
                 } else {

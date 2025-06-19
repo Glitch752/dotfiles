@@ -30,10 +30,12 @@ pub struct BarWidget {
 pub trait Module: Debug {
     fn get_widget(&self, app: &App) -> BarWidget;
     /// Guarenteed to run before `update_widget`.
+    /// Show handle low-frequency updates unrelated to animation.
     fn update(&self, _app: &App) {
         // Default implementation does nothing
     }
     /// Guarenteed to run after `update` for each widget.
+    /// Show handle low-frequency updates unrelated to animation.
     fn update_widget(&self, _app: &App, _widget: &gtk4::Widget) {
         // Default implementation does nothing
     }
@@ -68,6 +70,8 @@ impl Modules {
         modules.add_module(window_title::WindowTitle::new());
 
         // Right widgets: battery, performance, date, and clock
+        // TODO: Don't use battery module when not on a laptop
+        modules.add_module(battery::Battery::new());
         modules.add_module(clock::Clock::new());
 
 
@@ -89,6 +93,7 @@ impl Modules {
         });
     }
 
+    /// Performs low-frequency updates unrelated to animation (like widget changes)
     pub fn update_modules(&self, app: &App) {
         for ModuleEntry { module, widgets, .. } in &self.modules {
             module.update(app);

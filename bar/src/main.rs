@@ -1,14 +1,13 @@
-use std::{cell::RefCell, rc::Rc, sync::{mpsc, Arc, OnceLock}, time::Duration};
+use std::{cell::{self, RefCell}, rc::Rc, sync::{mpsc, Arc, OnceLock}, time::Duration};
 
 use gio::prelude::*;
 
 use tokio::runtime::Runtime;
 
-use crate::{bar::MonitorBars, ipc::Ipc, modules::Modules, popouts::Popouts};
+use crate::{bar::{BarId, MonitorBars}, ipc::Ipc, modules::Modules};
 
 pub mod bar;
 mod styles;
-mod popouts;
 mod modules;
 mod ipc;
 
@@ -19,7 +18,6 @@ const UPDATE_RATE: Duration = Duration::from_millis(1000);
 pub struct App {
     bars: Rc<RefCell<Vec<MonitorBars>>>,
     modules: Rc<RefCell<Modules>>,
-    popouts: Rc<RefCell<Popouts>>,
     ipc: Ipc
 }
 
@@ -28,7 +26,6 @@ impl App {
         App {
             bars: Rc::new(RefCell::new(Vec::new())),
             modules: Rc::new(RefCell::new(Modules::new())),
-            popouts: Rc::new(RefCell::new(Popouts::new())),
             ipc: Ipc::new()
         }
     }
@@ -36,7 +33,6 @@ impl App {
     pub fn run(self) {
         let app = Rc::new(self);
         let app2 = app.clone();
-        app.popouts.borrow_mut().app = Some(app.clone());
 
         let application = gtk4::Application::new(
             Some("dev.glitch752.bar"),
@@ -81,19 +77,25 @@ impl App {
         application.run();
     }
 
-    fn queue_begin_animation(self: Rc<Self>) {
-        glib::idle_add_local(move || {
-            self.update();
-            glib::ControlFlow::Continue
-        });
+    fn borrow_current_bar_mut(&self) -> cell::RefMut<MonitorBars> {
+        // TODO: Select monitor with mouse or window focus once supporting multiple monitors
+        let bars = self.bars.borrow_mut();
+        return cell::RefMut::map(bars, |v| v.get_mut(0).unwrap());
     }
 
+    /// Used to circumvent some weird glib borrow semantics that I couldn't quite figure out.
+    /// I'm unsatisfied with this solution, but whatever.
+    pub fn borrow_bar_mut(&self, id: BarId) -> cell::RefMut<MonitorBars> {
+        let bars = self.bars.borrow_mut();
+        return cell::RefMut::map(bars, |v| v.iter_mut().find(
+            |b| b.id == id
+        ).unwrap());
+    }
+
+    /// Performs low-frequency updates unrelated to animation (like widget changes)
     fn update(&self) {
         let modules = self.modules.borrow();
         modules.update_modules(&self);
-        for bar in self.bars.borrow_mut().iter_mut() {
-            bar.update(&self);
-        }
     }
 
     pub fn tokio_runtime() -> Arc<Runtime> {
