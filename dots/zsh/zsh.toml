@@ -1,7 +1,7 @@
 [configurations.zsh]
 render = [
     { source = ".zshrc", destination = "~/.zshrc" },
-    { source = "aliases.zsh", destination = "/home/brody/.oh-my-zsh/custom/aliases.zsh" }
+    { source = "aliases.zsh", destination = "~/.oh-my-zsh/custom/aliases.zsh" }
 ]
 
     [configurations.zsh.variables]
