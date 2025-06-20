@@ -150,3 +150,95 @@ SetFileProperty /boot/intel-ucode.img mode 755
 SetFileProperty /usr/bin/groupmems group groups
 SetFileProperty /usr/bin/groupmems mode 2750
 SetFileProperty /var/log/journal group systemd-journal
+
+
+# Fri Jun 20 05:14:00 PM CDT 2025 - Unknown packages
+
+
+AddPackage appmenu-gtk-module # Application Menu GTK+ Module
+AddPackage bc # An arbitrary precision calculator language
+AddPackage bitwarden # A secure and free password manager for all of your devices
+AddPackage brightnessctl # Lightweight brightness control tool
+AddPackage clang # C language family frontend for LLVM
+AddPackage dart-sass # Sass makes CSS fun again
+AddPackage decoder # QR code scanner and generator
+AddPackage gnome-text-editor # A simple text editor for the GNOME desktop
+AddPackage gnome-themes-extra # Extra Themes for GNOME Applications
+AddPackage gtk4-layer-shell # Library to create panels and other desktop components for Wayland
+AddPackage hyprpicker # A wlroots-compatible Wayland color picker that does not suck
+AddPackage imagemagick # An image viewing/manipulation program
+AddPackage interception-tools # A minimal composable infrastructure on top of libudev and libevdev
+AddPackage just # A handy way to save and run project-specific commands
+AddPackage kitty # A modern, hackable, featureful, OpenGL-based terminal emulator
+AddPackage mold # A Modern Linker
+AddPackage ntfs-3g # NTFS filesystem driver and utilities
+AddPackage polkit-kde-agent # Daemon providing a polkit authentication UI for KDE
+AddPackage swww # A Solution to your Wayland Wallpaper Woes
+AddPackage tesseract # An OCR program
+AddPackage tesseract-data-eng # Tesseract OCR data (eng)
+AddPackage tuned # Daemon that performs monitoring and adaptive configuration of devices in the system
+AddPackage unzip # For extracting and viewing files in .zip archives
+AddPackage uv # An extremely fast Python package installer and resolver written in Rust
+AddPackage wayland-protocols # Specifications of extended Wayland protocols
+AddPackage webkit2gtk # Web content engine for GTK
+AddPackage webkit2gtk-4.1 # Web content engine for GTK
+AddPackage wev # A tool for debugging wayland events on a Wayland window, analagous to the X11 tool xev
+AddPackage wl-clipboard # Command-line copy/paste utilities for Wayland
+AddPackage xdotool # Command-line X11 automation tool
+
+
+# Fri Jun 20 05:14:01 PM CDT 2025 - Missing packages
+
+
+RemovePackage lightdm-slick-greeter
+
+
+# Fri Jun 20 05:14:01 PM CDT 2025 - Unknown foreign packages
+
+
+AddPackage --foreign adwaita-qt5-git # A style to bend Qt5 applications to look like they belong into GNOME Shell, git version
+AddPackage --foreign adwaita-qt6-git # A style to bend Qt6 applications to look like they belong into GNOME Shell, git version
+AddPackage --foreign brillo # Control the brightness of backlight and keyboard LED devices
+AddPackage --foreign cobang # A QR code scanner desktop app for Linux
+AddPackage --foreign consolas-font # Consolas font
+AddPackage --foreign vesktop # A standalone Electron-based Discord app with Vencord & improved Linux support
+
+
+# Fri Jun 20 05:14:01 PM CDT 2025 - Extra files
+
+
+RemoveFile /etc/machine-id
+RemoveFile /etc/lightdm/lightdm.conf
+RemoveFile /etc/lightdm
+
+
+# Fri Jun 20 05:14:01 PM CDT 2025 - New / changed files
+
+
+CopyFile /etc/interception/remap.yaml
+CopyFile /etc/iproute2/rt_tables '' '' piavpn
+CreateFile /etc/modprobe.d/tuned.conf > /dev/null
+CreateLink /etc/systemd/system/multi-user.target.wants/piavpn.service /etc/systemd/system/piavpn.service
+CreateLink /etc/systemd/system/multi-user.target.wants/tuned.service /usr/lib/systemd/system/tuned.service
+CreateLink /etc/systemd/system/multi-user.target.wants/udevmon.service /usr/lib/systemd/system/udevmon.service
+CopyFile /etc/systemd/system/piavpn.service
+CreateLink /etc/systemd/user/sockets.target.wants/gnome-keyring-daemon.socket /usr/lib/systemd/user/gnome-keyring-daemon.socket
+
+# Fri Jun 20 05:14:06 PM CDT 2025 - Extra file properties
+
+
+SetFileProperty /etc/machine-id mode ''
+
+
+# Fri Jun 20 05:23:57 PM CDT 2025 - New / changed files
+
+
+CopyFile /etc/tuned/active_profile
+CreateFile /etc/tuned/post_loaded_profile > /dev/null
+CopyFile /etc/tuned/profile_mode
+
+
+# Fri Jun 20 05:23:57 PM CDT 2025 - New file properties
+
+
+SetFileProperty /etc/iproute2 group piavpn

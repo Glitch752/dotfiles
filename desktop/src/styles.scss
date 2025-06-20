@@ -1,0 +1,19 @@
+:root {
+  font-family: "Consolas" monospace;
+
+  color: #0f0f0f;
+  background-color: transparent;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+
+  --bar-thickness: 28;
+  --non-bar-border-thickness: 8;
+}
+
+body {
+  margin: 0;
+}

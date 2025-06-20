@@ -18,7 +18,7 @@ wheel:x:998:brody
 utmp:x:997:
 audio:x:996:
 disk:x:995:
-input:x:994:
+input:x:994:brody
 kmem:x:993:
 kvm:x:992:
 lp:x:991:
@@ -28,7 +28,7 @@ sgx:x:988:
 storage:x:987:
 tty:x:5:
 uucp:x:986:
-video:x:985:
+video:x:985:brody
 users:x:984:
 groups:x:983:
 systemd-journal:x:982:
@@ -53,3 +53,8 @@ seat:x:970:
 rtkit:x:133:
 lightdm:x:969:
 git:x:968:
+piavpn:x:1001:
+piahnsd:x:1002:
+networkmanager:x:1003:brody
+autologin:x:967:brody
+geoclue:x:966:

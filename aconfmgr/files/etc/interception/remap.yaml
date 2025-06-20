@@ -1,0 +1,6 @@
+# A udevmon remap configuration file that remaps dragging L meta + L alt + LMB to L meta + RMB.
+MAPPINGS:
+  - KEY: [KEY_LEFTMETA, KEY_LEFTALT, BTN_LEFT]
+    TAP: BTN_LEFT
+    HELD:
+      BTN_RIGHT: true

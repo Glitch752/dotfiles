@@ -22,6 +22,13 @@ tauri = { version = "2", features = [] }
 tauri-plugin-opener = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+# We can't use gtk4 because Tauri uses gtk3.
+# We don't interact with GTK much, though, so it's fine.
 gtk = "0.18.2"
-gtk-layer-shell = "0.8.2"
+gtk-layer-shell = { version = "0.8.2", features = ["v0_6"] }
+tokio = { version = "1.45.1", features = ["net"] }
+ts-rs = "11.0.1"
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-single-instance = "2"
 

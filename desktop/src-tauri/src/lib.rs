@@ -1,34 +1,152 @@
-use gtk::{cairo, prelude::*};
-use gtk_layer_shell::{LayerShell, Layer, Edge};
-use tauri::Manager;
+use std::{ops::Deref, sync::Mutex};
 
-// Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
+use gtk::{cairo, prelude::*};
+use gtk_layer_shell::{Edge, Layer, LayerShell};
+use serde::{Deserialize, Serialize};
+use tauri::{Manager, State};
+use ts_rs::TS;
+
+pub use crate::ipc::Ipc;
+pub mod ipc;
+
+#[derive(Serialize, Deserialize, TS)]
+#[ts(export)]
+struct InputRect {
+    pub x: i32,
+    pub y: i32,
+    pub width: i32,
+    pub height: i32,
 }
 
-pub static BAR_THICKNESS: i32 = 28;
-pub static NON_BAR_BORDER_THICKNESS: i32 = 8;
+#[derive(Serialize, Deserialize, TS)]
+#[ts(export)]
+struct ExclusiveRegions {
+    pub top: i32,
+    pub bottom: i32,
+    pub left: i32,
+    pub right: i32,
+}
+
+// Safety: This is only used for GTK constructs, which check if they're used on the main thread
+struct TrustMeThisWillOnlyBeUsedOnTheMainThread<T>(T);
+unsafe impl<T> Send for TrustMeThisWillOnlyBeUsedOnTheMainThread<T> {}
+unsafe impl<T> Sync for TrustMeThisWillOnlyBeUsedOnTheMainThread<T> {}
+impl<T> Deref for TrustMeThisWillOnlyBeUsedOnTheMainThread<T> {
+    type Target = T;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+struct AppState {
+    // Safety: Only accessed from sync commands, which are run on the main thread in Tauri
+    gtk_window: TrustMeThisWillOnlyBeUsedOnTheMainThread<gtk::ApplicationWindow>,
+    exclusive_zones: Vec<TrustMeThisWillOnlyBeUsedOnTheMainThread<gtk::ApplicationWindow>>,
+    gtk_application: TrustMeThisWillOnlyBeUsedOnTheMainThread<gtk::Application>,
+}
+
+impl AppState {
+    fn add_exclusive_zone(&mut self, edge: Edge, thickness: i32) {
+        let window = gtk::ApplicationWindow::new(self.gtk_application.deref());
+        window.init_layer_shell();
+
+        window.set_anchor(Edge::Bottom, edge != Edge::Top);
+        window.set_anchor(Edge::Top, edge != Edge::Bottom);
+        window.set_anchor(Edge::Left, edge != Edge::Right);
+        window.set_anchor(Edge::Right, edge != Edge::Left);
+
+        window.set_layer(Layer::Top);
+
+        window.set_exclusive_zone(thickness);
+
+        window.show(); // "show", but the window doesn't actually have content
+        self.exclusive_zones
+            .push(TrustMeThisWillOnlyBeUsedOnTheMainThread(window));
+    }
+}
+
+#[tauri::command]
+fn set_input_shape(payload: Vec<InputRect>, state: State<'_, Mutex<AppState>>) {
+    println!("Reset input shape.");
+    let rects = payload
+        .iter()
+        .map(|r| cairo::RectangleInt::new(r.x, r.y, r.width, r.height))
+        .collect::<Vec<_>>();
+    state
+        .lock()
+        .unwrap()
+        .gtk_window
+        .input_shape_combine_region(Some(&cairo::Region::create_rectangles(rects.as_slice())));
+}
+
+#[tauri::command]
+fn devtools(payload: bool, app_handle: tauri::AppHandle) {
+    let window = app_handle.get_webview_window("main").unwrap();
+    if payload {
+        window.open_devtools();
+    } else {
+        window.close_devtools();
+    }
+}
+
+#[tauri::command]
+fn create_exclusive_regions(payload: ExclusiveRegions, state: State<'_, Mutex<AppState>>) {
+    // TODO: Exclusive region logic needs to be updated once we support multiple monitors
+    let mut state = state.lock().unwrap();
+
+    if state.exclusive_zones.len() > 0 {
+        println!("Not re-creating exclusive regions");
+        return;
+    }
+
+    state.add_exclusive_zone(Edge::Top, payload.top);
+    state.add_exclusive_zone(Edge::Left, payload.left);
+    state.add_exclusive_zone(Edge::Right, payload.right);
+    state.add_exclusive_zone(Edge::Bottom, payload.bottom);
+}
+
+#[tauri::command]
+fn inspect() {
+    // Will run on the main thread
+    gtk::Window::set_interactive_debugging(true);
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        .invoke_handler(tauri::generate_handler![greet])
+        .plugin(tauri_plugin_single_instance::init(|_app, _args, _cwd| {
+            println!("Already running!");
+        }))
+        .invoke_handler(tauri::generate_handler![
+            set_input_shape,
+            create_exclusive_regions,
+            inspect,
+            devtools
+        ])
         .setup(|app| {
+            // TODO: Support multiple windows by manually handling webview creation
+
             let main_window = app.get_webview_window("main").unwrap();
+            // This is kind of sketchy, but it works.
+            // We hide the original GTK window that Tauri makes and create our own
+            // to be used for gtk-layer-shell.
             main_window.hide().unwrap();
 
-            let gtk_window = gtk::ApplicationWindow::new(
-                &main_window.gtk_window().unwrap().application().unwrap(),
-            );
+            let tauri_gtk_window = main_window
+                .gtk_window()
+                .expect("Failed to get Tauri GTK window");
+            let gtk_application = tauri_gtk_window
+                .application()
+                .expect("Failed to get Tauri GTK application");
+
+            let gtk_window = gtk::ApplicationWindow::new(&gtk_application);
 
             // To prevent the window from being black initially.
             gtk_window.set_app_paintable(true);
 
             let vbox = main_window.default_vbox().unwrap();
-            main_window.gtk_window().unwrap().remove(&vbox);
+            tauri_gtk_window.remove(&vbox);
             gtk_window.add(&vbox);
 
             // Doesn't throw errors.
@@ -41,17 +159,23 @@ pub fn run() {
             gtk_window.set_anchor(Edge::Left, true);
             gtk_window.set_anchor(Edge::Right, true);
 
-            // TODO: Actual proper update logic
-            let size = (1000, 1000); 
-            let rects = vec![
-                cairo::RectangleInt::new(0, 0, size.0, BAR_THICKNESS),
-                cairo::RectangleInt::new(0, 0, BAR_THICKNESS, size.1),
-                cairo::RectangleInt::new(size.0 - NON_BAR_BORDER_THICKNESS, 0, NON_BAR_BORDER_THICKNESS, size.1),
-                cairo::RectangleInt::new(0, size.1 - NON_BAR_BORDER_THICKNESS, size.0, NON_BAR_BORDER_THICKNESS)
-            ];
-            gtk_window.input_shape_combine_region(Some(&cairo::Region::create_rectangles(rects.as_slice())));
-
             gtk_window.show_all();
+
+            // Temporary, before the UI starts: clear the input region so we don't eat mouse inputs immediately
+            gtk_window.input_shape_combine_region(Some(&cairo::Region::create_rectangles(&[
+                cairo::RectangleInt::new(0, 0, 100, 10000)
+            ])));
+            gtk_window.set_keyboard_mode(gtk_layer_shell::KeyboardMode::OnDemand);
+
+            let ipc = Ipc::new();
+            ipc.start(app.handle().clone());
+
+            app.manage(Mutex::new(AppState {
+                gtk_window: TrustMeThisWillOnlyBeUsedOnTheMainThread(gtk_window),
+                gtk_application: TrustMeThisWillOnlyBeUsedOnTheMainThread(gtk_application),
+                exclusive_zones: vec![],
+            }));
+
             Ok(())
         })
         .run(tauri::generate_context!())

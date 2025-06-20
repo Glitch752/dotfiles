@@ -18,7 +18,7 @@ binds {
     
     // TODO: Implement release bindings and use just mod instead
     // Mod+Space repeat=false hotkey-overlay-title="Run fuzzel" { spawn "fuzzel"; }
-    Mod+Space repeat=false { spawn "bar" "launcher"; }
+    Mod+Space repeat=false { spawn "desktop" "launcher"; }
 
     Mod+L repeat=false hotkey-overlay-title="Lock" { spawn "swaylock"; }
 
@@ -44,6 +44,7 @@ binds {
     // You can also move the mouse into the top-left hot corner,
     // or do a four-finger swipe up on a touchpad.
     Mod+O repeat=false { toggle-overview; }
+    Mod+Alt+Space repeat=false { toggle-overview; }
 
     Mod+C repeat=false { close-window; }
 
