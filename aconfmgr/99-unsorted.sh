@@ -106,10 +106,6 @@ CreateLink /etc/fonts/conf.d/66-noto-serif.conf /usr/share/fontconfig/conf.defau
 CreateLink /etc/fonts/conf.d/69-unifont.conf /usr/share/fontconfig/conf.default/69-unifont.conf
 CreateLink /etc/fonts/conf.d/80-delicious.conf /usr/share/fontconfig/conf.default/80-delicious.conf
 CreateLink /etc/fonts/conf.d/90-synthetic.conf /usr/share/fontconfig/conf.default/90-synthetic.conf
-CopyFile /etc/group
-CopyFile /etc/group-
-CopyFile /etc/gshadow
-CopyFile /etc/gshadow- 600
 CopyFile /etc/ld.so.cache
 CopyFile /etc/lightdm/lightdm.conf
 CopyFile /etc/locale.gen
@@ -119,11 +115,6 @@ CopyFile /etc/mkinitcpio.d/linux.preset
 CreateLink /etc/os-release ../usr/lib/os-release
 CopyFile /etc/pacman.d/mirrorlist
 CopyFile /etc/shells
-CopyFile /etc/subgid
-CreateFile /etc/subgid- > /dev/null
-CopyFile /etc/subuid
-CreateFile /etc/subuid- > /dev/null
-CopyFile /etc/sudoers.d/00_brody 440
 CreateLink /etc/systemd/system/dbus-org.freedesktop.nm-dispatcher.service /usr/lib/systemd/system/NetworkManager-dispatcher.service
 CreateLink /etc/systemd/system/dbus-org.freedesktop.timesync1.service /usr/lib/systemd/system/systemd-timesyncd.service
 CreateLink /etc/systemd/system/display-manager.service /usr/lib/systemd/system/lightdm.service
@@ -242,3 +233,10 @@ CopyFile /etc/tuned/profile_mode
 
 
 SetFileProperty /etc/iproute2 group piavpn
+
+
+# Fri Jun 20 05:30:19 PM CDT 2025 - New / changed files
+
+
+CreateFile /etc/subgid- > /dev/null
+CreateFile /etc/subuid- > /dev/null

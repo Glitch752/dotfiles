@@ -55,3 +55,10 @@ IgnorePath '/etc/resolv.conf' # DNS resolver configuration
 # Very system-specific stuff
 IgnorePath '/etc/NetworkManager'
 IgnorePath '/etc/tuned'
+
+# User- and group-specific stuff; temporary because I have different users and groups on my systems
+IgnorePath '/etc/group*' # Group file
+IgnorePath '/etc/gshadow*' # Group shadow file
+IgnorePath '/etc/subuid' # Sub-user ID file
+IgnorePath '/etc/subgid' # Sub-group ID file
+IgnorePath '/etc/sudoers.d'
