@@ -10,7 +10,7 @@ alias ll="ls -l"
 alias la="ls -la"
 
 # Yay aliases because I'm an inexperienced Arch user
-alias inst="yay -S --noconfirm"
+alias inst="yay -Sy --noconfirm"
 alias update="yay -Syu --noconfirm"
 alias search="yay -Ss"
 alias remove="yay -Rns"
