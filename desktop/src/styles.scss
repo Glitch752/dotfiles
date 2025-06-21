@@ -16,6 +16,9 @@
 
   --gradient-start: #c33764;
   --gradient-end: #1d2671;
+
+  --gradient-start-light: color-mix(in srgb, var(--gradient-start), white 20%);
+  --gradient-end-light: color-mix(in srgb, var(--gradient-end), white 20%);
 }
 
 body {
@@ -68,29 +71,34 @@ canvas {
   }
 }
 
-span {
-  // Text is colored with the gradient in screen-space
-  // This is probably really slow, but at least it looks cool!
-
+@mixin background-gradient {
   background: linear-gradient(
     in oklch to top right,
-    color-mix(in srgb, var(--gradient-start), white 20%),
-    color-mix(in srgb, var(--gradient-end), white 20%)
+    var(--gradient-start-light),
+    var(--gradient-end-light)
   );
 
   background-attachment: fixed;
+}
+
+span {
+  // Text is colored with the gradient in screen-space
+  // This is probably really slow, but at least it looks cool!
+  @include background-gradient;
 
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
 
   font-size: 16px;
+
+  // Makes the text look more visually centered
+  padding-top: 3px;
 }
 
 .arch-logo {
-  --bg: color-mix(in oklab, var(--gradient-start), var(--gradient-end) 50%);
-  fill: var(--bg);
-  transition: fill 0.1s ease;
+  fill: color-mix(in oklab, var(--gradient-start-light), var(--gradient-end-light) 50%);
+  transition: filter 0.2s ease;
 
   width: var(--bar-thickness);
   overflow: visible;
@@ -100,7 +108,7 @@ span {
   }
 }
 .arch-logo:hover {
-  fill: color-mix(in srgb, var(--bg), white 20%);
+  filter: brightness(1.5);
 }
 
 #clock {
@@ -110,26 +118,41 @@ span {
   margin-left: 1rem;
 }
 
-#niriWorkspaces li, #niriWindows li {
-  --spacing: 1rem;
+.niriWorkspaces li, .niriWindows li {
   text-align: center;
-  span {
-    font-size: 22px;
+  
+  list-style: none;
+  margin: 0;
+  display: inline-block;
+
+  --base-padding: 4px;
+  --extended-padding: 10px;
+
+  --base-size: 8px;
+  --expanded-length: 20px;
+  --expanded-width: 10px;
+  
+  .bullet {
+    @include background-gradient;
+   
+    width: var(--base-size);
+    height: var(--base-size);
+    border-radius: 100px;
+
+    transition: width 0.3s ease, height 0.3s ease, filter 0.3s ease;
   }
 
-  transition: filter 0.2s ease;
-
-  &.urgent {
+  &.urgent .bullet {
     filter: invert(1);
   }
-  &.active {
+  &.active .bullet {
+    filter: brightness(1.25);
+  }
+  &:hover .bullet, &.focused .bullet {
     filter: brightness(1.5);
-  }
-  &.focused {
-    filter: brightness(1.75);
-  }
+  } 
 }
-#niriWorkspaces {
+.niriWorkspaces {
   .niriWorkspacesList {
     padding: 0;
     margin: 0.5rem 0 0 0;
@@ -137,14 +160,18 @@ span {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    
+
     li {
-      list-style: none;
-      line-height: var(--spacing);
+      padding: var(--base-padding) var(--extended-padding);
+    }
+
+    .focused .bullet {
+      width: var(--expanded-width);
+      height: var(--expanded-length);
     }
   }
 }
-#niriWindows {
+.niriWindows {
   .niriWindowsList {
     padding: 0;
     margin: 0 0 0 0.5rem;
@@ -152,13 +179,17 @@ span {
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    
+
     li {
-      list-style: none;
-      width: var(--spacing);
+      padding: var(--extended-padding) var(--base-padding);
+    }
+
+    .focused .bullet {
+      width: var(--expanded-length);
+      height: var(--expanded-width);
     }
   }
 }
 #activeWindowTitle {
-  margin-left: 0.5rem;
+  margin-left: 1rem;
 }

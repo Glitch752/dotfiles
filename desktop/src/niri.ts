@@ -3,6 +3,7 @@ import { debug_log as debugLog, invokePayload } from "./utils";
 import { Request } from "@bindings/NiriIpcRequest";
 import { Output, Response, Window, Workspace } from "@bindings/NiriIpcResponse";
 import { Event } from "@bindings/NiriIpcEvent";
+import { animateTextChange } from "./textAnimation";
 
 // TODO: This may be better to handle state for in Rust because then it can be shared between outputs.
 
@@ -147,6 +148,7 @@ export function initializeNiri() {
             }
             case "OverviewOpenedOrClosed": {
                 overviewOpen = e.data.is_open;
+                updateWorkspaceWidgets();
                 break;
             }
             case "KeyboardLayoutSwitched":
@@ -200,32 +202,64 @@ function updateWorkspaceWidgets() {
 
     const oldWindowsWidth = windowsElement.offsetWidth;
 
-    // Niri doesn't tell us where windows are, so we unfortunately can't sort them
-    windowsElement.innerHTML = `
-        <ul class="niriWindowsList">
-            ${workspaceWindows.map(w => `
-                <li
-                    class="niriWindow ${w.is_focused ? "focused" : ""} ${w.is_urgent ? "urgent" : ""}"
-                    title="${w.title || "No title"}
-${windows.length} windows total; ${workspaceWindows.length} on workspace"
-                >
-                    <span>•</span>
-                </li>
-            `).join("")}
-        </ul>
-    `;
-    workspacesElement.innerHTML = `
-        <ul class="niriWorkspacesList">
-            ${outputWorkspaces.sort((w1, w2) => w1.idx - w2.idx).map(w => `
-                <li
-                    class="niriWorkspace ${w.is_active ? "active" : ""} ${w.is_focused ? "focused" : ""} ${w.is_urgent ? "urgent" : ""}"
-                    title="${w.name || `Workspace ${w.idx}`} | ${getWorkspaceWindows(w.id).length} windows
-${workspaces.length} workspaces total; ${outputWorkspaces.length} on output"
-                >
-                    <span class="niriWorkspaceWindowsCount">•</span>
-                </li>
-            `).join("")}
-        </ul>`;
+    // Niri doesn't tell us where windows are, so we unfortunately can't sort them    
+    if(windowsElement.children.length > workspaceWindows.length) {
+        // Remove excess windows
+        while(windowsElement.children.length > workspaceWindows.length) {
+            windowsElement.removeChild(windowsElement.lastChild!);
+        }
+    }
+
+    for(let i = 0; i < workspaceWindows.length; i++) {
+        const window = workspaceWindows[i];
+
+        let child: HTMLLIElement;
+        if(windowsElement.children.length <= i) {
+            // Add new windows if there are fewer than expected
+            child = document.createElement("li");
+            const bullet = document.createElement("div");
+            bullet.classList = "bullet";
+            child.appendChild(bullet);
+            windowsElement.appendChild(child);
+        } else {
+            child = windowsElement.children[i] as HTMLLIElement;
+        }
+
+        child.className = `niriWindow ${window.is_focused ? "focused" : ""} ${window.is_urgent ? "urgent" : ""}`;
+        child.title = `${window.title || "No title"}
+${windows.length} windows total; ${workspaceWindows.length} on workspace`;
+    }
+
+    const sortedWorkspaces = outputWorkspaces.sort((w1, w2) => w1.idx - w2.idx);
+    if(workspacesElement.children.length > sortedWorkspaces.length) {
+        // Remove excess workspaces
+        while(workspacesElement.children.length > workspaceWindows.length) {
+            workspacesElement.removeChild(workspacesElement.lastChild!);
+        }
+    }
+
+    for(let i = 0; i < sortedWorkspaces.length; i++) {
+        const workspace = sortedWorkspaces[i];
+
+        let child: HTMLLIElement;
+        if(workspacesElement.children.length <= i) {
+            // Add new windows if there are fewer than expected
+            child = document.createElement("li");
+            const bullet = document.createElement("div");
+            bullet.classList = "bullet";
+            child.appendChild(bullet);
+            workspacesElement.appendChild(child);
+        } else {
+            child = workspacesElement.children[i] as HTMLLIElement;
+        }
+
+        child.className = `niriWorkspace ${
+            workspace.is_active ? "active" : ""} ${
+            workspace.is_focused ? "focused" : ""} ${
+            workspace.is_urgent ? "urgent" : ""}`;
+        child.title = `${workspace.name || `Workspace ${workspace.idx}`} | ${getWorkspaceWindows(workspace.id).length} windows
+${workspaces.length} workspaces total; ${outputWorkspaces.length} on output`;
+    }
 
     // Translate the windowsElement's width from its previous value to the new required one
     const newWindowsWidth = windowsElement.offsetWidth;
@@ -242,10 +276,12 @@ ${workspaces.length} workspaces total; ${outputWorkspaces.length} on output"
     // Update the active window title
     const activeWindow = workspaceWindows.find(w => w.is_focused);
     if(activeWindow && activeWindow.title) {
-        activeWindowTitleElement.innerText = activeWindow.title;
+        animateTextChange(activeWindowTitleElement, activeWindow.title);
         activeWindowTitleElement.title = `${activeWindow.title} | ${activeWindow.id}`;
+    } else if(overviewOpen) {
+        animateTextChange(activeWindowTitleElement, "Overview");
     } else {
-        activeWindowTitleElement.innerText = "-";
+        animateTextChange(activeWindowTitleElement, "-");
     }
 }
 

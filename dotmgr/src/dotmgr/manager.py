@@ -123,52 +123,51 @@ class DotfileManager:
                 if not output_path.is_absolute():
                     raise ValueError(f"Render destination path '{output_path}' must be absolute.")
                 
-                self.log.info(f"Rendering {to_render.source}")
-                
-                pw = pwd.getpwnam(username)
-                os.seteuid(os.getuid()) # Allow setegid
-                os.setegid(pw.pw_gid)
-                os.seteuid(pw.pw_uid)
-                    
-                if to_render.action == "copy":
-                    source = self.dots_dir / to_render.source
-                    if not source.exists():
-                        self.log.error(f"Source file does not exist: {source}")
-                        continue
-                    copy_atomic(source, output_path)
-                    self.log.info(f"Copied: {output_path}")
-                elif to_render.action == "link":
-                    source = self.dots_dir / to_render.source
-                    if not source.exists():
-                        self.log.error(f"Source file does not exist: {source}")
-                        continue
-                    try:
-                        if output_path.exists():
-                            output_path.unlink()
-                        os.symlink(source, output_path)
-                        self.log.info(f"Linked: {output_path} -> {source}")
-                    except OSError:
-                        self.log.error(f"Link already exists: {output_path}. Skipping.")
-                        continue
-                else:
-                    try:
-                        rendered = self.env.get_template(to_render.source.as_posix()).render(self.config.variables)
-                    except Exception as e:
-                        self.log.error(f"Error rendering template {to_render.source}: {e}")
-                        continue
+                with self.log.info(f"Rendering {to_render.source}"):
+                    pw = pwd.getpwnam(username)
+                    os.seteuid(os.getuid()) # Allow setegid
+                    os.setegid(pw.pw_gid)
+                    os.seteuid(pw.pw_uid)
+                        
+                    if to_render.action == "copy":
+                        source = self.dots_dir / to_render.source
+                        if not source.exists():
+                            self.log.error(f"Source file does not exist: {source}")
+                            continue
+                        copy_atomic(source, output_path)
+                        self.log.info(f"Copied: {output_path}")
+                    elif to_render.action == "link":
+                        source = self.dots_dir / to_render.source
+                        if not source.exists():
+                            self.log.error(f"Source file does not exist: {source}")
+                            continue
+                        try:
+                            if output_path.exists():
+                                output_path.unlink()
+                            os.symlink(source, output_path)
+                            self.log.info(f"Linked: {output_path} -> {source}")
+                        except OSError:
+                            self.log.error(f"Link already exists: {output_path}. Skipping.")
+                            continue
+                    else:
+                        try:
+                            rendered = self.env.get_template(to_render.source.as_posix()).render(self.config.variables)
+                        except Exception as e:
+                            self.log.error(f"Error rendering template {to_render.source}: {e}")
+                            continue
 
-                    # Write to temp file and rename atomically
-                    write_atomic(output_path, rendered)
-                    self.log.info(f"Rendered and updated: {output_path}")
+                        # Write to temp file and rename atomically
+                        write_atomic(output_path, rendered)
+                        self.log.info(f"Rendered and updated: {output_path}")
+                    
+                    if to_render.permissions:
+                        try:
+                            os.chmod(output_path, int(to_render.permissions, 8))
+                            self.log.info(f"Set permissions for {output_path} to {to_render.permissions}")
+                        except Exception as e:
+                            self.log.error(f"Error setting permissions for {output_path}: {e}")
                 
-                if to_render.permissions:
-                    try:
-                        os.chmod(output_path, int(to_render.permissions, 8))
-                        self.log.info(f"Set permissions for {output_path} to {to_render.permissions}")
-                    except Exception as e:
-                        self.log.error(f"Error setting permissions for {output_path}: {e}")
-            
-                aconfmgr_ignores += f"IgnorePath '{output_path.as_posix()}'\n"
+                    aconfmgr_ignores += f"IgnorePath '{output_path.as_posix()}'\n"
         
         # Write the aconfmgr ignores file
         with self.log.info(f"Writing aconfmgr ignores to {ACONFMGR_IGNORE_PATH}"):

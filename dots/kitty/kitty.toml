@@ -1,0 +1,5 @@
+[configurations.kitty]
+render = [
+    # Copy because kitty.conf contains a ton of sequences jinja interprets as variables
+    { source = "kitty.conf", destination = "~/.config/kitty/kitty.conf", action = "copy" }
+]
