@@ -89,6 +89,20 @@ layout {
     }
 }
 
+
+cursor {
+    // xcursor-theme "breeze_cursors"
+    // xcursor-size 48
+
+    hide-when-typing
+    // hide-after-inactive-ms 1000
+}
+
+overview {
+    zoom 0.5
+    backdrop-color "#11121b"
+}
+
 // Rules for the appearance of all windows
 window-rule {
     geometry-corner-radius 8

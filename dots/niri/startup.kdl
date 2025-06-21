@@ -5,7 +5,7 @@
 
 // spawn-at-startup "waybar"
 
-spawn-at-startup "swww-daemon"
+spawn-at-startup "swww-daemon" "--no-cache"
 spawn-at-startup "sh" "{{randomize_wallpaper_script}}"
 
 spawn-at-startup "xwayland-satellite" ":0"
