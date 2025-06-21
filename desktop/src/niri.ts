@@ -1,5 +1,5 @@
 import { listen } from "@tauri-apps/api/event";
-import { debug_log as debugLog, invokePayload } from "./utils";
+import { debugLog as debugLog, invokePayload } from "./utils";
 import { Request } from "@bindings/NiriIpcRequest";
 import { Output, Response, Window, Workspace } from "@bindings/NiriIpcResponse";
 import { Event } from "@bindings/NiriIpcEvent";
@@ -276,7 +276,12 @@ ${workspaces.length} workspaces total; ${outputWorkspaces.length} on output`;
     // Update the active window title
     const activeWindow = workspaceWindows.find(w => w.is_focused);
     if(activeWindow && activeWindow.title) {
-        animateTextChange(activeWindowTitleElement, activeWindow.title);
+        let title = activeWindow.title.length > 0 ? activeWindow.title : "-";
+        if(title.length > 100) {
+            // Truncate the title if it's too long
+            title = title.slice(0, 100) + "...";
+        }
+        animateTextChange(activeWindowTitleElement, title);
         activeWindowTitleElement.title = `${activeWindow.title} | ${activeWindow.id}`;
     } else if(overviewOpen) {
         animateTextChange(activeWindowTitleElement, "Overview");

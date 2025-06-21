@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-rink-query"
+description = "Enables the rink_query command without any pre-configured scope."
+commands.allow = ["rink_query"]
+
+[[permission]]
+identifier = "deny-rink-query"
+description = "Denies the rink_query command without any pre-configured scope."
+commands.deny = ["rink_query"]

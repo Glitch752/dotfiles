@@ -1,23 +1,38 @@
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
 import { ExclusiveRegions } from "@bindings/ExclusiveRegions";
-import { InputRect } from "@bindings/InputRect";
 import { init } from "./rendering";
 import { initWidgets, updateWidgets } from "./widgets";
-import { invokePayload } from "./utils";
+import { invokePayload, debugLog } from "./utils";
 import { initializeNiri } from "./niri";
+import { updateInputShape } from "./popups/popups";
+import { initLauncher, openLauncher } from "./popups/launcher";
 
 // Get bar thicknesses from :root in CSS
 const root = document.querySelector(":root") as HTMLElement;
 export const barThickness = parseInt(getComputedStyle(root).getPropertyValue("--bar-thickness").trim());
 export const nonBorderBarThickness = parseInt(getComputedStyle(root).getPropertyValue("--non-bar-border-thickness").trim());
 
-window.addEventListener("DOMContentLoaded", () => {
-    console.log("Loaded");
+export let overrideInputShape = false;
 
+// Hook console.* to use our debugLog
+function hook(method: keyof Console) {
+    const original = console[method];
+    console[method] = (...args: any[]) => {
+        debugLog(`[${method}]`, ...args);
+        original.apply(console, args);
+    };
+}
+hook("log");
+hook("warn");
+hook("error");
+hook("info");
+
+window.addEventListener("DOMContentLoaded", () => {
     updateInputShape([]);
     init();
     initWidgets();
+    initLauncher();
     initializeNiri();
 
     invokePayload<ExclusiveRegions>("create_exclusive_regions", {
@@ -31,30 +46,8 @@ window.addEventListener("DOMContentLoaded", () => {
     setInterval(updateWidgets, 1000);
 });
 
-function updateInputShape(extraRectangles: InputRect[]) {
-    invokePayload<InputRect[]>("set_input_shape", [
-        {
-            x: 0, y: 0,
-            width: window.innerWidth, height: barThickness
-        },
-        {
-            x: 0, y: window.innerHeight - nonBorderBarThickness,
-            width: window.innerWidth, height: nonBorderBarThickness
-        },
-        {
-            x: 0, y: barThickness,
-            width: barThickness, height: window.innerHeight - barThickness - nonBorderBarThickness
-        },
-        {
-            x: window.innerWidth - nonBorderBarThickness, y: barThickness,
-            width: nonBorderBarThickness, height: window.innerHeight - barThickness - nonBorderBarThickness
-        },
-        ...extraRectangles
-    ]);
-}
-
 window.addEventListener("resize", () => {
-    updateInputShape([]);
+    updateInputShape(null);
 });
 
 listen<string>("ipc_call", (event) => {
@@ -79,10 +72,17 @@ listen<string>("ipc_call", (event) => {
                 width: window.innerWidth,
                 height: window.innerHeight
             }]);
+            overrideInputShape = true;
             response = "Reset to full screen for 5 seconds.";
             setTimeout(() => {
-                updateInputShape([]);
-            }, 5000);
+                overrideInputShape = false;
+                updateInputShape(null);
+            }, 10000);
+            break;
+        case "launcher":
+            openLauncher();
+            response = "ok";
+            break;
     }
     // Outside the switch statement to guarentee this is run
     emit("ipc_response", response);

@@ -13,12 +13,18 @@
   --bar-thickness: 28px;
   --non-bar-border-thickness: 8px;
   --background: #11121b;
+  --panel1: #1e1e2a;
+  --subtext: #ccc;
 
   --gradient-start: #c33764;
   --gradient-end: #1d2671;
 
   --gradient-start-light: color-mix(in srgb, var(--gradient-start), white 20%);
   --gradient-end-light: color-mix(in srgb, var(--gradient-end), white 20%);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
 body {
@@ -57,6 +63,7 @@ canvas {
   .horizontal-bar, .vertical-bar {
     position: absolute;
     background-color: var(--background);
+    z-index: 10;
 
     display: flex;
     justify-content: space-between;
@@ -67,6 +74,29 @@ canvas {
       flex-direction: inherit;
       justify-content: center;
       align-items: center;
+    }
+  }
+
+  #popups {
+    position: absolute;
+    top: var(--bar-thickness);
+    left: var(--bar-thickness);
+    bottom: var(--non-bar-border-thickness);
+    right: var(--non-bar-border-thickness);
+
+    .popup {
+      // background-color: #ff000044;
+      padding: 10px;
+      margin: -10px;
+      --duration: 0.3s;
+      // A ease-like transition with a very minor bounce
+      --easing: cubic-bezier(0.25, 0.1, 0.1, 1.2);
+      transition:
+        top var(--duration) var(--easing),
+        left var(--duration) var(--easing),
+        bottom var(--duration) var(--easing),
+        right var(--duration) var(--easing),
+        opacity var(--duration) var(--easing);
     }
   }
 }
@@ -94,6 +124,9 @@ span {
 
   // Makes the text look more visually centered
   padding-top: 3px;
+
+  // Avoid the text shifting vertically no matter what glyphs are shown
+  line-height: 1.2;
 }
 
 .arch-logo {
@@ -192,4 +225,94 @@ span {
 }
 #activeWindowTitle {
   margin-left: 1rem;
+}
+
+.launcher {
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+
+  input {
+    background-color: var(--panel1);
+    border: none;
+    outline: none;
+    border-radius: 6px;
+    font-size: 14px;
+    margin: 0.5rem 1rem;
+    padding: 0.5rem;
+    color: #ccc;
+    font-family: "Consolas";
+  }
+
+  .results-wrapper {
+    transition: height 0.3s cubic-bezier(0.25, 0.1, 0.25, 1.2);
+    overflow: hidden;
+  }
+  .results {
+    display: flex;
+    flex-direction: column;
+  }
+  .status-label {
+    padding: 8px;
+    font-size: 16px;
+    text-align: center;
+  }
+  .module {
+    display: flex;
+    flex-direction: column;
+  }
+  .module-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    font-size: 0.8em;
+    font-weight: bold;
+    color: var(--subtext);
+  }
+  .entries {
+    display: flex;
+    flex-direction: column;
+  }
+  .entry {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+
+    transition: background-color 0.2s ease-out;
+
+    .text {
+      display: flex;
+      flex-direction: column;
+      transition: translate 0.3s cubic-bezier(0.25, 0.1, 0.25, 1.75);
+    }
+  }
+  .entry:hover {
+    background-color: var(--panel1);
+  }
+  .entry.highlighted {
+    background-color: var(--panel1);
+
+    .text {
+      translate: 10px 0;
+    }
+  }
+  .icon {
+    color: #777;
+  }
+  .name {
+    font-size: 1em;
+    color: var(--subtext);
+  }
+  .description {
+    font-size: 0.85em;
+    color: var(--subtext);
+    // Allow newlines
+    white-space: pre-wrap;
+  }
 }

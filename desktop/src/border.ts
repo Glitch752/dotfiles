@@ -1,6 +1,7 @@
 import { formatHex, lerp, parseHex, converter, Oklch } from 'culori';
 import { BorderState, Path, Rectangle } from './geom';
 import { barThickness, nonBorderBarThickness } from './main';
+import { debugLog } from './utils';
 
 function drawPathWithRoundedCorners(ctx: CanvasRenderingContext2D, path: Path, r: number) {
     if (path.isEmpty() || path.length < 3) {
@@ -158,6 +159,8 @@ export class BorderRenderer {
         drawPathWithRoundedCorners(this.ctx, path, this.cornerRadius);
         this.ctx.closePath();
         this.ctx.fill('evenodd');
+
+        // this.state.debugDraw(this.ctx, false);
     }
 
     private configureResizeHandler() {

@@ -1,0 +1,17 @@
+[package]
+name = "launcher"
+version = "0.1.0"
+edition = "2024"
+links = "launcher"
+
+[dependencies]
+fuzzy-matcher = "0.3.7"
+reqwest = { version = "0.12.20", features = ["blocking", "json"] }
+rink-core = { version = "0.8.0", features = ["bundle-files"] }
+serde = { workspace = true }
+tauri = { workspace = true }
+ts-rs = "11.0.1"
+
+[build-dependencies]
+tauri-plugin = { version = "2.2.0", features = ["build"] }
+serde_json = "1.0.140"

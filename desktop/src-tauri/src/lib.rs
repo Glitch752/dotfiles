@@ -1,7 +1,7 @@
 use std::{ops::Deref, sync::Mutex};
 
 use gtk::{cairo, prelude::*};
-use gtk_layer_shell::{Edge, Layer, LayerShell};
+use gtk_layer_shell::{Edge, KeyboardMode, Layer, LayerShell};
 use serde::{Deserialize, Serialize};
 use tauri::{Manager, State};
 use ts_rs::TS;
@@ -42,7 +42,7 @@ struct AppState {
     // Safety: Only accessed from sync commands, which are run on the main thread in Tauri
     gtk_window: TrustMeThisWillOnlyBeUsedOnTheMainThread<gtk::ApplicationWindow>,
     exclusive_zones: Vec<TrustMeThisWillOnlyBeUsedOnTheMainThread<gtk::ApplicationWindow>>,
-    gtk_application: TrustMeThisWillOnlyBeUsedOnTheMainThread<gtk::Application>
+    gtk_application: TrustMeThisWillOnlyBeUsedOnTheMainThread<gtk::Application>,
 }
 
 impl AppState {
@@ -66,8 +66,20 @@ impl AppState {
 }
 
 #[tauri::command]
+fn set_keyboard_exclusivity(payload: bool, state: State<'_, Mutex<AppState>>) {
+    state
+        .lock()
+        .unwrap()
+        .gtk_window
+        .set_keyboard_mode(if payload {
+            KeyboardMode::Exclusive
+        } else {
+            KeyboardMode::OnDemand
+        });
+}
+
+#[tauri::command]
 fn set_input_shape(payload: Vec<InputRect>, state: State<'_, Mutex<AppState>>) {
-    println!("Reset input shape.");
     let rects = payload
         .iter()
         .map(|r| cairo::RectangleInt::new(r.x, r.y, r.width, r.height))
@@ -114,14 +126,17 @@ fn inspect() {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_single_instance::init(|_app, _args, _cwd| {
             println!("Already running!");
         }))
         .plugin(bar::init())
+        .plugin(launcher::init())
         .invoke_handler(tauri::generate_handler![
             set_input_shape,
             create_exclusive_regions,
+            set_keyboard_exclusivity,
             inspect,
             devtools
         ])
@@ -172,7 +187,7 @@ pub fn run() {
             app.manage(Mutex::new(AppState {
                 gtk_window: TrustMeThisWillOnlyBeUsedOnTheMainThread(gtk_window),
                 gtk_application: TrustMeThisWillOnlyBeUsedOnTheMainThread(gtk_application),
-                exclusive_zones: vec![]
+                exclusive_zones: vec![],
             }));
 
             Ok(())

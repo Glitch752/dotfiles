@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-symbols-query"
+description = "Enables the symbols_query command without any pre-configured scope."
+commands.allow = ["symbols_query"]
+
+[[permission]]
+identifier = "deny-symbols-query"
+description = "Denies the symbols_query command without any pre-configured scope."
+commands.deny = ["symbols_query"]

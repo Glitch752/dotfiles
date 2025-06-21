@@ -1,5 +1,6 @@
 import { BorderRenderer } from "./border";
 import { Rectangle } from "./geom";
+import { initializePopups } from "./popups/popups";
 
 let canvas: HTMLCanvasElement | null = null;
 let ctx: CanvasRenderingContext2D | null = null;
@@ -21,18 +22,18 @@ export function init() {
     // so we just wait until then to render the first time. Hacky, but reliable.
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-            animate(0);
+            animate(0, []);
+
+            initializePopups(animate);
         });
     });
 }
 
-function animate(elapsed: number) {
+function animate(elapsed: number, rects: Rectangle[]) {
     if(!canvas || !ctx || !renderer) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // renderer.setWidgetRectangles([
-    //     Rectangle.filledInwardCenter((Math.sin(elapsed / 800) + 1) * 750, 110, 200, 200)
-    // ]);
+    renderer.setWidgetRectangles(rects);
     renderer.draw();
 }
