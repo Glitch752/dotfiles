@@ -42,7 +42,7 @@ struct AppState {
     // Safety: Only accessed from sync commands, which are run on the main thread in Tauri
     gtk_window: TrustMeThisWillOnlyBeUsedOnTheMainThread<gtk::ApplicationWindow>,
     exclusive_zones: Vec<TrustMeThisWillOnlyBeUsedOnTheMainThread<gtk::ApplicationWindow>>,
-    gtk_application: TrustMeThisWillOnlyBeUsedOnTheMainThread<gtk::Application>,
+    gtk_application: TrustMeThisWillOnlyBeUsedOnTheMainThread<gtk::Application>
 }
 
 impl AppState {
@@ -118,6 +118,7 @@ pub fn run() {
         .plugin(tauri_plugin_single_instance::init(|_app, _args, _cwd| {
             println!("Already running!");
         }))
+        .plugin(bar::init())
         .invoke_handler(tauri::generate_handler![
             set_input_shape,
             create_exclusive_regions,
@@ -161,10 +162,8 @@ pub fn run() {
 
             gtk_window.show_all();
 
-            // Temporary, before the UI starts: clear the input region so we don't eat mouse inputs immediately
-            gtk_window.input_shape_combine_region(Some(&cairo::Region::create_rectangles(&[
-                cairo::RectangleInt::new(0, 0, 100, 10000)
-            ])));
+            // Before the UI starts, clear the input region so we don't eat mouse inputs immediately
+            gtk_window.input_shape_combine_region(Some(&cairo::Region::create_rectangles(&[])));
             gtk_window.set_keyboard_mode(gtk_layer_shell::KeyboardMode::OnDemand);
 
             let ipc = Ipc::new();
@@ -173,7 +172,7 @@ pub fn run() {
             app.manage(Mutex::new(AppState {
                 gtk_window: TrustMeThisWillOnlyBeUsedOnTheMainThread(gtk_window),
                 gtk_application: TrustMeThisWillOnlyBeUsedOnTheMainThread(gtk_application),
-                exclusive_zones: vec![],
+                exclusive_zones: vec![]
             }));
 
             Ok(())

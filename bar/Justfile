@@ -1,4 +1,0 @@
-watch:
-    watchexec -r -e rs -- cargo run
-watch_styles:
-    sass --watch --no-error-css assets/style.scss static/style.css

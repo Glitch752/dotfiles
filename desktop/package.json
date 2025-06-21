@@ -11,10 +11,14 @@
   },
   "dependencies": {
     "@tauri-apps/api": "^2",
-    "@tauri-apps/plugin-opener": "^2"
+    "@tauri-apps/plugin-opener": "^2",
+    "culori": "^4.0.1",
+    "vite-plugin-full-reload": "^1.2.0"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2",
+    "@types/culori": "^4.0.0",
+    "json-schema-to-typescript": "^15.0.4",
     "sass-embedded": "^1.89.2",
     "typescript": "~5.6.2",
     "vite": "^6.0.3"

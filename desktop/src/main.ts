@@ -2,32 +2,37 @@ import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
 import { ExclusiveRegions } from "@bindings/ExclusiveRegions";
 import { InputRect } from "@bindings/InputRect";
-import { init, resize } from "./rendering";
+import { init } from "./rendering";
+import { initWidgets, updateWidgets } from "./widgets";
+import { invokePayload } from "./utils";
+import { initializeNiri } from "./niri";
 
 // Get bar thicknesses from :root in CSS
 const root = document.querySelector(":root") as HTMLElement;
-const barThickness = parseInt(getComputedStyle(root).getPropertyValue("--bar-thickness").trim());
-const nonBorderBarThickness = parseInt(getComputedStyle(root).getPropertyValue("--non-bar-border-thickness").trim());
-
-function invoke_payload<T>(name: string, payload: T) {
-    invoke(name, { payload });
-}
+export const barThickness = parseInt(getComputedStyle(root).getPropertyValue("--bar-thickness").trim());
+export const nonBorderBarThickness = parseInt(getComputedStyle(root).getPropertyValue("--non-bar-border-thickness").trim());
 
 window.addEventListener("DOMContentLoaded", () => {
     console.log("Loaded");
 
+    updateInputShape([]);
     init();
+    initWidgets();
+    initializeNiri();
 
-    invoke_payload<ExclusiveRegions>("create_exclusive_regions", {
+    invokePayload<ExclusiveRegions>("create_exclusive_regions", {
         top: barThickness,
         bottom: nonBorderBarThickness,
         left: barThickness,
         right: nonBorderBarThickness
     });
+
+    updateWidgets();
+    setInterval(updateWidgets, 1000);
 });
 
 function updateInputShape(extraRectangles: InputRect[]) {
-    invoke_payload<InputRect[]>("set_input_shape", [
+    invokePayload<InputRect[]>("set_input_shape", [
         {
             x: 0, y: 0,
             width: window.innerWidth, height: barThickness
@@ -50,7 +55,6 @@ function updateInputShape(extraRectangles: InputRect[]) {
 
 window.addEventListener("resize", () => {
     updateInputShape([]);
-    resize();
 });
 
 listen<string>("ipc_call", (event) => {
@@ -61,11 +65,11 @@ listen<string>("ipc_call", (event) => {
             response = "ok";
             break;
         case "open_devtools":
-            invoke_payload<boolean>("devtools", true);
+            invokePayload<boolean>("devtools", true);
             response = "ok";
             break;
         case "close_devtools":
-            invoke_payload<boolean>("devtools", false);
+            invokePayload<boolean>("devtools", false);
             response = "ok";
             break;
         case "temporary_full_input":

@@ -89,7 +89,7 @@ export class Point {
  * Represents a sequence of connected points.
  */
 export class Path {
-    private points: Point[];
+    public points: Point[];
 
     constructor(points: Point[] = []) {
         this.points = points;
@@ -265,12 +265,12 @@ class LineSegments {
                 const isInside = (p: Point) =>
                     p.x > x0 + EPSILON && p.x < x1 - EPSILON &&
                     p.y > y0 + EPSILON && p.y < y1 - EPSILON;
-                return !(isInside(p1) && isInside(p2));
+                return !(isInside(p1) || isInside(p2));
             } else { // FilledOutward
                 const isOutside = (p: Point) =>
                     p.x < x0 - EPSILON || p.x > x1 + EPSILON ||
                     p.y < y0 - EPSILON || p.y > y1 + EPSILON;
-                return !(isOutside(p1) && isOutside(p2));
+                return !(isOutside(p1) || isOutside(p2));
             }
         });
 
@@ -310,9 +310,9 @@ class LineSegments {
 
                 let stem: LineSegment | null = null;
                 if (horizontal.length === 1 && vertical.length >= 2) {
-                    stem = horizontal[0];
-                } else if (vertical.length === 1 && horizontal.length >= 2) {
                     stem = vertical[0];
+                } else if (vertical.length === 1 && horizontal.length >= 2) {
+                    stem = horizontal[0];
                 }
 
                 if (stem) {
@@ -518,7 +518,7 @@ export class BorderState {
     }
     
     computeBorderPath(): Path {
-        const startTime = performance.now();
+        // const startTime = performance.now();
         this.lineSegments.reset();
 
         for (const rect of this.rectangles) {
@@ -533,8 +533,8 @@ export class BorderState {
         }
 
         const path = this.lineSegments.generatePath();
-        const endTime = performance.now();
-        console.log(`Computed paths in ${(endTime - startTime).toFixed(2)} ms`);
+        // const endTime = performance.now();
+        // console.log(`Computed paths in ${(endTime - startTime).toFixed(2)} ms`);
         return path;
     }
 

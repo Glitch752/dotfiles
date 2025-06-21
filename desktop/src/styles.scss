@@ -1,7 +1,7 @@
 :root {
-  font-family: "Consolas" monospace;
+  font-family: "Consolas", monospace;
 
-  color: #0f0f0f;
+  color: white;
   background-color: transparent;
 
   font-synthesis: none;
@@ -10,10 +10,155 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 
-  --bar-thickness: 28;
-  --non-bar-border-thickness: 8;
+  --bar-thickness: 28px;
+  --non-bar-border-thickness: 8px;
+  --background: #11121b;
+
+  --gradient-start: #c33764;
+  --gradient-end: #1d2671;
 }
 
 body {
   margin: 0;
+
+  overflow: hidden;
+}
+
+canvas {
+  width: 100vw;
+  height: 100vh;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+
+  .horizontal-bar {
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--bar-thickness);
+
+    flex-direction: row;
+  }
+
+  .vertical-bar {
+    top: var(--bar-thickness);
+    bottom: 0;
+    left: 0;
+    width: var(--bar-thickness);
+
+    flex-direction: column;
+  }
+
+  .horizontal-bar, .vertical-bar {
+    position: absolute;
+    background-color: var(--background);
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    > div {
+      display: flex;
+      flex-direction: inherit;
+      justify-content: center;
+      align-items: center;
+    }
+  }
+}
+
+span {
+  // Text is colored with the gradient in screen-space
+  // This is probably really slow, but at least it looks cool!
+
+  background: linear-gradient(
+    in oklch to top right,
+    color-mix(in srgb, var(--gradient-start), white 20%),
+    color-mix(in srgb, var(--gradient-end), white 20%)
+  );
+
+  background-attachment: fixed;
+
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  font-size: 16px;
+}
+
+.arch-logo {
+  --bg: color-mix(in oklab, var(--gradient-start), var(--gradient-end) 50%);
+  fill: var(--bg);
+  transition: fill 0.1s ease;
+
+  width: var(--bar-thickness);
+  overflow: visible;
+
+  svg {
+    transform: translate(-25%, 10%) scale(0.4);
+  }
+}
+.arch-logo:hover {
+  fill: color-mix(in srgb, var(--bg), white 20%);
+}
+
+#clock {
+  margin-right: 0.5rem;
+}
+#window-title {
+  margin-left: 1rem;
+}
+
+#niriWorkspaces li, #niriWindows li {
+  --spacing: 1rem;
+  text-align: center;
+  span {
+    font-size: 22px;
+  }
+
+  transition: filter 0.2s ease;
+
+  &.urgent {
+    filter: invert(1);
+  }
+  &.active {
+    filter: brightness(1.5);
+  }
+  &.focused {
+    filter: brightness(1.75);
+  }
+}
+#niriWorkspaces {
+  .niriWorkspacesList {
+    padding: 0;
+    margin: 0.5rem 0 0 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    
+    li {
+      list-style: none;
+      line-height: var(--spacing);
+    }
+  }
+}
+#niriWindows {
+  .niriWindowsList {
+    padding: 0;
+    margin: 0 0 0 0.5rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    
+    li {
+      list-style: none;
+      width: var(--spacing);
+    }
+  }
+}
+#activeWindowTitle {
+  margin-left: 0.5rem;
 }

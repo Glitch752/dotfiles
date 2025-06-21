@@ -1,5 +1,9 @@
+import { BorderRenderer } from "./border";
+import { Rectangle } from "./geom";
+
 let canvas: HTMLCanvasElement | null = null;
-let ctx: CanvasRenderingContext2D | null = null
+let ctx: CanvasRenderingContext2D | null = null;
+let renderer: BorderRenderer | null = null;
 
 export function init() {
     canvas = document.getElementById("canvas") as HTMLCanvasElement | null;
@@ -10,25 +14,25 @@ export function init() {
         return;
     }
 
-    resize();
+    renderer = new BorderRenderer(canvas, ctx);
 
-    animate(0);
+    // This is a bit of a hack, but a reliable one.
+    // ResizeObserver is always faster than 2 requestAnimationFrames per the spec,
+    // so we just wait until then to render the first time. Hacky, but reliable.
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            animate(0);
+        });
+    });
 }
 
 function animate(elapsed: number) {
-    if(!canvas || !ctx) return;
+    if(!canvas || !ctx || !renderer) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = "red";
-    ctx.fillRect(elapsed * 0.1, 0, 50, 50);
-
-    requestAnimationFrame(animate);
-}
-
-export function resize() {
-    if(!canvas) return;
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    // renderer.setWidgetRectangles([
+    //     Rectangle.filledInwardCenter((Math.sin(elapsed / 800) + 1) * 750, 110, 200, 200)
+    // ]);
+    renderer.draw();
 }

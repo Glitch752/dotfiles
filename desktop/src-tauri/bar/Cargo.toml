@@ -1,0 +1,17 @@
+[package]
+name = "bar"
+version = "0.1.0"
+edition = "2024"
+links = "bar"
+
+[dependencies]
+niri-ipc = { version = "25.5.1" }
+serde = { workspace = true }
+tauri = { workspace = true }
+
+[build-dependencies]
+# Use the same schemars version as niri-ipc
+schemars = { version = "=0.8.22" }
+tauri-plugin = { version = "2.2.0", features = ["build"] }
+niri-ipc = { version = "=25.5.1", features = ["json-schema"] }
+serde_json = "1.0.140"
