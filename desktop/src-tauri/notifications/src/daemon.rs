@@ -85,7 +85,7 @@ impl<R: Runtime> NotificationDaemon<R> {
         // Common hints:
         // - urgency | 0 = Low, 1 = Normal, 2 = Critical
         // - category | e.g. "email", "call", "im"
-        // - desktop-entry | App’s .desktop filename (only sometimes without .desktop suffix?)
+        // - desktop-entry | App's .desktop filename (only sometimes without .desktop suffix?)
         // - image-path | Path to image to show
         hints: HashMap<String, Value>,
         // Time in milliseconds to show notification; -1 = default and 0 = persistent

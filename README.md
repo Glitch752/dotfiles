@@ -4,6 +4,18 @@ My personal Arch Linux configuration, setup using [aconfmgr](https://github.com/
 
 I also got a little distracted and wrote a low-level kernel input intercepting tool to make niri work with the LWin+LAlt+LMB gesture I'm used to. It's _insanely_ hacky, but it works surprisingly well.
 
+## Features
+- Custom Niri configuration
+- Nvidia support
+- Relatively consistent system-wide theming
+- Wallpaper manager script using [swww](https://github.com/LGFae/swww) that changes and animates wallpaper transitions
+- Custom layer-shell "bar" (though it goes around the whole screen) with launcher and notifications
+
+## Images
+
+![Screenshot](./images/screenshot1.png)
+![Screenshot](./images/screenshot2.png)
+
 ## TODO
 - [ ] Add more documentation
 - [ ] Organize aconfmgr files
