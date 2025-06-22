@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-applications-query"
+description = "Enables the applications_query command without any pre-configured scope."
+commands.allow = ["applications_query"]
+
+[[permission]]
+identifier = "deny-applications-query"
+description = "Denies the applications_query command without any pre-configured scope."
+commands.deny = ["applications_query"]

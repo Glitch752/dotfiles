@@ -34,7 +34,7 @@ export class DictionaryModule extends Module {
     private searchDebounced: ((query: string, abortSignal: AbortSignal) => Promise<ModuleEntry[]>);
 
     constructor() {
-        super("Dictionary", "run-dictionary");
+        super(5, "Dictionary", "run-dictionary");
 
         this.searchDebounced = debounceAsyncFunc(500, this.search);
     }

@@ -1,3 +1,4 @@
+import { convertFileSrc } from "@tauri-apps/api/core";
 import { debounceFunc, Observable } from "../../utils";
 import { closeLauncher } from "../launcher";
 import { Module, ModuleEntry } from "./module";
@@ -131,11 +132,10 @@ export default function addLauncherPopup(content: HTMLDivElement) {
         const entryContent = document.createElement("div");
         entryContent.className = "entry-content";
 
-        const entryIcon = document.createElement("i");
+        const entryIcon = document.createElement("img");
         entryIcon.className = "icon";
-        if (entry.icon) {
-            entryIcon.textContent = `[${entry.icon.substring(0, 1)}]`; // Placeholder
-        }
+        entryIcon.src = entry.icon ? convertFileSrc(entry.icon) : "";
+        entryIcon.alt = entry.name;
         entryIcon.style.visibility = entry.icon ? "visible" : "hidden";
 
         const textBox = document.createElement("div");
@@ -159,6 +159,8 @@ export default function addLauncherPopup(content: HTMLDivElement) {
         return button;
     }
 
+    // Map from module name to results for diffing
+    let previousModuleResults: Map<string, number> = new Map();
     const render = () => {
         const results = resolvedResults.get();
         const highlightedId = highlightedEntryId.get();
@@ -170,7 +172,20 @@ export default function addLauncherPopup(content: HTMLDivElement) {
             resultsBox.prepend(statusLabel);
         }
 
-        const previousResultsCount = resultsBox.querySelectorAll<HTMLButtonElement>(".entry").length;
+        // If the results/modules present changed (and not just their content/highlight),
+        // rebuild the tree. Otherwise, just update it.
+        const currentModuleResults = new Map<string, number>();
+        results.forEach(({ module, entries }) => {
+            currentModuleResults.set(module.name, entries.length);
+        });
+        const resultsChanged = previousModuleResults.size !== currentModuleResults.size ||
+            Array.from(previousModuleResults.entries()).some(([name, count]) => currentModuleResults.get(name) !== count);
+        
+            previousModuleResults = currentModuleResults;
+        if(resultsChanged) {
+            resultsBox.innerHTML = "";
+        }
+
         const hasResults = results.some(r => r.entries.length > 0);
 
         if (hasResults) {
@@ -240,8 +255,7 @@ export default function addLauncherPopup(content: HTMLDivElement) {
             });
         });
         
-        const currentResultsCount = resultsBox.querySelectorAll<HTMLButtonElement>(".entry").length;
-        if(previousResultsCount !== currentResultsCount) {
+        if(resultsChanged) {
             resultsBox.animate([
                 { transform: "scale(1)", opacity: 1 },
                 { transform: "scale(0.95)", opacity: 0.8 },
@@ -269,19 +283,30 @@ export default function addLauncherPopup(content: HTMLDivElement) {
         // Auto-highlight the first item from the synchronous results
         highlightedEntryId.set(getActivatableItems()[0]?.id || null);
 
-        if (promises.length > 0) {
-            Promise.all(promises).then(newlyResolved => {
+        promises.forEach(promise => {
+            promise.then(newlyResolved => {
                 if (currentAbortController.signal.aborted) return;
-                
-                const validNewResults = newlyResolved.filter(r => r && r.entries.length > 0);
-                resolvedResults.set([...initialSyncResults, ...validNewResults]);
-                
+
+                if (!newlyResolved) return;
+
+                const currentResults = resolvedResults.get();
+                const currentResultsWithoutModule = currentResults.filter(r => r.module.name !== newlyResolved.module.name);
+
+                if (newlyResolved.entries.length === 0) {
+                    resolvedResults.set(currentResultsWithoutModule);
+                    return;
+                }
+
+                resolvedResults.set([...currentResultsWithoutModule, newlyResolved].sort(
+                    (a, b) => b.module.priority - a.module.priority
+                ));
+
                 // If nothing was highlighted before, highlight the new first item.
                 if (!highlightedEntryId.get()) {
                     highlightedEntryId.set(getActivatableItems()[0]?.id || null);
                 }
             });
-        }
+        });
     });
 
     // Re-render whenever the data or highlight changes

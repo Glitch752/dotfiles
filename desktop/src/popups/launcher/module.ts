@@ -10,11 +10,13 @@ export class ModuleEntry {
 
 export abstract class Module {
   constructor(
+    /** Higher priority modules are placed higher in the list. */
+    public priority: number,
     public name: string,
     public icon: string
   ) {}
 
-  getActive(query: string): boolean {
+  getActive(_query: string): boolean {
     return true;
   }
 

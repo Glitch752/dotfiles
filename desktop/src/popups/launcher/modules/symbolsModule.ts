@@ -11,7 +11,7 @@ export class SymbolsModule extends Module {
     static MAXIMUM_RESULTS = 3;
     
     constructor() {
-        super("Symbols", "run-symbols");
+        super(0, "Symbols", "run-symbols");
     }
     
     getActive(query: string): boolean {

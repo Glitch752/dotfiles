@@ -7,6 +7,7 @@ import { invokePayload, debugLog } from "./utils";
 import { initializeNiri } from "./niri";
 import { updateInputShape } from "./popups/popups";
 import { initLauncher, openLauncher } from "./popups/launcher";
+import { exit, relaunch } from "@tauri-apps/plugin-process";
 
 // Get bar thicknesses from :root in CSS
 const root = document.querySelector(":root") as HTMLElement;
@@ -82,6 +83,18 @@ listen<string>("ipc_call", (event) => {
         case "launcher":
             openLauncher();
             response = "ok";
+            break;
+        case "relaunch":
+            setTimeout(() => {
+                relaunch();
+            }, 10);
+            response = "Relaunching.";
+            break;
+        case "exit":
+            setTimeout(() => {
+                exit();
+            }, 10);
+            response = "Exiting.";
             break;
     }
     // Outside the switch statement to guarentee this is run

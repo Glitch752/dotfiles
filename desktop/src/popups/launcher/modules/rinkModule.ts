@@ -10,7 +10,7 @@ export class RinkModule extends Module {
     private static RINK_QUERY_PREFIX = "=";
     
     constructor() {
-        super("Rink", "run-calculator");
+        super(10, "Rink", "run-calculator");
     }
     
     getActive(query: string): boolean {

@@ -11,6 +11,32 @@
 <tr>
 <td>
 
+`launcher:allow-applications-query`
+
+</td>
+<td>
+
+Enables the applications_query command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`launcher:deny-applications-query`
+
+</td>
+<td>
+
+Denies the applications_query command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
 `launcher:allow-rink-query`
 
 </td>
@@ -30,6 +56,32 @@ Enables the rink_query command without any pre-configured scope.
 <td>
 
 Denies the rink_query command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`launcher:allow-start-application`
+
+</td>
+<td>
+
+Enables the start_application command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`launcher:deny-start-application`
+
+</td>
+<td>
+
+Denies the start_application command without any pre-configured scope.
 
 </td>
 </tr>

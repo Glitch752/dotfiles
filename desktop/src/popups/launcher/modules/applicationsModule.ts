@@ -1,31 +1,37 @@
+import { invokePayload } from "../../../utils";
 import { Module, ModuleEntry } from "../module";
-// import { startApplication } from "../../../processes";
+import { DesktopFile } from "@bindings/DesktopFile";
+
+async function applicationsQuery(query: string): Promise<DesktopFile[]> {
+    return await invokePayload<string, DesktopFile[]>("plugin:launcher|applications_query", query)
+}
 
 export class ApplicationsModule extends Module {
     static MAX_RESULTS = 8;
-    // static apps = new DesktopEntries();
     
     constructor() {
-        super("Applications", "run-applications");
+        super(3, "Applications", "run-applications");
     }
     
     getActive(query: string): boolean {
         return query.length > 0;
     }
-    getEntries(query: string, _abortSignal: AbortSignal): ModuleEntry[] {
+    async getEntries(query: string, _abortSignal: AbortSignal): Promise<ModuleEntry[]> {
         // TODO: Support app Desktop Actions defined in the desktop files, e.g. "New Window" from LibreWolf
-        // return ApplicationsModule.apps
-        //   .fuzzy_query(query)
-        //   .slice(0, ApplicationsModule.MAX_RESULTS)
-        //   .map(app => new ModuleEntry(app.name, app.description, app.iconName, async() => {
-        //     let executable = app.get_executable().replace("%U", ""); // I'm not sure why %U is included in the executable path
-        
-        //     try {
-        //       await startApplication(executable);
-        //     } catch (e) {
-        //       console.error("Error starting application", e);
-        //     }
-        //   }));
-        return [];
+        const apps = await applicationsQuery(query);
+
+        return apps
+            .slice(0, ApplicationsModule.MAX_RESULTS)
+            .map(app => new ModuleEntry(app.name ?? "Unknown application", app.comment, app.icon_path, app.exec ? async () => {
+                if(!app.exec) return;
+
+                let executable = app.exec.replace(/%[a-zA-Z]/g, "").trim();
+            
+                try {
+                    invokePayload<string>("plugin:launcher|start_application", executable);
+                } catch (e) {
+                    console.error("Error starting application", e);
+                }
+            } : null));
     }
 }

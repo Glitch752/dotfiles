@@ -13,6 +13,11 @@
     "bar:allow-niri-request",
     "launcher:allow-rink-query",
     "launcher:allow-symbols-query",
-    "shell:default"
+    "launcher:allow-applications-query",
+    "launcher:allow-start-application",
+    "shell:default",
+    "process:default",
+    "process:allow-restart",
+    "process:allow-exit"
   ]
 }

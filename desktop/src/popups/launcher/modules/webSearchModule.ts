@@ -24,7 +24,7 @@ export class WebSearchModule extends Module {
     ];
     
     constructor() {
-        super("Web search", "run-search");
+        super(6, "Web search", "run-search");
     }
     
     getActive(query: string): boolean {

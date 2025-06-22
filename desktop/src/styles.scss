@@ -229,6 +229,7 @@ span {
 
 .launcher {
   width: 400px;
+  max-height: calc(100vh - var(--bar-thickness) - var(--non-bar-border-thickness));
   display: flex;
   flex-direction: column;
 
@@ -246,7 +247,7 @@ span {
 
   .results-wrapper {
     transition: height 0.3s cubic-bezier(0.25, 0.1, 0.25, 1.2);
-    overflow: hidden;
+    overflow: none;
   }
   .results {
     display: flex;
@@ -275,7 +276,6 @@ span {
     flex-direction: column;
   }
   .entry {
-    display: block;
     width: 100%;
     text-align: left;
     background: none;
@@ -286,33 +286,43 @@ span {
 
     transition: background-color 0.2s ease-out;
 
+    .entry-content {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      transition: translate 0.2s cubic-bezier(0.25, 0.1, 0.25, 1.75);
+    }
+
+    .icon {
+      width: 25px;
+      height: 25px;
+      margin-right: 10px;
+    }
+
     .text {
       display: flex;
       flex-direction: column;
-      transition: translate 0.3s cubic-bezier(0.25, 0.1, 0.25, 1.75);
     }
-  }
-  .entry:hover {
-    background-color: var(--panel1);
-  }
-  .entry.highlighted {
-    background-color: var(--panel1);
+    .name {
+      font-size: 1em;
+      color: var(--subtext);
+    }
+    .description {
+      font-size: 0.85em;
+      color: var(--subtext);
+      // Allow newlines
+      white-space: pre-wrap;
+    }
 
-    .text {
-      translate: 10px 0;
+    &:hover {
+      background-color: var(--panel1);
     }
-  }
-  .icon {
-    color: #777;
-  }
-  .name {
-    font-size: 1em;
-    color: var(--subtext);
-  }
-  .description {
-    font-size: 0.85em;
-    color: var(--subtext);
-    // Allow newlines
-    white-space: pre-wrap;
+    &.highlighted {
+      background-color: var(--panel1);
+
+      .entry-content {
+        translate: 10px 0;
+      }
+    }
   }
 }

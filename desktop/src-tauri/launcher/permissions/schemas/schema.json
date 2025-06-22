@@ -295,6 +295,18 @@
       "type": "string",
       "oneOf": [
         {
+          "description": "Enables the applications_query command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-applications-query",
+          "markdownDescription": "Enables the applications_query command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the applications_query command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-applications-query",
+          "markdownDescription": "Denies the applications_query command without any pre-configured scope."
+        },
+        {
           "description": "Enables the rink_query command without any pre-configured scope.",
           "type": "string",
           "const": "allow-rink-query",
@@ -305,6 +317,18 @@
           "type": "string",
           "const": "deny-rink-query",
           "markdownDescription": "Denies the rink_query command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the start_application command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-start-application",
+          "markdownDescription": "Enables the start_application command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the start_application command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-start-application",
+          "markdownDescription": "Denies the start_application command without any pre-configured scope."
         },
         {
           "description": "Enables the symbols_query command without any pre-configured scope.",
