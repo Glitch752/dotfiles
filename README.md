@@ -1,5 +1,11 @@
 # dotfiles
 
+
+
+https://github.com/user-attachments/assets/ffd2b299-e94b-4478-bac2-42e37e773990
+
+
+
 My personal Arch Linux configuration, setup using [aconfmgr](https://github.com/CyberShadow/aconfmgr) and a custom lightweight templating engine written in Python (not because I could make something better than the alternatives, but because I wanted to).
 
 I also got a little distracted and wrote a low-level kernel input intercepting tool to make niri work with the LWin+LAlt+LMB gesture I'm used to. It's _insanely_ hacky, but it works surprisingly well.
