@@ -166,7 +166,7 @@ type FileMap = HashMap<String, DesktopFileRef>;
 #[derive(Clone)]
 pub struct DesktopFiles {
     files: Arc<Mutex<FileMap>>,
-    icon_cache: Arc<Cache>
+    pub icon_cache: Arc<Cache>
 }
 
 impl DesktopFiles {

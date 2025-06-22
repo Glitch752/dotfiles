@@ -8,6 +8,7 @@ import { initializeNiri } from "./niri";
 import { updateInputShape } from "./popups/popups";
 import { initLauncher, openLauncher } from "./popups/launcher";
 import { exit, relaunch } from "@tauri-apps/plugin-process";
+import { initNotifications } from "./popups/notifications";
 
 // Get bar thicknesses from :root in CSS
 const root = document.querySelector(":root") as HTMLElement;
@@ -34,6 +35,7 @@ window.addEventListener("DOMContentLoaded", () => {
     init();
     initWidgets();
     initLauncher();
+    initNotifications();
     initializeNiri();
 
     invokePayload<ExclusiveRegions>("create_exclusive_regions", {

@@ -134,6 +134,7 @@ pub fn run() {
         }))
         .plugin(bar::init())
         .plugin(launcher::init())
+        .plugin(notifications::init())
         .invoke_handler(tauri::generate_handler![
             set_input_shape,
             create_exclusive_regions,

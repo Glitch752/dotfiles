@@ -7,7 +7,9 @@ use tauri::{
 
 use crate::{desktop_files::{DesktopFile, DesktopFiles}, rink::RinkResult};
 
-mod desktop_files;
+pub use freedesktop_icon_lookup;
+
+pub mod desktop_files;
 mod rink;
 mod symbols;
 
