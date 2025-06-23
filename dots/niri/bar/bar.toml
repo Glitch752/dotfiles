@@ -1,5 +1,5 @@
 [configurations.bar]
 render = [
     # lol temporary
-    { source = "../../../desktop/src-tauri/target/debug/desktop", destination = "/usr/local/bin/desktop", action = "copy", as = "root", owner = "kit", permissions = "0755" },
+    { source = "../../../desktop/src-tauri/target/release/desktop", destination = "/usr/local/bin/desktop", action = "copy", as = "root", owner = "kit", permissions = "0755" },
 ]

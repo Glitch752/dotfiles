@@ -1,0 +1,20 @@
+{
+  "name": "gtk",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "sh build.sh"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@csstools/postcss-relative-color-syntax": "^3.0.10",
+    "postcss": "^8.5.6",
+    "postcss-cli": "^11.0.1",
+    "postcss-color-functional-notation": "^7.0.10",
+    "resolve-gtk": "link:postcss/resolve-gtk"
+  }
+}

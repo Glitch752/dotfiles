@@ -7,6 +7,7 @@ imports = [
 
 [configurations.niri]
 render = [
-    { source = "config.kdl", destination = "~/.config/niri/config.kdl" }
+    { source = "config.kdl", destination = "~/.config/niri/config.kdl" },
+    { source = "compat/brave-flags.conf", destination = "~/.config/brave-flags.conf" }
 ]
 subconfigs = ["window-binds", "swww", "lightdm", "bar"]

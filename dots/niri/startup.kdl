@@ -8,6 +8,8 @@
 spawn-at-startup "swww-daemon" "--no-cache"
 spawn-at-startup "sh" "{{randomize_wallpaper_script}}"
 
+spawn-at-startup "desktop"
+
 spawn-at-startup "xwayland-satellite" ":0"
 spawn-at-startup "/usr/lib/polkit-kde-authentication-agent-1"
 

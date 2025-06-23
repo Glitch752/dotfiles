@@ -1,4 +1,5 @@
 import os
+import time
 from typing import Optional
 
 from .logging import PrettyLogger
@@ -202,7 +203,7 @@ class DotfileManager:
         self.log.info("Watching for changes. Press Ctrl+C to exit.")
         try:
             while True:
-                pass
+                time.sleep(1)
         except KeyboardInterrupt:
             observer.stop()
         observer.join()

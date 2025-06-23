@@ -1,0 +1,29 @@
+
+@define-color theme_bg_color @window_bg_color;
+@define-color theme_fg_color @window_fg_color;
+
+@define-color theme_base_color @view_bg_color;
+@define-color theme_text_color @view_fg_color;
+
+@define-color theme_selected_bg_color @accent_bg_color;
+@define-color theme_selected_fg_color @accent_fg_color;
+
+@define-color insensitive_bg_color mix(@window_bg_color, @view_bg_color, 0.6);
+@define-color insensitive_fg_color mix(@window_fg_color, transparent, 0.5);
+
+@define-color insensitive_base_color @view_bg_color;
+
+@define-color borders mix(currentColor, transparent, 0.15);
+
+@define-color theme_unfocused_bg_color @window_bg_color;
+@define-color theme_unfocused_fg_color @window_fg_color;
+
+@define-color theme_unfocused_base_color @view_bg_color;
+@define-color theme_unfocused_text_color @view_fg_color;
+
+@define-color theme_unfocused_selected_bg_color @accent_bg_color;
+@define-color theme_unfocused_selected_fg_color @accent_fg_color;
+
+@define-color unfocused_insensitive_color @insensitive_bg_color;
+
+@define-color unfocused_borders @borders;

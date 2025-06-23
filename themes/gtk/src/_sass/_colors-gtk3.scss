@@ -1,0 +1,83 @@
+/* GTK NAMED COLORS
+   ----------------
+   use responsibly! */
+
+// These are the colors apps can override. We define the defaults here and
+// define variables for them in _colors.scss
+
+// Sass thinks we're using the colors in the variables as strings and may shoot
+// warning, it's innocuous and can be defeated by using #{$var}.
+
+@use 'color-vars' as *;
+@use '../../adw-gtk3/src/sass/functions' as *;
+
+// destructive-action buttons
+@define-color destructive_bg_color @red_4;
+@define-color destructive_fg_color white;
+
+// Levelbars, entries, labels and infobars. These don't need text colors
+@define-color success_bg_color @green_5;
+@define-color success_fg_color white;
+
+@define-color warning_bg_color #cd9309;
+@define-color warning_fg_color rgba(0, 0, 0, 0.80);
+
+@define-color error_bg_color @red_4;
+@define-color error_fg_color white;
+
+@define-color accent_color #{gtkshade("@accent_bg_color", 0.85)};
+@define-color destructive_color #{gtkshade("@destructive_bg_color", 0.85)};
+@define-color success_color #{gtkshade("@success_bg_color", 0.85)};
+@define-color warning_color #{gtkshade("@warning_bg_color", 0.85)};
+@define-color error_color #{gtkshade("@error_bg_color", 0.85)};
+
+// Window
+@define-color window_bg_color #{$CUSTOM_WINDOW_BG_COLOR};
+@define-color window_fg_color white;
+
+// Views - e.g. text view or tree view
+@define-color view_bg_color #{$CUSTOM_BG_COLOR};
+@define-color view_fg_color white;
+
+// Header bar, search bar, tab bar
+@define-color headerbar_bg_color #{$CUSTOM_SECONDARY_BG_COLOR};
+@define-color headerbar_fg_color white;
+@define-color headerbar_border_color white;
+@define-color headerbar_backdrop_color @window_bg_color;
+@define-color headerbar_shade_color rgba(0, 0, 6, 0.36);
+@define-color headerbar_darker_shade_color rgba(0, 0, 12, 0.90);
+
+// Split pane views
+@define-color sidebar_bg_color #{$CUSTOM_SECONDARY_BG_COLOR};
+@define-color sidebar_fg_color white;
+@define-color sidebar_backdrop_color #{$CUSTOM_SECONDARY_BACKDROP_COLOR};
+@define-color sidebar_shade_color rgba(0, 0, 6, 0.25);
+@define-color sidebar_border_color rgba(0, 0, 6, 0.36);
+
+@define-color secondary_sidebar_bg_color #{$CUSTOM_SECONDARY_BACKDROP_COLOR};
+@define-color secondary_sidebar_fg_color white;
+@define-color secondary_sidebar_backdrop_color #{$CUSTOM_SECONDARY_BACKDROP_COLOR};
+@define-color secondary_sidebar_shade_color rgba(0, 0, 6, 0.25);
+@define-color secondary_sidebar_border_color rgba(0, 0, 6, 0.36);
+
+// Cards, boxed lists
+@define-color card_bg_color #{$CUSTOM_CARD_BG_COLOR};
+@define-color card_fg_color white;
+@define-color card_shade_color rgba(0, 0, 6, 0.36);
+
+// Dialogs
+@define-color dialog_bg_color #{$CUSTOM_DIALOG_BG_COLOR};
+@define-color dialog_fg_color white;
+
+// Popovers
+@define-color popover_bg_color #{$CUSTOM_DIALOG_BG_COLOR};
+@define-color popover_fg_color white;
+@define-color popover_shade_color rgba(0, 0, 6, 0.25);
+
+// Thumbnails
+@define-color thumbnail_bg_color #39393d;
+@define-color thumbnail_fg_color white;
+
+// Miscellaneous
+@define-color shade_color rgba(0, 0, 6, 0.25); // Shades backgrounds in dialog boxes
+@define-color scrollbar_outline_color rgba(0, 0, 12, 0.95);

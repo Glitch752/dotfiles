@@ -1,0 +1,6 @@
+libadwaita/
+adw-gtk3/
+src/adwaita-stylesheet/
+src/adw-gtk3-stylesheet/
+node_modules/
+gtk-unsupported.css

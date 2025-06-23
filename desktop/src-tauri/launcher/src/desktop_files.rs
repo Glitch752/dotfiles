@@ -227,7 +227,7 @@ impl DesktopFiles {
                 let name_score = matcher.fuzzy_match(
                     &file.name.as_ref().unwrap(),
                     &query,
-                );
+                ).map(|v| v * 3 / 2); // Boost name matches
                 let keywords_score = file.keywords.iter()
                     .filter_map(|keyword| matcher.fuzzy_match(keyword, &query))
                     .max();

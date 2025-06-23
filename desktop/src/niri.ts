@@ -218,7 +218,7 @@ function updateWorkspaceWidgets() {
             // Add new windows if there are fewer than expected
             child = document.createElement("li");
             const bullet = document.createElement("div");
-            bullet.classList = "bullet";
+            bullet.className = "bullet";
             child.appendChild(bullet);
             windowsElement.appendChild(child);
         } else {
@@ -246,7 +246,7 @@ ${windows.length} windows total; ${workspaceWindows.length} on workspace`;
             // Add new windows if there are fewer than expected
             child = document.createElement("li");
             const bullet = document.createElement("div");
-            bullet.classList = "bullet";
+            bullet.className = "bullet";
             child.appendChild(bullet);
             workspacesElement.appendChild(child);
         } else {

@@ -20,7 +20,10 @@ environment {
     WALLPAPERS_DIR "{{wallpapers_directory}}"
 
     // Dark theme
-    GTK_THEME "Adwaita:dark"
-    GTK2_RC_FILES "/usr/share/themes/Adwaita-dark/gtk-2.0/gtkrc"
+    GTK_THEME "CustomDesktopTheme:dark"
+    // GTK2_RC_FILES "~/.themes/CustomDesktopTheme/gtk-2.0/gtkrc"
+    // Seemingly causes issues and gtk3/4 applications work without this anyway?
+    // GTK3_THEME "CustomDesktopTheme:dark"
+    // GTK4_THEME "CustomDesktopTheme:dark"
     QT_STYLE_OVERRIDE "Adwaita-Dark"
 }

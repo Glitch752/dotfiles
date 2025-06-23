@@ -10,7 +10,7 @@ const notifications: Map<number, {
     element: HTMLElement
 }> = new Map();
 
-const NOTIFICATION_TIMEOUT = 4000;
+const NOTIFICATION_TIMEOUT = 8000;
 
 let notificationAnchor = document.createElement("div");
 notificationAnchor.style.position = "absolute";

@@ -1,0 +1,21 @@
+{
+  "name": "cosmic-arch-vsc",
+  "displayName": "cosmic-arch-vsc",
+  "description": "",
+  "version": "0.0.2",
+  "engines": {
+    "vscode": "^1.78.0"
+  },
+  "categories": [
+    "Themes"
+  ],
+  "contributes": {
+    "themes": [
+      {
+        "label": "Cosmic Arch VSC theme",
+        "uiTheme": "vs-dark",
+        "path": "./themes/Cosmic Arch VSC theme-color-theme.json"
+      }
+    ]
+  }
+}

@@ -29,7 +29,7 @@ export function init() {
     });
 }
 
-function animate(elapsed: number, rects: Rectangle[]) {
+function animate(_elapsed: number, rects: Rectangle[]) {
     if(!canvas || !ctx || !renderer) return;
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);

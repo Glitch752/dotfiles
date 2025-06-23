@@ -2,6 +2,7 @@
 IgnorePath '/home/kit/.zshrc'
 IgnorePath '/home/kit/.oh-my-zsh/custom/aliases.zsh'
 IgnorePath '/home/kit/.config/niri/config.kdl'
+IgnorePath '/home/kit/.config/brave-flags.conf'
 IgnorePath '/etc/interception/udevmon.yaml'
 IgnorePath '/etc/interception/fix-niri-altdrag'
 IgnorePath '/usr/local/bin/randomize_wallpaper.sh'

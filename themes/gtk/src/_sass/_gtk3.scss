@@ -1,0 +1,48 @@
+@use '../adw-gtk3-stylesheet/sass/settings' with ($variant: 'dark');
+
+@use "./colors-gtk3";
+@use "./gtk3-compat";
+// This is the main sass file for the dark variant
+
+// @use '../adw-gtk3-stylesheet/sass/colors-public';
+
+@use '../adw-gtk3-stylesheet/sass/common';
+@use '../adw-gtk3-stylesheet/sass/widgets/views';
+@use '../adw-gtk3-stylesheet/sass/widgets/labels';
+@use '../adw-gtk3-stylesheet/sass/widgets/spinner';
+@use '../adw-gtk3-stylesheet/sass/widgets/entries';
+@use '../adw-gtk3-stylesheet/sass/widgets/buttons';
+@use '../adw-gtk3-stylesheet/sass/widgets/links';
+@use '../adw-gtk3-stylesheet/sass/widgets/spin-button';
+@use '../adw-gtk3-stylesheet/sass/widgets/combo-box';
+@use '../adw-gtk3-stylesheet/sass/widgets/toolbars';
+@use '../adw-gtk3-stylesheet/sass/widgets/header-bar';
+@use '../adw-gtk3-stylesheet/sass/widgets/pathbar';
+@use '../adw-gtk3-stylesheet/sass/widgets/treeviews';
+@use '../adw-gtk3-stylesheet/sass/widgets/menus';
+@use '../adw-gtk3-stylesheet/sass/widgets/popovers';
+@use '../adw-gtk3-stylesheet/sass/widgets/notebook';
+@use '../adw-gtk3-stylesheet/sass/widgets/scrolling';
+@use '../adw-gtk3-stylesheet/sass/widgets/switch';
+@use '../adw-gtk3-stylesheet/sass/widgets/checks';
+@use '../adw-gtk3-stylesheet/sass/widgets/scale';
+@use '../adw-gtk3-stylesheet/sass/widgets/progress-bar';
+@use '../adw-gtk3-stylesheet/sass/widgets/level-bar';
+@use '../adw-gtk3-stylesheet/sass/widgets/print-dialog';
+@use '../adw-gtk3-stylesheet/sass/widgets/frame';
+@use '../adw-gtk3-stylesheet/sass/widgets/lists';
+@use '../adw-gtk3-stylesheet/sass/widgets/app-notification';
+@use '../adw-gtk3-stylesheet/sass/widgets/expander';
+@use '../adw-gtk3-stylesheet/sass/widgets/calendar';
+@use '../adw-gtk3-stylesheet/sass/widgets/message-dialog';
+@use '../adw-gtk3-stylesheet/sass/widgets/sidebars';
+@use '../adw-gtk3-stylesheet/sass/widgets/file-chooser';
+@use '../adw-gtk3-stylesheet/sass/widgets/paned';
+@use '../adw-gtk3-stylesheet/sass/widgets/info-bar';
+@use '../adw-gtk3-stylesheet/sass/widgets/tooltip';
+@use '../adw-gtk3-stylesheet/sass/widgets/color-chooser';
+@use '../adw-gtk3-stylesheet/sass/widgets/misc';
+@use '../adw-gtk3-stylesheet/sass/widgets/window';
+@use '../adw-gtk3-stylesheet/sass/libgranite';
+@use '../adw-gtk3-stylesheet/sass/libhandy';
+@use '../adw-gtk3-stylesheet/sass/apps';

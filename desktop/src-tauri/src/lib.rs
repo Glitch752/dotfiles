@@ -95,8 +95,10 @@ fn set_input_shape(payload: Vec<InputRect>, state: State<'_, Mutex<AppState>>) {
 fn devtools(payload: bool, app_handle: tauri::AppHandle) {
     let window = app_handle.get_webview_window("main").unwrap();
     if payload {
+        #[cfg(debug_assertions)]
         window.open_devtools();
     } else {
+        #[cfg(debug_assertions)]
         window.close_devtools();
     }
 }

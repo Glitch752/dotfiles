@@ -25,6 +25,7 @@ I also got a little distracted and wrote a low-level kernel input intercepting t
 ## TODO
 - [ ] Add more documentation
 - [ ] Organize aconfmgr files
+- [ ] Set up dotmgr to build and install custom theme instead of using shell script
 
 ### TODO for dotmgr
 - [ ] Allow regex for file matching and destination
