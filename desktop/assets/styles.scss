@@ -1,3 +1,8 @@
+@use "launcher";
+@use "bar";
+@use "notifications";
+@use "utils" as *;
+
 :root {
   font-family: "Consolas", monospace;
 
@@ -42,41 +47,6 @@ canvas {
   position: absolute;
   inset: 0;
 
-  .horizontal-bar {
-    top: 0;
-    left: 0;
-    right: 0;
-    height: var(--bar-thickness);
-
-    flex-direction: row;
-  }
-
-  .vertical-bar {
-    top: var(--bar-thickness);
-    bottom: 0;
-    left: 0;
-    width: var(--bar-thickness);
-
-    flex-direction: column;
-  }
-
-  .horizontal-bar, .vertical-bar {
-    position: absolute;
-    background-color: var(--background);
-    z-index: 10;
-
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    > div {
-      display: flex;
-      flex-direction: inherit;
-      justify-content: center;
-      align-items: center;
-    }
-  }
-
   #popups {
     position: absolute;
     top: var(--bar-thickness);
@@ -88,9 +58,9 @@ canvas {
       // background-color: #ff000044;
       padding: 10px;
       margin: -10px;
-      --duration: 0.3s;
+      --duration: 0.25s;
       // A ease-like transition with a very minor bounce
-      --easing: cubic-bezier(0.25, 0.1, 0.1, 1.2);
+      --easing: cubic-bezier(0.25, 0.1, 0.1, 1.0);
       transition:
         top var(--duration) var(--easing),
         left var(--duration) var(--easing),
@@ -99,18 +69,6 @@ canvas {
         opacity var(--duration) var(--easing);
     }
   }
-}
-
-/// Many elements are colored with the gradient in screen-space
-/// This is probably really expensive, but at least it looks cool!
-@mixin background-gradient {
-  background: linear-gradient(
-    in oklch to top right,
-    var(--gradient-start-light),
-    var(--gradient-end-light)
-  );
-
-  background-attachment: fixed;
 }
 
 span {
@@ -133,269 +91,4 @@ span {
   @include background-gradient;
   aspect-ratio: 1;
   mask-size: cover;
-}
-
-.arch-logo {
-  fill: color-mix(in oklab, var(--gradient-start-light), var(--gradient-end-light) 50%);
-  transition: filter 0.2s ease;
-
-  width: var(--bar-thickness);
-  overflow: visible;
-
-  svg {
-    transform: translate(-25%, 10%) scale(0.3);
-  }
-}
-.arch-logo:hover {
-  filter: brightness(1.5);
-}
-
-#clock {
-  margin-right: 0.5rem;
-}
-#battery {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 5px;
-
-  .icon {
-    height: 1.5ch;
-  }
-}
-.separator {
-  width: 2.5rem;
-}
-
-#window-title {
-  margin-left: 1rem;
-}
-
-.niriWorkspaces li, .niriWindows li {
-  text-align: center;
-  
-  list-style: none;
-  margin: 0;
-  display: inline-block;
-
-  --base-padding: 4px;
-  --extended-padding: 10px;
-
-  --base-size: 8px;
-  --expanded-length: 20px;
-  --expanded-width: 10px;
-  
-  .bullet {
-    @include background-gradient;
-   
-    width: var(--base-size);
-    height: var(--base-size);
-    border-radius: 100px;
-
-    transition: width 0.3s ease, height 0.3s ease, filter 0.3s ease;
-  }
-
-  &.urgent .bullet {
-    filter: invert(1);
-  }
-  &.active .bullet {
-    filter: brightness(1.25);
-  }
-  &:hover .bullet, &.focused .bullet {
-    filter: brightness(1.5);
-  } 
-}
-.niriWorkspaces {
-  .niriWorkspacesList {
-    padding: 0;
-    margin: 0.5rem 0 0 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
-    li {
-      padding: var(--base-padding) var(--extended-padding);
-    }
-
-    .focused .bullet {
-      width: var(--expanded-width);
-      height: var(--expanded-length);
-    }
-  }
-}
-.niriWindows {
-  .niriWindowsList {
-    padding: 0;
-    margin: 0 0 0 0.5rem;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-
-    li {
-      padding: var(--extended-padding) var(--base-padding);
-    }
-
-    .focused .bullet {
-      width: var(--expanded-length);
-      height: var(--expanded-width);
-    }
-  }
-}
-#activeWindowTitle {
-  margin-left: 1rem;
-}
-
-.launcher {
-  width: 400px;
-  max-height: calc(100vh - var(--bar-thickness) - var(--non-bar-border-thickness));
-  display: flex;
-  flex-direction: column;
-
-  input {
-    background-color: var(--panel1);
-    border: none;
-    outline: none;
-    border-radius: 6px;
-    font-size: 14px;
-    margin: 0.5rem 1rem;
-    padding: 0.5rem;
-    color: #ccc;
-    font-family: "Consolas";
-  }
-
-  .results-wrapper {
-    transition: height 0.3s cubic-bezier(0.25, 0.1, 0.25, 1.2);
-    overflow: hidden;
-  }
-  .results {
-    display: flex;
-    flex-direction: column;
-  }
-  .status-label {
-    padding: 8px;
-    font-size: 16px;
-    text-align: center;
-  }
-  .module {
-    display: flex;
-    flex-direction: column;
-  }
-  .module-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    font-size: 0.8em;
-    font-weight: bold;
-    color: var(--subtext);
-  }
-  .entries {
-    display: flex;
-    flex-direction: column;
-  }
-  .entry {
-    width: 100%;
-    text-align: left;
-    background: none;
-    border: none;
-    padding: 10px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-
-    transition: background-color 0.2s ease-out;
-
-    .entry-content {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      transition: translate 0.2s cubic-bezier(0.25, 0.1, 0.25, 1.75);
-    }
-
-    .icon {
-      width: 25px;
-      height: 25px;
-      margin-right: 10px;
-    }
-
-    .text {
-      display: flex;
-      flex-direction: column;
-    }
-    .name {
-      font-size: 1em;
-      color: var(--subtext);
-    }
-    .description {
-      font-size: 0.85em;
-      color: var(--subtext);
-      // Allow newlines
-      white-space: pre-wrap;
-    }
-
-    &:hover {
-      background-color: var(--panel1);
-    }
-    &.highlighted {
-      background-color: var(--panel1);
-
-      .entry-content {
-        translate: 10px 0;
-      }
-    }
-  }
-}
-
-.notifications-container {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  overflow: hidden;
-
-  .notification-container {
-    padding: 2px;
-    border-radius: 8px;
-
-    &.critical {
-      background: linear-gradient(
-        to right,
-        var(--gradient-start-light),
-        var(--gradient-end-light)
-      );
-    }
-  }
-  .notification {
-    width: 300px;
-    background-color: var(--panel1);
-    padding: 5px 10px 10px 10px;
-    border-radius: 6px;
-
-    .application {
-      display: flex;
-      flex-direction: row;
-      font-size: 12px;
-      color: var(--subtext);
-      padding-right: 5px;
-      margin-bottom: 5px;
-
-      .application-name {
-        flex-grow: 1;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      .icon {
-        width: 2ch;
-        height: 2ch;
-      }
-    }
-    .title {
-      font-size: 16px;
-      font-weight: bold;
-    }
-    .message {
-      font-size: 14px;
-      color: var(--subtext);
-    }
-  }
 }

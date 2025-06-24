@@ -1,0 +1,185 @@
+@use "utils" as *;
+
+:root {
+    --bar-icon-size: 1.5ch;
+}
+
+.horizontal-bar {
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--bar-thickness);
+    
+    flex-direction: row;
+}
+
+.vertical-bar {
+    top: var(--bar-thickness);
+    bottom: 0;
+    left: 0;
+    width: var(--bar-thickness);
+    
+    flex-direction: column;
+
+    > div {
+        
+        &:nth-child(2) {
+            flex: 1;
+            justify-content: center;
+            min-height: 0;
+        }
+        &:last-child {
+            justify-content: flex-end;
+        }
+    }
+}
+
+.horizontal-bar, .vertical-bar {
+    position: absolute;
+    background-color: var(--background);
+    z-index: 10;
+    
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
+    > div {
+        display: flex;
+        flex-direction: inherit;
+        align-items: center;
+    }
+}
+
+.horizontal-bar .separator {
+    width: 2.5rem;
+}
+.vertical-bar .separator {
+    height: 2.5rem;
+}
+
+.arch-logo {
+    fill: color-mix(in oklab, var(--gradient-start-light), var(--gradient-end-light) 50%);
+    transition: filter 0.2s ease;
+    
+    width: var(--bar-thickness);
+    overflow: visible;
+    
+    svg {
+        transform: translate(-25%, 10%) scale(0.3);
+    }
+}
+.arch-logo:hover {
+    filter: brightness(1.5);
+}
+
+#clock {
+    margin-right: 0.5rem;
+}
+#battery {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+    
+    .icon {
+        height: var(--bar-icon-size);
+    }
+}
+
+#window-title {
+    margin-left: 1rem;
+}
+
+.niriWorkspaces li, .niriWindows li {
+    text-align: center;
+    
+    list-style: none;
+    margin: 0;
+    display: inline-block;
+    
+    --base-padding: 4px;
+    --extended-padding: 10px;
+    
+    --base-size: 8px;
+    --expanded-length: 20px;
+    --expanded-width: 10px;
+    
+    .bullet {
+        @include background-gradient;
+        
+        width: var(--base-size);
+        height: var(--base-size);
+        border-radius: 100px;
+        
+        transition: width 0.3s ease, height 0.3s ease, filter 0.3s ease;
+    }
+    
+    &.urgent .bullet {
+        filter: invert(1);
+    }
+    &.active .bullet {
+        filter: brightness(1.25);
+    }
+    &:hover .bullet, &.focused .bullet {
+        filter: brightness(1.5);
+    } 
+}
+.niriWorkspaces {
+    .niriWorkspacesList {
+        padding: 0;
+        margin: 0.5rem 0 0 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        
+        li {
+            padding: var(--base-padding) var(--extended-padding);
+        }
+        
+        .focused .bullet {
+            width: var(--expanded-width);
+            height: var(--expanded-length);
+        }
+    }
+}
+.niriWindows {
+    .niriWindowsList {
+        padding: 0;
+        margin: 0 0 0 0.5rem;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        
+        li {
+            padding: var(--extended-padding) var(--base-padding);
+        }
+        
+        .focused .bullet {
+            width: var(--expanded-length);
+            height: var(--expanded-width);
+        }
+    }
+}
+#activeWindowTitle {
+    margin-left: 1rem;
+}
+
+.mpris {
+    text-orientation: sideways;
+    writing-mode: sideways-lr;
+    // Text-overflow: ellipsis will not work with sideways text (or our gradient background).
+    // We handle it in Javascript instead.
+}
+
+#powerOptions {
+    .icon {
+        width: var(--bar-icon-size);
+        transition: filter 0.2s ease;
+    }
+    .icon:hover {
+        filter: brightness(1.5);
+    }
+    margin-bottom: 0.5rem;
+}

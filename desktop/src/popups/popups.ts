@@ -168,10 +168,10 @@ export function openPopup(
         y: anchorRect.top + anchorRect.height / 2,
     };
     
-    const anchoredLeft = anchorCenter.x < popupsRect.left;
-    const anchoredRight = anchorCenter.x > popupsRect.left + popupsRect.width;
-    const anchoredTop = anchorCenter.y < popupsRect.top;
-    const anchoredBottom = anchorCenter.y > popupsRect.top + popupsRect.height;
+    const anchoredLeft = anchorCenter.x - popupRect.width / 2 < popupsRect.left;
+    const anchoredRight = anchorCenter.x + popupRect.width / 2 > popupsRect.left + popupsRect.width;
+    const anchoredTop = anchorCenter.y - popupRect.height / 2 < popupsRect.top;
+    const anchoredBottom = anchorCenter.y + popupRect.height / 2 > popupsRect.top + popupsRect.height;
     
     let left = anchoredLeft || anchoredRight ? null : anchorCenter.x - popupsRect.left;
     let top = anchoredTop || anchoredBottom ? null : anchorCenter.y - popupsRect.top;

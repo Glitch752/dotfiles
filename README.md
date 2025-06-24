@@ -15,7 +15,8 @@ I also got a little distracted and wrote a low-level kernel input intercepting t
 - Nvidia support
 - Relatively consistent system-wide theming
 - Wallpaper manager script using [swww](https://github.com/LGFae/swww) that changes and animates wallpaper transitions
-- Custom layer-shell "bar" (though it goes around the whole screen) with launcher and notifications
+- Custom layer-shell "bar" (though it goes around the whole screen) with launcher, notifications, and more
+- Consistent system-wide themeing with custom themes for GTK 3, GTK 4, VSCode, Discord, Firefox, and more
 
 ## Images
 
@@ -30,8 +31,6 @@ I also got a little distracted and wrote a low-level kernel input intercepting t
 - [ ] Launcher
   - [ ] Proper module icons
 - [ ] More bar widgets
-  - [ ] Battery
-  - [ ] Power profiles
   - [ ] Audio input/output
   - [ ] System resource utilization
   - [ ] Mpris (audio players)
@@ -39,13 +38,14 @@ I also got a little distracted and wrote a low-level kernel input intercepting t
   - [ ] System tray
 - [ ] More popup menus
   - [ ] Power options
+  - [ ] Power profiles under battery
   - [ ] Calendar
   - [ ] Clipboard history
 - [ ] On-screen display
   - [ ] Volume
   - [ ] Brightness
 - [ ] Custom lockscreen?
-- [ ] Somehow implement theme customization?
+- [ ] Somehow implement system-wide theme customization?
 
 ### TODO for dotmgr
 - [ ] Allow regex for file matching and destination

@@ -1,0 +1,11 @@
+/// Many elements are colored with the gradient in screen-space
+/// This is probably really expensive, but at least it looks cool!
+@mixin background-gradient {
+  background: linear-gradient(
+    in oklch to top right,
+    var(--gradient-start-light),
+    var(--gradient-end-light)
+  );
+
+  background-attachment: fixed;
+}
