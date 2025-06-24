@@ -1,5 +1,5 @@
 import { listen } from "@tauri-apps/api/event";
-import { debugLog as debugLog, invokePayload } from "./utils";
+import { debugLog as debugLog, invokePayload } from "../utils";
 import { Request } from "@bindings/NiriIpcRequest";
 import { Output, Response, Window, Workspace } from "@bindings/NiriIpcResponse";
 import { Event } from "@bindings/NiriIpcEvent";

@@ -26,6 +26,26 @@ I also got a little distracted and wrote a low-level kernel input intercepting t
 - [ ] Add more documentation
 - [ ] Organize aconfmgr files
 - [ ] Set up dotmgr to build and install custom theme instead of using shell script
+- [ ] Support multiple monitors
+- [ ] Launcher
+  - [ ] Proper module icons
+- [ ] More bar widgets
+  - [ ] Battery
+  - [ ] Power profiles
+  - [ ] Audio input/output
+  - [ ] System resource utilization
+  - [ ] Mpris (audio players)
+  - [ ] Wireless connections
+  - [ ] System tray
+- [ ] More popup menus
+  - [ ] Power options
+  - [ ] Calendar
+  - [ ] Clipboard history
+- [ ] On-screen display
+  - [ ] Volume
+  - [ ] Brightness
+- [ ] Custom lockscreen?
+- [ ] Somehow implement theme customization?
 
 ### TODO for dotmgr
 - [ ] Allow regex for file matching and destination

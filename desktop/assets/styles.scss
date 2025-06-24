@@ -10,8 +10,8 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 
-  --bar-thickness: 28px;
-  --non-bar-border-thickness: 8px;
+  --bar-thickness: 26px;
+  --non-bar-border-thickness: 6px;
   --background: #11121b;
   --panel1: #1e1e2a;
   --subtext: #ccc;
@@ -101,6 +101,8 @@ canvas {
   }
 }
 
+/// Many elements are colored with the gradient in screen-space
+/// This is probably really expensive, but at least it looks cool!
 @mixin background-gradient {
   background: linear-gradient(
     in oklch to top right,
@@ -112,8 +114,6 @@ canvas {
 }
 
 span {
-  // Text is colored with the gradient in screen-space
-  // This is probably really slow, but at least it looks cool!
   @include background-gradient;
 
   -webkit-background-clip: text;
@@ -127,6 +127,12 @@ span {
 
   // Avoid the text shifting vertically no matter what glyphs are shown
   line-height: 1.2;
+}
+
+.gradient-image {
+  @include background-gradient;
+  aspect-ratio: 1;
+  mask-size: cover;
 }
 
 .arch-logo {
@@ -147,6 +153,20 @@ span {
 #clock {
   margin-right: 0.5rem;
 }
+#battery {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+
+  .icon {
+    height: 1.5ch;
+  }
+}
+.separator {
+  width: 2.5rem;
+}
+
 #window-title {
   margin-left: 1rem;
 }

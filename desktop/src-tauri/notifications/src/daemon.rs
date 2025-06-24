@@ -1,13 +1,11 @@
 use serde::Serialize;
 use tauri::AppHandle;
 use tauri::Emitter;
-use tauri::Manager;
 use tauri::Runtime;
 use ts_rs::TS;
-use zbus::dbus_interface;
+use zbus::interface;
 use zvariant::Value;
 use std::collections::HashMap;
-use std::path::PathBuf;
 use std::sync::atomic::AtomicU32;
 
 #[derive(Debug, Clone, Serialize, TS)]
@@ -15,7 +13,7 @@ use std::sync::atomic::AtomicU32;
 struct Notification {
     id: u32,
     application_name: String,
-    application_icon_path: Option<PathBuf>,
+    application_icon: Option<String>,
     title: String,
     body: String,
     actions: Vec<NotificationAction>,
@@ -65,7 +63,7 @@ impl<R: Runtime> NotificationDaemon<R> {
     }
 }
 
-#[dbus_interface(name = "org.freedesktop.Notifications")]
+#[interface(name = "org.freedesktop.Notifications")]
 impl<R: Runtime> NotificationDaemon<R> {
     fn notify(
         &self,
@@ -114,18 +112,16 @@ impl<R: Runtime> NotificationDaemon<R> {
             })
             .collect();
 
-        let cache = &self.app_handle.state::<launcher::desktop_files::DesktopFiles>().icon_cache;
-
         let app_icon = if app_icon.is_empty() {
             None
         } else {
-            Some(app_icon)
+            Some(app_icon.to_string())
         };
 
         let notification = Notification {
             id,
             application_name: app_name.to_string(),
-            application_icon_path: app_icon.map(|icon| cache.lookup(icon, None)).flatten(),
+            application_icon: app_icon,
             title: summary.to_string(),
             body: body.to_string(),
             actions,

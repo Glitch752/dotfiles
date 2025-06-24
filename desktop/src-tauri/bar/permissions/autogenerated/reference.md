@@ -37,6 +37,32 @@ Denies the debug_log command without any pre-configured scope.
 <tr>
 <td>
 
+`bar:allow-get-upower-properties`
+
+</td>
+<td>
+
+Enables the get_upower_properties command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`bar:deny-get-upower-properties`
+
+</td>
+<td>
+
+Denies the get_upower_properties command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
 `bar:allow-niri-request`
 
 </td>

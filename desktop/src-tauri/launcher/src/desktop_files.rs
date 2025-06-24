@@ -20,13 +20,15 @@ enum DesktopFileRef {
 }
 
 impl DesktopFileRef {
-    async fn get(&mut self, cache: Arc<Cache>) -> Result<DesktopFile> {
+    async fn get(&mut self, cache: Arc<Mutex<Cache>>) -> Result<DesktopFile> {
         match self {
             DesktopFileRef::Unloaded(path) => {
                 let (tx, rx) = tokio::sync::oneshot::channel();
                 let path = path.clone();
 
-                tauri::async_runtime::spawn(async move { tx.send(Self::load(&path, &cache).await) });
+                tauri::async_runtime::spawn(async move {
+                    tx.send(Self::load(&path, &cache).await)
+                });
 
                 let file = rx.await
                     .map_err(|_| std::io::Error::new(std::io::ErrorKind::Other, "Failed to load desktop file"))?
@@ -39,8 +41,9 @@ impl DesktopFileRef {
         }
     }
 
-    async fn load(file_path: &Path, cache: &Cache) -> Result<DesktopFile> {
+    async fn load(file_path: &Path, cache: &Mutex<Cache>) -> Result<DesktopFile> {
         let file = tokio::fs::File::open(file_path).await?;
+        let cache = cache.lock().await;
 
         let mut desktop_file = DesktopFile::new(
             file_path
@@ -166,7 +169,7 @@ type FileMap = HashMap<String, DesktopFileRef>;
 #[derive(Clone)]
 pub struct DesktopFiles {
     files: Arc<Mutex<FileMap>>,
-    pub icon_cache: Arc<Cache>
+    pub icon_cache: Arc<Mutex<Cache>>
 }
 
 impl DesktopFiles {
@@ -193,7 +196,7 @@ impl DesktopFiles {
         
         Self {
             files: Arc::new(Mutex::new(desktop_files)),
-            icon_cache: Arc::new(cache)
+            icon_cache: Arc::new(Mutex::new(cache))
         }
     }
 

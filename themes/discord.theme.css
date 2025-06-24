@@ -1,0 +1,5 @@
+.theme-darker {
+    --theme-base-color-amount: 100%;
+    --theme-base-color: #11121b;
+    --theme-base-color-hsl: 234 23% 9%;
+}

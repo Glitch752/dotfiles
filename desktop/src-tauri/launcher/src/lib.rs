@@ -1,4 +1,4 @@
-use std::sync::Mutex;
+use std::{path::PathBuf, sync::Mutex};
 
 use tauri::{
     Manager, Runtime, State,
@@ -61,9 +61,23 @@ fn start_application(
         .expect("failed to spawn process");
 }
 
+#[tauri::command]
+async fn resolve_icon(icon: String, theme: String, desktop_files: State<'_, DesktopFiles>) -> Result<Option<PathBuf>, ()> {
+    let mut cache = desktop_files.icon_cache.lock().await;
+
+    if cache.themes().position(|t| t == theme).is_none() {
+        match cache.load(theme.clone()) {
+            Ok(_) => {},
+            Err(_) => return Ok(None)
+        }
+    }
+
+    Ok(cache.lookup(&icon, Some(theme.as_str())))
+}
+
 pub fn init<R: Runtime>() -> TauriPlugin<R> {
     Builder::<R>::new("launcher")
-        .invoke_handler(tauri::generate_handler![rink_query, symbols_query, applications_query, start_application])
+        .invoke_handler(tauri::generate_handler![rink_query, symbols_query, applications_query, start_application, resolve_icon])
         .setup(|app, _plugin_api| {
             app.manage(Mutex::new(LauncherState {
                 rink_ctx: rink::create_context(),

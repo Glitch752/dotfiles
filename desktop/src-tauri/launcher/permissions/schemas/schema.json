@@ -307,6 +307,18 @@
           "markdownDescription": "Denies the applications_query command without any pre-configured scope."
         },
         {
+          "description": "Enables the resolve_icon command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-resolve-icon",
+          "markdownDescription": "Enables the resolve_icon command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the resolve_icon command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-resolve-icon",
+          "markdownDescription": "Denies the resolve_icon command without any pre-configured scope."
+        },
+        {
           "description": "Enables the rink_query command without any pre-configured scope.",
           "type": "string",
           "const": "allow-rink-query",

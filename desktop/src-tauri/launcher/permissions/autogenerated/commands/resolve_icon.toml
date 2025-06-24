@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-resolve-icon"
+description = "Enables the resolve_icon command without any pre-configured scope."
+commands.allow = ["resolve_icon"]
+
+[[permission]]
+identifier = "deny-resolve-icon"
+description = "Denies the resolve_icon command without any pre-configured scope."
+commands.deny = ["resolve_icon"]

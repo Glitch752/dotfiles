@@ -1,10 +1,13 @@
 let clock: HTMLSpanElement | null = null;
 
-export function initWidgets() {
+export function initClock() {
     clock = document.getElementById("clock");
+
+    updateClock();
+    setInterval(updateClock, 1000);
 }
 
-export function updateWidgets() {
+function updateClock() {
     if(!clock) return;
     clock.innerText = new Date().toLocaleString([], {
         day: "2-digit",

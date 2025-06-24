@@ -1,7 +1,7 @@
 import { listen } from "@tauri-apps/api/event";
 import { Notification } from "@bindings/Notification";
 import { closePopup, openPopup, PopupType } from "./popups";
-import { convertFileSrc } from "@tauri-apps/api/core";
+import { createIconImage } from "../components/iconImage";
 
 // TODO: Notification center so notifications don't just permanently disappear
 
@@ -38,10 +38,9 @@ function createNotification(notification: Notification): HTMLElement {
         applicationName.textContent = notification.application_name;
         applicationContainer.appendChild(applicationName);
     }
-    if(notification.application_icon_path) {
-        const icon = document.createElement("img");
+    if(notification.application_icon) {
+        const icon = createIconImage(notification.application_icon);
         icon.className = "icon";
-        icon.src = convertFileSrc(notification.application_icon_path);
         applicationContainer.appendChild(icon);
     }
 

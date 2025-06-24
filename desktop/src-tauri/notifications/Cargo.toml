@@ -9,9 +9,9 @@ launcher = { path = "../launcher" }
 serde = { workspace = true }
 tauri = { workspace = true }
 tokio = { workspace = true }
-ts-rs = "11.0.1"
-zbus = "3"
-zvariant = "3"
+ts-rs = { workspace = true }
+zbus = { workspace = true }
+zvariant = { workspace = true }
 
 [build-dependencies]
 tauri-plugin = { version = "2.2.0", features = ["build"] }

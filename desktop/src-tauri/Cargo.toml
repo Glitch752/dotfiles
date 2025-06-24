@@ -18,6 +18,9 @@ members = [
 tauri = { version = "2" }
 serde = { version = "1", features = ["derive"] }
 tokio = { version = "1.45.1" }
+zbus = "5"
+zvariant = "5"
+ts-rs = "11.0.1"
 
 [lib]
 # The `_lib` suffix may seem redundant but it is necessary
@@ -42,7 +45,7 @@ serde_json = "1"
 gtk = "0.18.2"
 gtk-layer-shell = { version = "0.8.2", features = ["v0_6"] }
 tokio = { workspace = true, features = ["net"] }
-ts-rs = "11.0.1"
+ts-rs = { workspace = true }
 tauri-plugin-shell = "2"
 tauri-plugin-process = "2"
 

@@ -2,13 +2,14 @@ import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
 import { ExclusiveRegions } from "@bindings/ExclusiveRegions";
 import { init } from "./rendering";
-import { initWidgets, updateWidgets } from "./widgets";
+import { initClock } from "./bar/clock";
 import { invokePayload, debugLog } from "./utils";
-import { initializeNiri } from "./niri";
+import { initializeNiri as initNiri } from "./bar/niri";
 import { updateInputShape } from "./popups/popups";
 import { initLauncher, openLauncher } from "./popups/launcher";
 import { exit, relaunch } from "@tauri-apps/plugin-process";
 import { initNotifications } from "./popups/notifications";
+import { initBattery } from "./bar/battery";
 
 // Get bar thicknesses from :root in CSS
 const root = document.querySelector(":root") as HTMLElement;
@@ -33,10 +34,11 @@ hook("info");
 window.addEventListener("DOMContentLoaded", () => {
     updateInputShape([]);
     init();
-    initWidgets();
+    initClock();
+    initBattery();
     initLauncher();
     initNotifications();
-    initializeNiri();
+    initNiri();
 
     invokePayload<ExclusiveRegions>("create_exclusive_regions", {
         top: barThickness,
@@ -44,9 +46,6 @@ window.addEventListener("DOMContentLoaded", () => {
         left: barThickness,
         right: nonBorderBarThickness
     });
-
-    updateWidgets();
-    setInterval(updateWidgets, 1000);
 });
 
 window.addEventListener("resize", () => {

@@ -37,6 +37,32 @@ Denies the applications_query command without any pre-configured scope.
 <tr>
 <td>
 
+`launcher:allow-resolve-icon`
+
+</td>
+<td>
+
+Enables the resolve_icon command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`launcher:deny-resolve-icon`
+
+</td>
+<td>
+
+Denies the resolve_icon command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
 `launcher:allow-rink-query`
 
 </td>

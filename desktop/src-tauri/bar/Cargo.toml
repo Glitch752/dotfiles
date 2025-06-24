@@ -5,9 +5,13 @@ edition = "2024"
 links = "bar"
 
 [dependencies]
+futures = "0.3.31"
 niri-ipc = { version = "25.5.1" }
 serde = { workspace = true }
 tauri = { workspace = true }
+zbus = { workspace = true }
+zvariant = { workspace = true }
+ts-rs = "11.0.1"
 
 [build-dependencies]
 # Use the same schemars version as niri-ipc
