@@ -1,5 +1,4 @@
 import { convertFileSrc, invoke } from "@tauri-apps/api/core";
-import { invokePayload } from "../utils";
 
 const resolvedIconCache = new Map<string, string>();
 
@@ -39,7 +38,10 @@ export function createIconImage(
                         target.src = resolvedIconCache.get(newIcon)!;
                     } else {
                         // If the icon is not in the cache, we can just reload it
-                        invokePayload<string, string>("plugin:launcher|resolve_icon", newIcon).then((source) => {
+                        invoke<string>("plugin:launcher|resolve_icon", {
+                            icon: newIcon,
+                            theme
+                        }).then((source) => {
                             const src = convertFileSrc(source);
                             resolvedIconCache.set(newIcon, src);
                             target.src = src;
@@ -100,7 +102,10 @@ export function createIconMask(
                         target.style.maskImage = `url(${resolvedIconCache.get(newIcon)!})`;
                     } else {
                         // If the icon is not in the cache, we can just reload it
-                        invokePayload<string, string>("plugin:launcher|resolve_icon", newIcon).then((source) => {
+                        invoke<string>("plugin:launcher|resolve_icon", {
+                            icon: newIcon,
+                            theme
+                        }).then((source) => {
                             const src = convertFileSrc(source);
                             resolvedIconCache.set(newIcon, src);
                             target.style.maskImage = `url(${src})`;
