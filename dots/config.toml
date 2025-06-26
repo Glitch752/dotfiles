@@ -2,12 +2,13 @@
 imports = [
     "./zsh/zsh.toml",
     "./kitty/kitty.toml",
-    "./niri/niri.toml"
+    "./niri/niri.toml",
+    "./misc/misc.toml"
 ]
 
 # Configurations are a set of dotfiles and variables that will be managed. Each profile can have multiple active configurations.
 [configurations.default]
-subconfigs = ["zsh", "niri", "kitty"]
+subconfigs = ["zsh", "niri", "kitty", "misc"]
 
 [configurations.laptop.variables]
 device = "laptop"

@@ -1,9 +1,3 @@
-use std::{
-    env,
-    fs::{self, File},
-    io::Write,
-};
-
 const COMMANDS: &[&str] = &[];
 
 fn main() {
