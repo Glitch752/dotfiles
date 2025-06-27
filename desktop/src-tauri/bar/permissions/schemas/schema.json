@@ -307,6 +307,18 @@
           "markdownDescription": "Denies the debug_log command without any pre-configured scope."
         },
         {
+          "description": "Enables the get_networkmanager_state command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-networkmanager-state",
+          "markdownDescription": "Enables the get_networkmanager_state command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_networkmanager_state command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-networkmanager-state",
+          "markdownDescription": "Denies the get_networkmanager_state command without any pre-configured scope."
+        },
+        {
           "description": "Enables the get_upower_properties command without any pre-configured scope.",
           "type": "string",
           "const": "allow-get-upower-properties",

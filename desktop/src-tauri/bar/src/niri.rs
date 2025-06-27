@@ -6,7 +6,7 @@ use tauri::{AppHandle, Emitter, Runtime, State};
 use crate::BarHandler;
 
 impl BarHandler {
-    pub fn start_listener_thread<R: Runtime>(&mut self, app_handle: &AppHandle<R>) -> Option<()> {
+    pub fn start_niri_event_thread<R: Runtime>(&mut self, app_handle: &AppHandle<R>) -> Option<()> {
         // Don't try if opening the main socket failed
         if self.socket.is_none() {
             return None;

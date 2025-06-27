@@ -183,3 +183,9 @@
     }
     margin-bottom: 0.5rem;
 }
+
+#networkStatus {
+    .icon {
+        width: var(--bar-icon-size);
+    }
+}

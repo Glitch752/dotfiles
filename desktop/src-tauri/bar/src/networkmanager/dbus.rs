@@ -1,16 +1,16 @@
 use zbus::{Result, proxy};
 use zvariant::{ObjectPath, Str};
 
-pub(crate) const DBUS_BUS: &str = "org.freedesktop.NetworkManager";
-pub(crate) const DBUS_PATH: &str = "/org/freedesktop/NetworkManager";
-pub(crate) const DBUS_INTERFACE: &str = "org.freedesktop.NetworkManager";
+pub(super) const DBUS_BUS: &str = "org.freedesktop.NetworkManager";
+pub(super) const DBUS_PATH: &str = "/org/freedesktop/NetworkManager";
+pub(super) const DBUS_INTERFACE: &str = "org.freedesktop.NetworkManager";
 
 #[proxy(
     default_service = "org.freedesktop.NetworkManager",
     interface = "org.freedesktop.NetworkManager",
     default_path = "/org/freedesktop/NetworkManager"
 )]
-trait NetworkManagerDbus {
+pub(super) trait NetworkManagerDbus {
     #[zbus(property)]
     fn active_connections(&self) -> Result<Vec<ObjectPath>>;
 

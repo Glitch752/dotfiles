@@ -12,6 +12,7 @@
     "bar:allow-debug-log",
     "bar:allow-niri-request",
     "bar:allow-get-upower-properties",
+    "bar:allow-get-networkmanager-state",
     "launcher:allow-rink-query",
     "launcher:allow-symbols-query",
     "launcher:allow-applications-query",

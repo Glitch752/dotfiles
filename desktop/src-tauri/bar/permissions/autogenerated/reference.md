@@ -37,6 +37,32 @@ Denies the debug_log command without any pre-configured scope.
 <tr>
 <td>
 
+`bar:allow-get-networkmanager-state`
+
+</td>
+<td>
+
+Enables the get_networkmanager_state command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`bar:deny-get-networkmanager-state`
+
+</td>
+<td>
+
+Denies the get_networkmanager_state command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
 `bar:allow-get-upower-properties`
 
 </td>
