@@ -9,6 +9,7 @@ use zbus::fdo::PropertiesProxy;
 use crate::{niri::niri_request, upower::{create_upower_proxy, get_upower_properties}};
 
 mod upower;
+mod networkmanager;
 mod niri;
 
 struct BarHandler {

@@ -11,6 +11,7 @@ import { exit, relaunch } from "@tauri-apps/plugin-process";
 import { initNotifications } from "./popups/notifications";
 import { initBattery } from "./bar/battery";
 import { initPowerOptions } from "./bar/powerOptions";
+import { initNetworkStatus } from "./bar/wirelessStatus";
 
 // Get bar thicknesses from :root in CSS
 const root = document.querySelector(":root") as HTMLElement;
@@ -36,6 +37,7 @@ window.addEventListener("DOMContentLoaded", () => {
     updateInputShape([]);
     init();
     initClock();
+    initNetworkStatus();
     initPowerOptions();
     initBattery();
     initLauncher();
