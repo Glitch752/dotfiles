@@ -2,7 +2,7 @@
 Name=Hicolor
 Comment=Fallback icon theme
 Hidden=true
-Directories=48x48/apps,512x512/apps,1024x1024/apps
+Directories=48x48/apps,512x512/apps
 
 [48x48/apps]
 Size=48
@@ -11,7 +11,7 @@ Type=Threshold
 
 [512x512/apps]
 MinSize=64
-Size=128
+Size=512
 MaxSize=512
 Context=Applications
 Type=Scalable
