@@ -254,6 +254,7 @@ dependencies = [
  "schemars 0.8.22",
  "serde",
  "serde_json",
+ "system-tray",
  "tauri",
  "tauri-plugin",
  "ts-rs",
@@ -4020,6 +4021,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "system-tray"
+version = "0.8.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "90d5d024b1573d22079347055d817863c21ea0903df404668095499c08800e4a"
+dependencies = [
+ "cfg-if",
+ "futures-lite",
+ "serde",
+ "thiserror 2.0.12",
+ "tokio",
+ "tracing",
+ "zbus",
+]
+
+[[package]]
 name = "tao"
 version = "0.33.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4525,8 +4541,22 @@ dependencies = [
  "libc",
  "mio",
  "pin-project-lite",
+ "signal-hook-registry",
  "socket2",
+ "tokio-macros",
+ "tracing",
  "windows-sys 0.52.0",
+]
+
+[[package]]
+name = "tokio-macros"
+version = "2.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6e06d43f1345a3bcd39f6a56dbb7dcab2ba47e68e8ac134855e7e2bdbaf8cab8"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.103",
 ]
 
 [[package]]
@@ -5687,6 +5717,7 @@ dependencies = [
  "ordered-stream",
  "serde",
  "serde_repr",
+ "tokio",
  "tracing",
  "uds_windows",
  "windows-sys 0.59.0",

@@ -10,6 +10,7 @@ use crate::{networkmanager::get_networkmanager_state, niri::niri_request, upower
 
 mod upower;
 mod networkmanager;
+mod systemtray;
 mod niri;
 
 struct BarHandler {
@@ -70,6 +71,8 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
                 handler.start_upower_events(&app_);
 
                 handler.start_networkmanager_events(&app_);
+
+                handler.start_system_tray_events(&app_).await;
 
                 app_.manage(Mutex::new(handler));
             });
