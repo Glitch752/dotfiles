@@ -37,6 +37,32 @@ Denies the applications_query command without any pre-configured scope.
 <tr>
 <td>
 
+`launcher:allow-reload-desktop-files`
+
+</td>
+<td>
+
+Enables the reload_desktop_files command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`launcher:deny-reload-desktop-files`
+
+</td>
+<td>
+
+Denies the reload_desktop_files command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
 `launcher:allow-resolve-icon`
 
 </td>

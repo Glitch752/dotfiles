@@ -4,7 +4,14 @@ use std::{
     io::Write,
 };
 
-const COMMANDS: &[&str] = &["rink_query", "symbols_query", "applications_query", "start_application", "resolve_icon"];
+const COMMANDS: &[&str] = &[
+    "rink_query",
+    "symbols_query",
+    "applications_query",
+    "start_application",
+    "resolve_icon",
+    "reload_desktop_files",
+];
 
 fn main() {
     tauri_plugin::Builder::new(COMMANDS).build();

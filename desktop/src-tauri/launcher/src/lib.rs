@@ -62,6 +62,13 @@ fn start_application(
 }
 
 #[tauri::command]
+async fn reload_desktop_files(
+    desktop_files: State<'_, DesktopFiles>,
+) -> Result<(), ()> {
+    desktop_files.reload().await.map_err(|_| ())
+}
+
+#[tauri::command]
 async fn resolve_icon(icon: String, theme: String, desktop_files: State<'_, DesktopFiles>) -> Result<Option<PathBuf>, ()> {
     let mut cache = desktop_files.icon_cache.lock().await;
 
@@ -77,7 +84,14 @@ async fn resolve_icon(icon: String, theme: String, desktop_files: State<'_, Desk
 
 pub fn init<R: Runtime>() -> TauriPlugin<R> {
     Builder::<R>::new("launcher")
-        .invoke_handler(tauri::generate_handler![rink_query, symbols_query, applications_query, start_application, resolve_icon])
+        .invoke_handler(tauri::generate_handler![
+            rink_query,
+            symbols_query,
+            applications_query,
+            start_application,
+            resolve_icon,
+            reload_desktop_files
+        ])
         .setup(|app, _plugin_api| {
             app.manage(Mutex::new(LauncherState {
                 rink_ctx: rink::create_context(),

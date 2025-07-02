@@ -18,6 +18,7 @@
     "launcher:allow-applications-query",
     "launcher:allow-start-application",
     "launcher:allow-resolve-icon",
+    "launcher:allow-reload-desktop-files",
     "shell:default",
     "process:default",
     "process:allow-restart",

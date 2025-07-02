@@ -307,6 +307,18 @@
           "markdownDescription": "Denies the applications_query command without any pre-configured scope."
         },
         {
+          "description": "Enables the reload_desktop_files command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-reload-desktop-files",
+          "markdownDescription": "Enables the reload_desktop_files command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the reload_desktop_files command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-reload-desktop-files",
+          "markdownDescription": "Denies the reload_desktop_files command without any pre-configured scope."
+        },
+        {
           "description": "Enables the resolve_icon command without any pre-configured scope.",
           "type": "string",
           "const": "allow-resolve-icon",

@@ -11,7 +11,7 @@ spawn-at-startup "sh" "{{randomize_wallpaper_script}}"
 spawn-at-startup "desktop"
 
 spawn-at-startup "xwayland-satellite" ":0"
-spawn-at-startup "/usr/lib/polkit-kde-authentication-agent-1"
+spawn-at-startup "/usr/lib/policykit-1-pantheon/io.elementary.desktop.agent-polkit"
 
 hotkey-overlay {
     skip-at-startup

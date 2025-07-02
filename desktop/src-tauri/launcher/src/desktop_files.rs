@@ -247,6 +247,25 @@ impl DesktopFiles {
 
         Ok(rankings.iter().map(|(entry, _)| (*entry).clone()).collect::<Vec<_>>())
     }
+
+    pub async fn reload(&self) -> Result<()> {
+        let mut file_data = self.files.lock().await;
+        *file_data = dirs()
+            .iter()
+            .flat_map(|path| files(path))
+            .map(|file| {
+                (
+                    file.file_stem()
+                        .unwrap_or_default()
+                        .to_str()
+                        .unwrap_or_default()
+                        .to_string().into(),
+                    DesktopFileRef::Unloaded(file),
+                )
+            })
+            .collect();
+        Ok(())
+    }
 }
 
 /// Gets a list of paths to all directories

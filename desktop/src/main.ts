@@ -56,7 +56,7 @@ window.addEventListener("resize", () => {
     updateInputShape(null);
 });
 
-listen<string>("ipc_call", (event) => {
+listen<string>("ipc_call", async (event) => {
     let response = `Unknown event '${event.payload}'.`;
     switch(event.payload) {
         case "inspect":
@@ -94,6 +94,10 @@ listen<string>("ipc_call", (event) => {
                 relaunch();
             }, 10);
             response = "Relaunching.";
+            break;
+        case "reload":
+            await invoke("plugin:launcher|reload_desktop_files");
+            response = "Reloaded.";
             break;
         case "exit":
             setTimeout(() => {

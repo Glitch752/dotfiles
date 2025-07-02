@@ -1,0 +1,13 @@
+# Automatically generated - DO NOT EDIT!
+
+"$schema" = "../../schemas/schema.json"
+
+[[permission]]
+identifier = "allow-reload-desktop-files"
+description = "Enables the reload_desktop_files command without any pre-configured scope."
+commands.allow = ["reload_desktop_files"]
+
+[[permission]]
+identifier = "deny-reload-desktop-files"
+description = "Denies the reload_desktop_files command without any pre-configured scope."
+commands.deny = ["reload_desktop_files"]

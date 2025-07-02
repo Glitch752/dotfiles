@@ -19,7 +19,7 @@ binds {
     // TODO: Implement release bindings and use just mod instead
     // Mod+Space repeat=false hotkey-overlay-title="Run fuzzel" { spawn "fuzzel"; }
     Mod+Space repeat=false { spawn "desktop" "launcher"; }
-    Mod+R repeat=false { spawn "desktop" "relaunch"; }
+    Mod+R repeat=false { spawn "desktop" "reload"; }
 
     Mod+L repeat=false hotkey-overlay-title="Lock" { spawn "swaylock"; }
 

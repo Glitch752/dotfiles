@@ -1,4 +1,4 @@
 [configurations.misc]
 render = [
-    { source = "hicolor-fix.theme", destination = "~/.local/share/icons/hicolor/index.theme", action = "copy" }
+    # { source = "hicolor-fix.theme", destination = "~/.local/share/icons/hicolor/index.theme", action = "copy" }
 ]

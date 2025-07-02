@@ -1,8 +1,14 @@
 environment {
     // Enable wayland support in various applications and libraries.
-    ELECTRON_OZONE_PLATFORM_HINT "auto"
-    ELECTRON_OZONE_PLATFORM "auto"
-    SDL_VIDEODRIVER "wayland,x11"
+    ELECTRON_OZONE_PLATFORM_HINT "wayland"
+    ELECTRON_OZONE_PLATFORM "wayland"
+    
+    // Apparently SDL breaks with wayland enabled in many cases?
+    // This fixes many applications and games for me.
+    SDL_VIDEODRIVER "x11"
+    // Fixes weird issues with FNA3D games?
+    FNA3D_FORCE_DRIVER "Vulkan"
+
     MOZ_ENABLE_WAYLAND "1"
     QT_QPA_PLATFORM "wayland;xcb"
     CLUTTER_BACKEND "wayland"
