@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use system_tray::{client::Client, item::{Status, StatusNotifierItem}};
+use system_tray::{client::Client, item::{IconPixmap, Status, StatusNotifierItem, Tooltip}};
 use tauri::{AppHandle, Manager, Runtime, State};
 
 use crate::BarHandler;
@@ -67,10 +67,58 @@ enum SystrayIcon {
     }
 }
 
+impl SystrayIcon {
+    fn from_data(theme_path: Option<String>, icon_name: Option<String>, pixmap: Option<Vec<IconPixmap>>) -> Option<Self> {
+        match (theme_path, icon_name, pixmap) {
+            // Prefer the theme icon
+            (Some(theme), Some(name), _) => Some(SystrayIcon::FreedesktopIcon {
+                theme,
+                name
+            }),
+            // If we don't have a theme icon, use the pixmap data
+            (None, None, Some(pixmap)) => {
+                let icons = pixmap.into_iter().map(|p| SystrayPixmap {
+                    width: p.width,
+                    height: p.height,
+                    pixels: p.pixels
+                }).collect();
+                Some(SystrayIcon::Pixmaps {
+                    icons
+                })
+            },
+            // If we don't have the required data, don't return the data
+            _ => None
+        }
+    }
+
+    fn from_data_default(theme_path: Option<String>, icon_name: Option<String>, pixmap: Option<Vec<IconPixmap>>) -> Self {
+        Self::from_data(theme_path, icon_name, pixmap).unwrap_or({
+            SystrayIcon::FreedesktopIcon {
+                theme: "Adwaita".to_string(),
+                name: "application-x-executable".to_string()
+            }
+        })
+    }
+}
+
 struct SystrayTooltip {
     icon: SystrayIcon,
     title: String,
     description: String,
+}
+
+impl SystrayTooltip {
+    fn from(tooltip: Tooltip, theme: Option<String>) -> Self {
+        SystrayTooltip {
+            icon: SystrayIcon::from_data_default(
+                theme,
+                Some(tooltip.icon_name),
+                Some(tooltip.icon_data)
+            ),
+            title: tooltip.title,
+            description: tooltip.description
+        }
+    }
 }
 
 /// Why is this different from normal systray icons? I don't know...
@@ -204,19 +252,37 @@ fn get_system_tray_items(
 
     let mut result = HashMap::new();
     for (id, item) in items.iter() {
+        let (item, menu) = item;
+        let theme = item.icon_theme_path.clone();
         result.insert(id.clone(), SystemTrayItem {
-            id: item.0.id.clone(),
-            title: item.0.title.clone(),
-            status: item.0.status.into(),
-            icon: SystrayIcon::FreedesktopIcon {
-                theme: item.0.icon_theme_path.clone().unwrap(),
-                name: item.0.icon_name.clone().unwrap()
-            },
+            id: item.id.clone(),
+            title: item.title.clone(),
+            status: item.status.into(),
+            icon: SystrayIcon::from_data_default(
+                theme.clone(),
+                item.icon_name.clone(),
+                item.icon_pixmap.clone()
+            ),
             // Temporary placeholder data
-            overlay_icon: None,
-            attention_icon: None,
-            tooltip: None,
-            menu: None
+            overlay_icon: SystrayIcon::from_data(
+                theme.clone(),
+                item.overlay_icon_name.clone(),
+                item.overlay_icon_pixmap.clone()
+            ),  
+            attention_icon: SystrayIcon::from_data(
+                theme.clone(),
+                item.attention_icon_name.clone(),
+                item.attention_icon_pixmap.clone()
+            ),
+            tooltip: item.tool_tip.clone().map(|tooltip| SystrayTooltip::from(
+                tooltip.clone(),
+                theme.clone()
+            )),
+            menu: menu.clone().map(|menu| {
+                SystrayMenu { id: menu.id, dbus_path: item.menu.clone().unwrap_or("".to_string()), items: vec![
+                    // TODO
+                ] }
+            })
         });
     }
 
