@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { emit, listen } from "@tauri-apps/api/event";
 import { ExclusiveRegions } from "@bindings/ExclusiveRegions";
+import { Notification } from "@bindings/Notification";
 import { init } from "./rendering";
 import { initClock } from "./bar/clock";
 import { invokePayload, debugLog } from "./utils";
@@ -97,6 +98,16 @@ listen<string>("ipc_call", async (event) => {
             break;
         case "reload":
             await invoke("plugin:launcher|reload_desktop_files");
+            // Show a fake notification since this can be invoked with a keybind
+            emit<Notification>("notification_added", {
+                title: "Reloaded successfully!",
+                body: "",
+                actions: [],
+                id: Date.now(),
+                application_icon: null,
+                application_name: "",
+                urgency: "Low"
+            })
             response = "Reloaded.";
             break;
         case "exit":

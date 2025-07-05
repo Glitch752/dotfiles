@@ -1,4 +1,8 @@
 [configurations.misc]
 render = [
     # { source = "hicolor-fix.theme", destination = "~/.local/share/icons/hicolor/index.theme", action = "copy" }
+    { source = "steam-wrapper.sh", destination = "/usr/local/bin/steam", as = "root", owner = "kit", permissions = "755" },
+    { source = "steam.desktop", destination = "~/.local/share/applications/steam.desktop" }
 ]
+
+# TODO: Post-render script update-desktop-database ~/.local/share/applications/

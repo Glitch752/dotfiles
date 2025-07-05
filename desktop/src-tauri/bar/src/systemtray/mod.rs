@@ -1,33 +1,58 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Mutex};
 
-use system_tray::{client::Client, item::{IconPixmap, Status, StatusNotifierItem, Tooltip}};
+use serde::{Deserialize, Serialize};
+use system_tray::{client::{self, Client}, item::{IconPixmap, Status, StatusNotifierItem, Tooltip}, menu::{Disposition, MenuItem, MenuType, ToggleState, ToggleType, TrayMenu}};
 use tauri::{AppHandle, Manager, Runtime, State};
 
 use crate::BarHandler;
 
 struct SystemTrayState {
-    client: Client
+    client: Client,
+    current_items: HashMap<String, SystemTrayItem>
 }
 
 impl BarHandler {
     pub async fn start_system_tray_events<R: Runtime>(&mut self, app_handle: &AppHandle<R>) {
-        let state = SystemTrayState {
-            client: Client::new().await.expect("Failed to create system tray client")
-        };
+        let client = Client::new().await.expect("Failed to create system tray client");
+
+        // Most of the time, this doesn't have initial items, but it seems like it sometimes does?
+        let tray_items = client.items();
+        let tray_items = tray_items.lock().unwrap();
+
+        let mut items = HashMap::new();
+        for (id, item) in tray_items.iter() {
+            let (item, menu) = item;
+            items.insert(id.clone(), SystemTrayItem::new(item, menu));
+        }
+        
+        let state: SystemTrayState = SystemTrayState { client, current_items: items };
 
         let mut event_stream = state.client.subscribe();
-
-        app_handle.manage(state);
+        app_handle.manage(Mutex::new(state));
 
         let app_handle = app_handle.clone();
         tauri::async_runtime::spawn(async move {
             while let Ok(event) = event_stream.recv().await {
-                println!("System tray event: {:?}", event);
+                let state = app_handle.state::<Mutex<SystemTrayState>>();
+                let items = &mut state.lock().expect("Failed to lock system tray state").current_items;
+                match event {
+                    client::Event::Add(id, item) => {
+                        items.insert(id, SystemTrayItem::new(&item, &None));
+                    }
+                    client::Event::Remove(id) => {
+                        items.remove(&id);
+                    }
+                    client::Event::Update(id, event) => {
+                        // TODO 
+                        println!("Update event: {}, {:?}", id, event);
+                    }
+                }
             }
         });
     }
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 pub enum SystrayItemStatus {
     Unknown,
     Passive,
@@ -46,12 +71,14 @@ impl From<Status> for SystrayItemStatus {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 struct SystrayPixmap {
     width: i32,
     height: i32,
     pixels: Vec<u8>
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 enum SystrayIcon {
     FreedesktopIcon {
         theme: String,
@@ -101,6 +128,7 @@ impl SystrayIcon {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize)]
 struct SystrayTooltip {
     icon: SystrayIcon,
     title: String,
@@ -122,6 +150,7 @@ impl SystrayTooltip {
 }
 
 /// Why is this different from normal systray icons? I don't know...
+#[derive(Debug, Serialize, Deserialize)]
 enum SystrayMenuIcon {
     FreedesktopIcon {
         name: String
@@ -129,10 +158,23 @@ enum SystrayMenuIcon {
     PNGData(Vec<u8>)
 }
 
+impl SystrayMenuIcon {
+    fn from_data(icon_name: Option<String>, icon_data: Option<Vec<u8>>) -> Option<Self> {
+        match (icon_name, icon_data) {
+            (Some(name), _) => Some(SystrayMenuIcon::FreedesktopIcon {
+                name
+            }),
+            (_, Some(data)) => Some(SystrayMenuIcon::PNGData(data)),
+            _ => None
+        }
+    }
+}
+
 /// Note: The implementation does not itself handle ensuring that only one
 /// item in a radio group is set to "on", or that a group does not have
 /// "on" and "indeterminate" items simultaneously; maintaining this
 /// policy is up to the toolkit wrappers.
+#[derive(Debug, Serialize, Deserialize)]
 enum SystrayToggleInfo {
     /// Item is an independent togglable item. If true, the item is toggled on.
     Checkmark(bool),
@@ -143,6 +185,19 @@ enum SystrayToggleInfo {
     CannotBeToggled,
 }
 
+impl SystrayToggleInfo {
+    fn new(toggle_state: ToggleState, toggle_type: ToggleType) -> Self {
+        match (toggle_state, toggle_type) {
+            (ToggleState::On, ToggleType::Checkmark) => SystrayToggleInfo::Checkmark(true),
+            (ToggleState::Off | ToggleState::Indeterminate, ToggleType::Checkmark) => SystrayToggleInfo::Checkmark(false),
+            (ToggleState::On, ToggleType::Radio) => SystrayToggleInfo::Radio(true),
+            (ToggleState::Off | ToggleState::Indeterminate, ToggleType::Radio) => SystrayToggleInfo::Radio(false),
+            (_, ToggleType::CannotBeToggled) => SystrayToggleInfo::CannotBeToggled,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 enum SystrayMenuItemDisposition {
     /// A standard menu item
     Normal,
@@ -154,6 +209,18 @@ enum SystrayMenuItemDisposition {
     Alert
 }
 
+impl From<Disposition> for SystrayMenuItemDisposition {
+    fn from(disposition: Disposition) -> Self {
+        match disposition {
+            Disposition::Normal => SystrayMenuItemDisposition::Normal,
+            Disposition::Informative => SystrayMenuItemDisposition::Informative,
+            Disposition::Warning => SystrayMenuItemDisposition::Warning,
+            Disposition::Alert => SystrayMenuItemDisposition::Alert,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 enum SystrayMenuItem {
     /// A separator. We just ignore all properties other than `visible` for separators.
     Separator {
@@ -161,7 +228,7 @@ enum SystrayMenuItem {
     },
     Item {
         /// The identifier for this menu item. Used for activation.
-        id: u32,
+        id: i32,
         /// The text of the item, except that:
         ///  - Two consecutive underscore characters "__" are displayed as a
         ///    single underscore,
@@ -200,6 +267,38 @@ enum SystrayMenuItem {
     }
 }
 
+impl SystrayMenuItem {
+    fn new(item: MenuItem) -> Self {
+        match item.menu_type {
+            MenuType::Separator => SystrayMenuItem::Separator {
+                visible: item.visible
+            },
+            MenuType::Standard => {
+                let submenu = if item.children_display == Some("submenu".to_string()) {
+                    Some(item.submenu.into_iter().map(|sub_item| {
+                        SystrayMenuItem::new(sub_item)
+                    }).collect())
+                } else { None };
+                SystrayMenuItem::Item {
+                    id: item.id,
+                    label: item.label,
+                    enabled: item.enabled,
+                    visible: item.visible,
+                    icon: SystrayMenuIcon::from_data(
+                        item.icon_name,
+                        item.icon_data
+                    ),
+                    shortcut: item.shortcut,
+                    toggle_info: SystrayToggleInfo::new(item.toggle_state, item.toggle_type),
+                    submenu,
+                    disposition: item.disposition.into()
+                }
+            }
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 struct SystrayMenu {
     /// The identifier for this menu item. Used for activation.
     id: u32,
@@ -208,6 +307,19 @@ struct SystrayMenu {
     items: Vec<SystrayMenuItem>
 }
 
+impl SystrayMenu {
+    fn new(tray_menu: TrayMenu, dbus_path: String) -> Self {
+        Self {
+            id: tray_menu.id,
+            dbus_path,
+            items: tray_menu.submenus.into_iter().map(|item| {
+                SystrayMenuItem::new(item)
+            }).collect(),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 struct SystemTrayItem {
     id: String,
     title: Option<String>,
@@ -231,30 +343,10 @@ struct SystemTrayItem {
     menu: Option<SystrayMenu>
 }
 
-pub enum SystrayActivateRequest {
-    MenuItem {
-        address: String,
-        menu_path: String,
-        submenu_id: i32,
-    },
-    /// The parameter(x and y) represents screen coordinates and is to be considered an hint to the item where to show eventual windows (if any).
-    Primary { address: String, x: i32, y: i32 },
-    /// The parameter(x and y) represents screen coordinates and is to be considered an hint to the item where to show eventual windows (if any).
-    Secondary { address: String, x: i32, y: i32 },
-}
-
-#[tauri::command]
-fn get_system_tray_items(
-    state: State<'_, SystemTrayState>,
-) -> HashMap<String, SystemTrayItem> {
-    let items = state.client.items();
-    let items = items.lock().unwrap();
-
-    let mut result = HashMap::new();
-    for (id, item) in items.iter() {
-        let (item, menu) = item;
+impl SystemTrayItem {
+    fn new(item: &StatusNotifierItem, menu: &Option<TrayMenu>) -> Self {
         let theme = item.icon_theme_path.clone();
-        result.insert(id.clone(), SystemTrayItem {
+        SystemTrayItem {
             id: item.id.clone(),
             title: item.title.clone(),
             status: item.status.into(),
@@ -279,12 +371,21 @@ fn get_system_tray_items(
                 theme.clone()
             )),
             menu: menu.clone().map(|menu| {
-                SystrayMenu { id: menu.id, dbus_path: item.menu.clone().unwrap_or("".to_string()), items: vec![
-                    // TODO
-                ] }
+                SystrayMenu::new(menu, item.menu.clone().unwrap_or("".to_string()))
             })
-        });
+        }
     }
+}
 
-    return result;
+#[derive(Debug, Serialize, Deserialize)]
+pub enum SystrayActivateRequest {
+    MenuItem {
+        address: String,
+        menu_path: String,
+        submenu_id: i32,
+    },
+    /// The parameter(x and y) represents screen coordinates and is to be considered an hint to the item where to show eventual windows (if any).
+    Primary { address: String, x: i32, y: i32 },
+    /// The parameter(x and y) represents screen coordinates and is to be considered an hint to the item where to show eventual windows (if any).
+    Secondary { address: String, x: i32, y: i32 },
 }

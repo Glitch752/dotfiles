@@ -54,7 +54,7 @@ AddPackage wget # Network utility to retrieve files from the web
 AddPackage wireless_tools # Tools allowing to manipulate the Wireless Extensions
 AddPackage wireplumber # Session / policy manager implementation for PipeWire
 AddPackage xdg-desktop-portal-gnome # Backend implementation for xdg-desktop-portal for the GNOME desktop environment
-AddPackage xdg-utils # Command line tools that assist applications with a variety of desktop integration tasks
+AddPackage xdg-utils # Command line tools that assist applicatidconf write /org/gnome/desktop/interface/color-scheme '"prefer-dark"'ons with a variety of desktop integration tasks
 AddPackage xorg-server # Xorg X server
 AddPackage xorg-xinit # X.Org initialisation program
 AddPackage xorg-xwayland # run X clients under wayland

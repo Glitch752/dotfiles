@@ -290,7 +290,7 @@ fn dirs() -> Vec<PathBuf> {
         dirs.push(user_dir);
     }
 
-    dirs.into_iter().filter(|dir| dir.exists()).rev().collect()
+    dirs.into_iter().filter(|dir| dir.exists()).collect()
 }
 
 /// Gets a list of all `.applications` files in the provided directory.
