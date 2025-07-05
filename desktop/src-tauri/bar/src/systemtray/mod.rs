@@ -1,8 +1,8 @@
 use std::{collections::HashMap, sync::Mutex};
 
 use serde::{Deserialize, Serialize};
-use system_tray::{client::{self, Client}, item::{IconPixmap, Status, StatusNotifierItem, Tooltip}, menu::{Disposition, MenuItem, MenuType, ToggleState, ToggleType, TrayMenu}};
-use tauri::{AppHandle, Manager, Runtime, State};
+use system_tray::{client::{self, Client, UpdateEvent}, item::{IconPixmap, Status, StatusNotifierItem, Tooltip}, menu::{Disposition, MenuDiff, MenuItem, MenuType, ToggleState, ToggleType, TrayMenu}};
+use tauri::{AppHandle, Manager, Runtime};
 
 use crate::BarHandler;
 
@@ -43,8 +43,71 @@ impl BarHandler {
                         items.remove(&id);
                     }
                     client::Event::Update(id, event) => {
-                        // TODO 
-                        println!("Update event: {}, {:?}", id, event);
+                        let Some(item) = items.get_mut(&id) else { return };
+                        let theme = if let SystrayIcon::FreedesktopIcon { theme, .. } = &item.icon {
+                            Some(theme.clone())
+                        } else {
+                            None
+                        };
+                        match event {
+                            UpdateEvent::Tooltip(tooltip) => {
+                                item.tooltip = tooltip.map(|tooltip| {
+                                    SystrayTooltip::from(tooltip, theme)
+                                });
+                            }
+                            UpdateEvent::Title(title) => {
+                                item.title = title;
+                            }
+                            UpdateEvent::Status(status) => {
+                                item.status = status.into();
+                            }
+                            UpdateEvent::Icon { icon_name, icon_pixmap } => {
+                                item.icon = SystrayIcon::from_data_default(theme, icon_name, icon_pixmap);
+                            }
+                            UpdateEvent::OverlayIcon(name) => {
+                                item.overlay_icon = SystrayIcon::from_data(
+                                    theme.clone(),
+                                    name,
+                                    None
+                                );
+                            }
+                            UpdateEvent::AttentionIcon(name) => {
+                                item.attention_icon = SystrayIcon::from_data(
+                                    theme.clone(),
+                                    name,
+                                    None
+                                );
+                            }
+                            UpdateEvent::Menu(full_menu) => {
+                                match item.menu {
+                                    Some(ref mut menu) => {
+                                        menu.update(full_menu);
+                                    }
+                                    None => {
+                                        item.menu = Some(SystrayMenu::new(full_menu, None));
+                                    }
+                                }
+                            }
+                            UpdateEvent::MenuConnect(dbus_name) => {
+                                match item.menu {
+                                    Some(ref mut menu) => {
+                                        menu.dbus_path = Some(dbus_name);
+                                    }
+                                    None => {
+                                        item.menu = Some(SystrayMenu::partial(dbus_name));
+                                    }
+                                }
+                            }
+                            UpdateEvent::MenuDiff(diffs) => {
+                                for diff in diffs {
+                                    if let Some(menu) = &mut item.menu {
+                                        menu.apply_diff(diff);
+                                    } else {
+                                        println!("Menu diff event received for tray item without menu: {:?}", diff);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -195,6 +258,16 @@ impl SystrayToggleInfo {
             (_, ToggleType::CannotBeToggled) => SystrayToggleInfo::CannotBeToggled,
         }
     }
+
+    fn update_state(&mut self, new_state: ToggleState) {
+        match (self, new_state) {
+            (SystrayToggleInfo::Checkmark(state), ToggleState::On) => *state = true,
+            (SystrayToggleInfo::Checkmark(state), ToggleState::Off | ToggleState::Indeterminate) => *state = false,
+            (SystrayToggleInfo::Radio(state), ToggleState::On) => *state = true,
+            (SystrayToggleInfo::Radio(state), ToggleState::Off | ToggleState::Indeterminate) => *state = false,
+            _ => {}
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -224,10 +297,12 @@ impl From<Disposition> for SystrayMenuItemDisposition {
 enum SystrayMenuItem {
     /// A separator. We just ignore all properties other than `visible` for separators.
     Separator {
+        /// The identifier for this menu item. Used for activation and updates.
+        id: i32,
         visible: bool
     },
     Item {
-        /// The identifier for this menu item. Used for activation.
+        /// The identifier for this menu item. Used for activation and updates.
         id: i32,
         /// The text of the item, except that:
         ///  - Two consecutive underscore characters "__" are displayed as a
@@ -271,6 +346,7 @@ impl SystrayMenuItem {
     fn new(item: MenuItem) -> Self {
         match item.menu_type {
             MenuType::Separator => SystrayMenuItem::Separator {
+                id: item.id,
                 visible: item.visible
             },
             MenuType::Standard => {
@@ -296,6 +372,70 @@ impl SystrayMenuItem {
             }
         }
     }
+
+    fn apply_diff(&mut self, diff: MenuDiff) {
+        for item in diff.remove {
+            println!("Menu item {} removed; ignoring for now", item);
+        }
+
+        let update = diff.update;
+        match self {
+            SystrayMenuItem::Separator { visible, .. } => {
+                if let Some(new_visible) = update.visible {
+                    *visible = new_visible;
+                }
+            }
+            SystrayMenuItem::Item { 
+                label,
+                enabled,
+                visible,
+                icon,
+                toggle_info,
+                disposition,
+                ..
+            } => {
+                if let Some(new_label) = update.label {
+                    *label = new_label;
+                }
+                if let Some(new_enabled) = update.enabled {
+                    *enabled = new_enabled;
+                }
+                if let Some(new_visible) = update.visible {
+                    *visible = new_visible;
+                }
+                if let Some(new_icon_name) = update.icon_name {
+                    *icon = SystrayMenuIcon::from_data(
+                        new_icon_name,
+                        icon.as_ref().and_then(|icon| {
+                            if let SystrayMenuIcon::PNGData(data) = icon {
+                                Some(data.clone())
+                            } else {
+                                None
+                            }
+                        })
+                    );
+                }
+                if let Some(new_icon_data) = update.icon_data {
+                    *icon = SystrayMenuIcon::from_data(
+                        icon.as_ref().and_then(|icon| {
+                            if let SystrayMenuIcon::FreedesktopIcon { name, .. } = icon {
+                                Some(name.clone())
+                            } else {
+                                None
+                            }
+                        }),
+                        new_icon_data
+                    );
+                }
+                if let Some(new_disposition) = update.disposition {
+                    *disposition = new_disposition.into();
+                }
+                if let Some(new_toggle_state) = update.toggle_state {
+                    toggle_info.update_state(new_toggle_state);
+                }
+            }
+        }
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -303,12 +443,27 @@ struct SystrayMenu {
     /// The identifier for this menu item. Used for activation.
     id: u32,
     /// Used for activation.
-    dbus_path: String,
+    dbus_path: Option<String>,
     items: Vec<SystrayMenuItem>
 }
 
 impl SystrayMenu {
-    fn new(tray_menu: TrayMenu, dbus_path: String) -> Self {
+    fn partial(dbus_path: String) -> Self {
+        Self {
+            id: 0,
+            dbus_path: Some(dbus_path),
+            items: Vec::new()
+        }
+    }
+
+    fn update(&mut self, tray_menu: TrayMenu) {
+        self.id = tray_menu.id;
+        self.items = tray_menu.submenus.into_iter().map(|item| {
+            SystrayMenuItem::new(item)
+        }).collect();
+    }
+
+    fn new(tray_menu: TrayMenu, dbus_path: Option<String>) -> Self {
         Self {
             id: tray_menu.id,
             dbus_path,
@@ -316,6 +471,36 @@ impl SystrayMenu {
                 SystrayMenuItem::new(item)
             }).collect(),
         }
+    }
+
+    fn apply_diff(&mut self, diff: MenuDiff) {
+        // This could be optimized, but meh.
+        // BFS to find the correct menu item
+        let mut queue = self.items.iter_mut().collect::<Vec<_>>();
+        while let Some(item) = queue.pop() {
+            match item {
+                SystrayMenuItem::Item { id, .. } => {
+                    if *id == diff.id {
+                        item.apply_diff(diff);
+                        return;
+                    }
+
+                    // If this is a submenu, we need to check its items too
+                    if let SystrayMenuItem::Item { submenu: Some(items), .. } = item {
+                        queue.extend(items.iter_mut());
+                    }
+                }
+                SystrayMenuItem::Separator { id, .. } => {
+                    if *id == diff.id {
+                        item.apply_diff(diff);
+                        return;
+                    }
+                }
+            }
+        }
+
+        // If we reach here, the item was not found
+        println!("Menu item with id {} not found in menu; ignoring diff", diff.id);
     }
 }
 
@@ -371,7 +556,7 @@ impl SystemTrayItem {
                 theme.clone()
             )),
             menu: menu.clone().map(|menu| {
-                SystrayMenu::new(menu, item.menu.clone().unwrap_or("".to_string()))
+                SystrayMenu::new(menu, item.menu.clone())
             })
         }
     }
