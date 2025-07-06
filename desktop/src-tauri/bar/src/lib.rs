@@ -6,7 +6,7 @@ use tauri::{
 };
 use zbus::fdo::PropertiesProxy;
 
-use crate::{networkmanager::get_networkmanager_state, niri::niri_request, upower::{create_upower_proxy, get_upower_properties}};
+use crate::{networkmanager::get_networkmanager_state, niri::niri_request, systemtray::get_systray_items, upower::{create_upower_proxy, get_upower_properties}};
 
 mod upower;
 mod networkmanager;
@@ -57,7 +57,8 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
             debug_log,
             niri_request,
             get_upower_properties,
-            get_networkmanager_state
+            get_networkmanager_state,
+            get_systray_items
         ])
         .setup(|app, _plugin_api| {
             let app_ = app.app_handle().clone();

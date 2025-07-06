@@ -13,6 +13,7 @@
     "bar:allow-niri-request",
     "bar:allow-get-upower-properties",
     "bar:allow-get-networkmanager-state",
+    "bar:allow-get-systray-items",
     "launcher:allow-rink-query",
     "launcher:allow-symbols-query",
     "launcher:allow-applications-query",

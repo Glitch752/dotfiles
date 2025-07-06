@@ -63,6 +63,32 @@ Denies the get_networkmanager_state command without any pre-configured scope.
 <tr>
 <td>
 
+`bar:allow-get-systray-items`
+
+</td>
+<td>
+
+Enables the get_systray_items command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`bar:deny-get-systray-items`
+
+</td>
+<td>
+
+Denies the get_systray_items command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
 `bar:allow-get-upower-properties`
 
 </td>

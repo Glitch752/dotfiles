@@ -319,6 +319,18 @@
           "markdownDescription": "Denies the get_networkmanager_state command without any pre-configured scope."
         },
         {
+          "description": "Enables the get_systray_items command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-systray-items",
+          "markdownDescription": "Enables the get_systray_items command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_systray_items command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-systray-items",
+          "markdownDescription": "Denies the get_systray_items command without any pre-configured scope."
+        },
+        {
           "description": "Enables the get_upower_properties command without any pre-configured scope.",
           "type": "string",
           "const": "allow-get-upower-properties",

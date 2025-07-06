@@ -13,6 +13,7 @@ import { initNotifications } from "./popups/notifications";
 import { initBattery } from "./bar/battery";
 import { initPowerOptions } from "./bar/powerOptions";
 import { initNetworkStatus } from "./bar/wirelessStatus";
+import { initSystray } from "./bar/systray";
 
 // Get bar thicknesses from :root in CSS
 const root = document.querySelector(":root") as HTMLElement;
@@ -38,6 +39,7 @@ window.addEventListener("DOMContentLoaded", () => {
     updateInputShape([]);
     init();
     initClock();
+    initSystray();
     initNetworkStatus();
     initPowerOptions();
     initBattery();

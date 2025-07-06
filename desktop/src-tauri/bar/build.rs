@@ -6,7 +6,13 @@ use std::{
 
 use schemars::schema_for;
 
-const COMMANDS: &[&str] = &["debug_log", "niri_request", "get_upower_properties", "get_networkmanager_state"];
+const COMMANDS: &[&str] = &[
+    "debug_log",
+    "niri_request",
+    "get_upower_properties",
+    "get_networkmanager_state",
+    "get_systray_items"
+];
 
 fn main() {
     tauri_plugin::Builder::new(COMMANDS).build();
