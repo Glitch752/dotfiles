@@ -264,6 +264,13 @@ impl DesktopFiles {
                 )
             })
             .collect();
+        let mut cache = self.icon_cache.lock().await;
+        let themes = cache.themes().map(|s| s.to_string()).collect::<Vec<_>>();
+        for theme in themes {
+            if cache.load(theme.clone()).is_err() {
+                println!("Failed to reload theme {}", theme);
+            }
+        }
         Ok(())
     }
 }

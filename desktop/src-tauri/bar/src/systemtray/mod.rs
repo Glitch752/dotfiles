@@ -6,6 +6,7 @@ use tauri::{AppHandle, Emitter, Manager, Runtime, State};
 use crate::{systemtray::types::{SystemTrayItem, SystemTrayItems, SystrayIcon, SystrayMenu, SystrayTooltip}, BarHandler};
 
 mod types;
+// mod debouncer;
 
 pub struct SystemTrayState {
     client: Client,
@@ -114,6 +115,7 @@ impl BarHandler {
 
                 // Send the updated state to the frontend
                 // TODO: Diffing or something? We should at least only update the item that changed.
+                // TODO: Debounce
                 app_handle.emit("update_tray_items", (*items).clone()).unwrap();
             }
         });
