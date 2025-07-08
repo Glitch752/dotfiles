@@ -50,6 +50,10 @@
     }
 }
 
+.vertical-bar > div {
+    flex: 1;
+}
+
 .horizontal-bar .separator {
     width: 2.5rem;
 }
@@ -68,7 +72,7 @@
         transform: translate(-25%, 10%) scale(0.3);
     }
 }
-.arch-logo:hover {
+.arch-logo.hovered {
     filter: brightness(1.5);
 }
 
@@ -120,7 +124,7 @@
     &.active .bullet {
         filter: brightness(1.25);
     }
-    &:hover .bullet, &.focused .bullet {
+    &.hovered .bullet, &.focused .bullet {
         filter: brightness(1.5);
     } 
 }
@@ -178,7 +182,7 @@
         width: var(--bar-icon-size);
         transition: filter 0.2s ease;
     }
-    .icon:hover {
+    .icon.hovered {
         filter: brightness(1.5);
     }
     margin-bottom: 0.5rem;

@@ -1,6 +1,12 @@
+// Note:
+// We must use `.hovered` instead of `:hover` because the webview has a
+// limited input zone and doesn't always know when the mouse is gone.
+// We manually track actually-hovered elements and add the `hovered` class.
+
 @use "launcher";
 @use "bar";
 @use "notifications";
+@use "tray";
 @use "utils" as *;
 
 :root {

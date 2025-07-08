@@ -59,6 +59,10 @@ export function createIconImage(
     return element;
 }
 
+function getDefaultIcon(): string {
+    return `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="%23ccc"/><text x="16" y="22" font-size="18" text-anchor="middle" fill="%23666" font-family="sans-serif" font-weight="bold">?</text></svg>`;
+}
+
 /**
  * This one is less obvious.
  * If masked, we don't draw the icon as an actual img--it's a div with a mask-image: url(...) property set.
@@ -79,10 +83,15 @@ export function createIconMask(
     } else {
         // Does this need to be a weakref? Probably not... but weak pointers are a cool feature.
         const ref = new WeakRef(element);
-        invoke<string>("plugin:launcher|resolve_icon", {
+        invoke<string | null>("plugin:launcher|resolve_icon", {
             icon,
             theme
         }).then((source) => {
+            if(!source) {
+                console.error(`Failed to find icon ${icon} with theme ${theme}.`);
+                element.style.maskImage = `url(${getDefaultIcon()})`;
+                return;
+            }
             const deref = ref.deref();
             const src = convertFileSrc(source);
             resolvedIconCache.set(icon, src);

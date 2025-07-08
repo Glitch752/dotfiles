@@ -1,6 +1,7 @@
 import { invokePayload } from "../utils";
 import { SystemTrayItems } from "@bindings/SystemTray";
 import { listen } from "@tauri-apps/api/event";
+import { createSystrayIconElement } from "../components/systrayIcon";
 
 let systrayItems: HTMLDivElement | null = null;
 
@@ -21,10 +22,15 @@ export function initSystray() {
 function updateItems(items: SystemTrayItems) {
     if(!systrayItems) return;
 
-    console.log(items);
+    // console.log(items);
 
-    systrayItems.innerHTML = `${Object.values(items).map(item => {
-        // return `<div title="${item?.tooltip?.title}">${item?.title}</div>`;
-        return "";
-    }).join("")}`;
+    systrayItems.innerHTML = "";
+    
+    for(const item of Object.values(items)) {
+        if(!item) continue;
+        const element = createSystrayIconElement(item.icon);
+        if("FreedesktopIcon" in item.icon) console.log(item.icon.FreedesktopIcon);
+        element.title = item.tooltip?.title ?? item.tooltip?.description ?? item.title ?? "";
+        systrayItems.append(element);
+    }
 }

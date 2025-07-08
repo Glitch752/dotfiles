@@ -29,6 +29,8 @@ impl From<Status> for SystrayItemStatus {
 pub struct SystrayPixmap {
     width: i32,
     height: i32,
+    /// ARGB32 binary representation of the icon in network byte order.
+    /// The format of icon data is described in Section Icons
     pixels: Vec<u8>
 }
 
@@ -58,7 +60,7 @@ impl SystrayIcon {
                 name
             }),
             // If we don't have a theme icon, use the pixmap data
-            (None, None, Some(pixmap)) => {
+            (_, _, Some(pixmap)) => {
                 let icons = pixmap.into_iter().map(|p| SystrayPixmap {
                     width: p.width,
                     height: p.height,
@@ -68,6 +70,11 @@ impl SystrayIcon {
                     icons
                 })
             },
+            // Fallback to assume "hicolor" themep) {
+            (None, Some(name), _) => Some(SystrayIcon::FreedesktopIcon {
+                theme: "hicolor".to_string(),
+                name
+            }),
             // If we don't have the required data, don't return the data
             _ => None
         }
@@ -458,7 +465,11 @@ pub struct SystemTrayItem {
 
 impl SystemTrayItem {
     pub fn new(item: &StatusNotifierItem, menu: &Option<TrayMenu>) -> Self {
-        let theme = item.icon_theme_path.clone();
+        let theme = item.icon_theme_path.clone().map(|t| if t.trim().is_empty() {
+            "hicolor".to_string()
+        } else {
+            t.to_string()
+        });
         SystemTrayItem {
             id: item.id.clone(),
             title: item.title.clone(),

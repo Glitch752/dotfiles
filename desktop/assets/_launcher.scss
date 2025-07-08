@@ -86,7 +86,7 @@
       white-space: pre-wrap;
     }
 
-    &:hover {
+    &.hovered {
       background-color: var(--panel1);
     }
     &.highlighted {

@@ -107,7 +107,12 @@ disposition: SystrayMenuItemDisposition, } };
 
 export type SystrayMenuItemDisposition = "Normal" | "Informative" | "Warning" | "Alert";
 
-export type SystrayPixmap = { width: number, height: number, pixels: Array<number>, };
+export type SystrayPixmap = { width: number, height: number, 
+/**
+ * ARGB32 binary representation of the icon in network byte order.
+ * The format of icon data is described in Section Icons
+ */
+pixels: Array<number>, };
 
 /**
  * Note: The implementation does not itself handle ensuring that only one

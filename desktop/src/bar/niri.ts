@@ -1,5 +1,5 @@
 import { listen } from "@tauri-apps/api/event";
-import { debugLog as debugLog, invokePayload } from "../utils";
+import { invokePayload } from "../utils";
 import { Request } from "@bindings/NiriIpcRequest";
 import { Output, Response, Window, Workspace } from "@bindings/NiriIpcResponse";
 import { Event } from "@bindings/NiriIpcEvent";
@@ -43,6 +43,37 @@ function getWorkspaceWindows(workspace: number) {
     return windows.filter(w => w.workspace_id === workspace);
 }
 
+/**
+ * Because we restrict the input zone of our window to only the part of the monitor it covers,
+ * it doesn't always know when we stop hovering over elements. Therefore, we do something _really_
+ * hacky and rely on our niri bindings to effectively remove the hovered pseudostate from elements
+ * when the focus changes. I couldn't find a better way to do this, so here we are.
+ * This is called when we receive a WindowFocusChanged event.
+ */
+function hackyFixHoverWithNiri(tryAgain = true) {
+    const hovered = document.querySelectorAll(".hovered");
+    if(hovered.length > 0) hovered.forEach(el => {
+        el.classList.remove("hovered");
+    });
+
+    if(tryAgain) setTimeout(() => {
+        hackyFixHoverWithNiri(false);
+    }, 100);
+}
+
+document.body.addEventListener("mousemove", () => {
+    // If the mouse is moved, re-update the .hovered classes
+    const hovered = document.querySelectorAll(":hover:not(.hovered)");
+    hovered.forEach(el => {
+        el.classList.add("hovered");
+    });
+
+    const unhovered = document.querySelectorAll(".hovered:not(:hover)");
+    unhovered.forEach(el => {
+        el.classList.remove("hovered");
+    });
+});
+
 export function initializeNiri() {
     listen("niri_event", (event) => {
         const e = convertEvent(event.payload as Event);
@@ -58,7 +89,7 @@ export function initializeNiri() {
                 if(workspaceIndex !== -1) {
                     workspaces[workspaceIndex].active_window_id = e.data.active_window_id;
                 } else {
-                    debugLog(`Workspace with ID ${e.data.workspace_id} not found.`);
+                    console.log(`Workspace with ID ${e.data.workspace_id} not found.`);
                 }
                 updateWorkspaceWidgets();
                 break;
@@ -82,7 +113,7 @@ export function initializeNiri() {
                     }
                     updateWorkspaceWidgets();
                 } else {
-                    debugLog(`Workspace with ID ${e.data.workspace_id} not found.`);
+                    console.log(`Workspace with ID ${e.data.workspace_id} not found.`);
                 }
                 updateWorkspaceWidgets();
                 break;
@@ -92,7 +123,7 @@ export function initializeNiri() {
                 if(workspaceIndex !== -1) {
                     workspaces[workspaceIndex].is_urgent = e.data.urgent;
                 } else {
-                    debugLog(`Urgency change for unknown workspace ID ${e.data.id}`);
+                    console.log(`Urgency change for unknown workspace ID ${e.data.id}`);
                 }
                 updateWorkspaceWidgets();
                 break;
@@ -119,11 +150,15 @@ export function initializeNiri() {
                     if(workspaceIndex !== -1) {
                         workspaces[workspaceIndex].active_window_id = windows[windowIndex].id;
                     }
+
+                    // If no window is focused, we're probably the one focused (although not necessarily).
+                    hackyFixHoverWithNiri();
                 } else {
                     // No window is focused
                     windows.forEach(w => w.is_focused = false);
                 }
                 updateWorkspaceWidgets();
+
                 break;
             }
             case "WindowOpenedOrChanged": {
@@ -141,7 +176,7 @@ export function initializeNiri() {
                 if(urgencyWindowIndex !== -1) {
                     windows[urgencyWindowIndex].is_urgent = e.data.urgent;
                 } else {
-                    debugLog(`Urgency change for unknown window ID ${e.data.id}`);
+                    console.log(`Urgency change for unknown window ID ${e.data.id}`);
                 }
                 updateWorkspaceWidgets();
                 break;
@@ -157,7 +192,7 @@ export function initializeNiri() {
                 break;
             }
             default: {
-                debugLog(`Received unknown niri event: ${JSON.stringify(event.payload)}`);
+                console.log(`Received unknown niri event: ${JSON.stringify(event.payload)}`);
             }
         }
     });
@@ -194,7 +229,7 @@ function updateWorkspaceWidgets() {
     const outputWorkspaces = getOutputWorkspaces(associatedOutput);
     const activeWorkspace = outputWorkspaces.find(w => w.is_active);
     if(!activeWorkspace) {
-        debugLog("No active workspace found on the associated output.");
+        console.log("No active workspace found on the associated output.");
         return;
     }
 
