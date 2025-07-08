@@ -21,7 +21,7 @@ export function initSystray() {
 function updateItems(items: SystemTrayItems) {
     if(!systrayItems) return;
 
-    // console.log(items);
+    console.log(items);
 
     systrayItems.innerHTML = `${Object.values(items).map(item => {
         // return `<div title="${item?.tooltip?.title}">${item?.title}</div>`;

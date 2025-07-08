@@ -1,12 +1,12 @@
-use std::{collections::HashMap, ops::Deref, sync::Mutex};
+use std::{collections::HashMap, ops::Deref, sync::Mutex, time::Duration};
 
 use system_tray::client::{self, Client, UpdateEvent};
 use tauri::{AppHandle, Emitter, Manager, Runtime, State};
 
-use crate::{systemtray::types::{SystemTrayItem, SystemTrayItems, SystrayIcon, SystrayMenu, SystrayTooltip}, BarHandler};
+use crate::{systemtray::{debouncer::Debouncer, types::{SystemTrayItem, SystemTrayItems, SystrayIcon, SystrayMenu, SystrayTooltip}}, BarHandler};
 
 mod types;
-// mod debouncer;
+mod debouncer;
 
 pub struct SystemTrayState {
     client: Client,
@@ -34,6 +34,15 @@ impl BarHandler {
 
         let app_handle = app_handle.clone();
         tauri::async_runtime::spawn(async move {
+            let app_handle_2 = app_handle.clone();
+            let mut debouncer = Debouncer::<SystemTrayItems>::new(
+                Duration::from_millis(100),
+                move |items| {
+                    // TODO: Diffing or something? We should at least only update the item that changed.
+                    app_handle_2.emit("update_tray_items", items).unwrap();
+                }
+            );
+
             while let Ok(event) = event_stream.recv().await {
                 let state = app_handle.state::<SystemTrayState>();
                 let items = &mut state.current_items.lock().expect("Failed to lock system tray state");
@@ -114,9 +123,7 @@ impl BarHandler {
                 }
 
                 // Send the updated state to the frontend
-                // TODO: Diffing or something? We should at least only update the item that changed.
-                // TODO: Debounce
-                app_handle.emit("update_tray_items", (*items).clone()).unwrap();
+                debouncer.call((*items).clone());
             }
         });
     }

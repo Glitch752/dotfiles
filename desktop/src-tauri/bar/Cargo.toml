@@ -9,6 +9,7 @@ futures = "0.3.31"
 niri-ipc = { version = "25.5.1" }
 serde = { workspace = true }
 tauri = { workspace = true }
+tokio = { workspace = true }
 zbus = { workspace = true }
 zvariant = { workspace = true }
 ts-rs = "11.0.1"

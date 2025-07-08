@@ -257,6 +257,7 @@ dependencies = [
  "system-tray",
  "tauri",
  "tauri-plugin",
+ "tokio",
  "ts-rs",
  "zbus",
  "zvariant",

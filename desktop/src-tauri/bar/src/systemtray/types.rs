@@ -121,10 +121,7 @@ impl SystrayMenuIcon {
             (Some(name), _) => Some(SystrayMenuIcon::FreedesktopIcon {
                 name
             }),
-            (_, Some(data)) => {
-                println!("PNG data length: {}", data.len());
-                Some(SystrayMenuIcon::PNGData(data))
-            },
+            (_, Some(data)) => Some(SystrayMenuIcon::PNGData(data)),
             _ => None
         }
     }
