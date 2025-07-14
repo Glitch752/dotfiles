@@ -17,11 +17,18 @@ export class ApplicationsModule extends Module {
         return query.length > 0;
     }
     async getEntries(query: string, _abortSignal: AbortSignal): Promise<ModuleEntry[]> {
-        // TODO: Support app Desktop Actions defined in the desktop files, e.g. "New Window" from LibreWolf
         const apps = await applicationsQuery(query);
 
         return apps
             .slice(0, ApplicationsModule.MAX_RESULTS)
+            .flatMap(app => {
+                return [app, ...app.actions.map(action => ({
+                    name: app.name,
+                    comment: action.name,
+                    icon_path: action.icon ?? app.icon_path,
+                    exec: action.exec,
+                }))];
+            })
             .map(app => new ModuleEntry(app.name ?? "Unknown application", app.comment, app.icon_path, app.exec ? async () => {
                 if(!app.exec) return;
 

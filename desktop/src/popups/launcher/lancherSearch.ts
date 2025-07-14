@@ -75,14 +75,14 @@ export default function addLauncherPopup(content: HTMLDivElement) {
 
     content.append(entryInput, resultWrapper);
 
-    const getEntryId = (moduleName: string, entryName: string) => `${moduleName}::${entryName}`;
+    const getEntryId = (module: Module, entry: ModuleEntry) => `${module.name}::${entry.name}::${entry.description}`;
 
     const getActivatableItems = () => {
         return resolvedResults.get().flatMap(result =>
             result.entries
                 .filter(entry => entry.onActivate)
                 .map(entry => ({
-                    id: getEntryId(result.module.name, entry.name),
+                    id: getEntryId(result.module, entry),
                     entry,
                     module: result.module
                 }))
@@ -118,7 +118,7 @@ export default function addLauncherPopup(content: HTMLDivElement) {
         const button = document.createElement("button");
         button.className = "entry";
         // Use a stable data-attribute to identify the element
-        button.dataset.entryId = getEntryId(module.name, entry.name);
+        button.dataset.entryId = getEntryId(module, entry);
 
         if (entry.onActivate) {
             button.onclick = () => {
@@ -229,7 +229,7 @@ export default function addLauncherPopup(content: HTMLDivElement) {
             }
 
             const entriesBox = moduleBox.querySelector<HTMLDivElement>(".entries")!;
-            const currentEntryIds = new Set(entries.map(e => getEntryId(module.name, e.name)));
+            const currentEntryIds = new Set(entries.map(e => getEntryId(module, e)));
 
             // Remove old entries that are no longer present
             for (const entryEl of Array.from(entriesBox.children)) {
@@ -240,7 +240,7 @@ export default function addLauncherPopup(content: HTMLDivElement) {
 
             // Update and add new entries
             entries.forEach(entry => {
-                const entryId = getEntryId(module.name, entry.name);
+                const entryId = getEntryId(module, entry);
                 let entryEl = entriesBox.querySelector<HTMLButtonElement>(`[data-entry-id="${CSS.escape(entryId)}"]`);
 
                 if (!entryEl) {

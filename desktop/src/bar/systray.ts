@@ -26,11 +26,11 @@ function updateItems(items: SystemTrayItems) {
 
     systrayItems.innerHTML = "";
     
-    for(const item of Object.values(items)) {
-        if(!item) continue;
-        const element = createSystrayIconElement(item.icon);
-        if("FreedesktopIcon" in item.icon) console.log(item.icon.FreedesktopIcon);
-        element.title = item.tooltip?.title ?? item.tooltip?.description ?? item.title ?? "";
-        systrayItems.append(element);
-    }
+    // for(const item of Object.values(items)) {
+    //     if(!item) continue;
+    //     const element = createSystrayIconElement(item.icon);
+    //     if("FreedesktopIcon" in item.icon) console.log(item.icon.FreedesktopIcon);
+    //     element.title = item.tooltip?.title ?? item.tooltip?.description ?? item.title ?? "";
+    //     systrayItems.append(element);
+    // }
 }

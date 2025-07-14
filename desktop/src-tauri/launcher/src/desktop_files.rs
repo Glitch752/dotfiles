@@ -55,73 +55,112 @@ impl DesktopFileRef {
 
         let mut lines = BufReader::new(file).lines();
 
-        let mut has_name = false;
-        let mut has_comment = false;
-        let mut has_type = false;
-        let mut has_wm_class = false;
-        let mut has_exec = false;
-        let mut has_icon = false;
-        let mut has_categories = false;
-        let mut has_keywords = false;
-        let mut has_no_display = false;
+        let mut current_section = String::from("Desktop Entry");
+        // We use a map because there can be duplicate sections that contribute to a single action
+        let mut actions_map: HashMap<String, DesktopAction> = HashMap::new();
+        let mut action_order: Vec<String> = Vec::new();
 
         while let Ok(Some(line)) = lines.next_line().await {
+            let line = line.trim();
+            if line.is_empty() || line.starts_with('#') {
+                continue;
+            }
+
+            // Sections
+            if line.starts_with('[') && line.ends_with(']') {
+                let section = &line[1..line.len() - 1];
+                if section == "Desktop Entry" {
+                    current_section = section.to_string();
+                } else if let Some(action_name) = section.strip_prefix("Desktop Action ") {
+                    current_section = format!("Desktop Action {}", action_name);
+                    if !actions_map.contains_key(action_name) {
+                    actions_map.insert(
+                        action_name.to_string(),
+                        DesktopAction {
+                        name: None,
+                        exec: None,
+                        icon: None,
+                        },
+                    );
+                    action_order.push(action_name.to_string());
+                    }
+                } else {
+                    current_section = section.to_string();
+                }
+                continue;
+            }
+
             let Some((key, value)) = line.split_once('=') else {
                 continue;
             };
+            let value = value.trim();
 
-            match key {
-                "Name" if !has_name => {
-                    desktop_file.name = Some(value.to_string());
-                    has_name = true;
+            if current_section == "Desktop Entry" {
+                match key {
+                    "Name" => {
+                        desktop_file.name.get_or_insert_with(|| value.to_string());
+                    }
+                    "Comment" => {
+                        desktop_file.comment.get_or_insert_with(|| value.to_string());
+                    }
+                    "Type" => {
+                        desktop_file.app_type.get_or_insert_with(|| value.to_string());
+                    }
+                    "StartupWMClass" => {
+                        desktop_file.startup_wm_class.get_or_insert_with(|| value.to_string());
+                    }
+                    "Exec" => {
+                        desktop_file.exec.get_or_insert_with(|| value.to_string());
+                    }
+                    "Icon" => {
+                        if desktop_file.icon_path.is_none() {
+                            desktop_file.icon_path = cache.lookup(value, None);
+                        }
+                    }
+                    "Categories" => {
+                        if desktop_file.categories.is_empty() {
+                            desktop_file.categories = value.split(';').filter(|s| !s.is_empty()).map(|s| s.to_string()).collect();
+                        }
+                    }
+                    "Keywords" => {
+                        if desktop_file.keywords.is_empty() {
+                            desktop_file.keywords = value.split(';').filter(|s| !s.is_empty()).map(|s| s.to_string()).collect();
+                        }
+                    }
+                    "NoDisplay" => {
+                        if desktop_file.no_display.is_none() {
+                            desktop_file.no_display = Some(value.parse().unwrap_or(false));
+                        }
+                    }
+                    _ => {}
                 }
-                "Comment" if !has_comment => {
-                    desktop_file.comment = Some(value.to_string());
-                    has_comment = true;
+            } else if let Some(action_name) = current_section.strip_prefix("Desktop Action ") {
+                let action = actions_map.entry(action_name.to_string()).or_insert_with(|| DesktopAction {
+                    name: None,
+                    exec: None,
+                    icon: None,
+                });
+                match key {
+                    "Name" => {
+                        action.name.get_or_insert_with(|| value.to_string());
+                    }
+                    "Exec" => {
+                        action.exec.get_or_insert_with(|| value.to_string());
+                    }
+                    "Icon" => {
+                        action.icon.get_or_insert_with(|| value.to_string());
+                    }
+                    _ => {}
                 }
-                "Type" if !has_type => {
-                    desktop_file.app_type = Some(value.to_string());
-                    has_type = true;
-                }
-                "StartupWMClass" if !has_wm_class => {
-                    desktop_file.startup_wm_class = Some(value.to_string());
-                    has_wm_class = true;
-                }
-                "Exec" if !has_exec => {
-                    desktop_file.exec = Some(value.to_string());
-                    has_exec = true;
-                }
-                "Icon" if !has_icon => {
-                    desktop_file.icon_path = cache.lookup(value, None);
-                    has_icon = true;
-                }
-                "Categories" if !has_categories => {
-                    desktop_file.categories = value.split(';').map(|s| s.to_string()).collect();
-                    has_categories = true;
-                }
-                "Keywords" if !has_keywords => {
-                    desktop_file.keywords = value.split(';').map(|s| s.to_string()).collect();
-                    has_keywords = true;
-                }
-                "NoDisplay" if !has_no_display => {
-                    desktop_file.no_display = Some(value.parse().unwrap_or(false));
-                    has_no_display = true;
-                }
-                _ => {}
+            } else {
+                // Unknown section type; just continue
             }
+        }
 
-            // parsing complete - don't bother with the rest of the lines
-            if has_name
-                && has_type
-                && has_comment
-                && has_wm_class
-                && has_exec
-                && has_icon
-                && has_categories
-                && has_keywords
-                && has_no_display
-            {
-                break;
+        // Preserve order of actions as in file
+        for action_name in action_order {
+            if let Some(action) = actions_map.remove(&action_name) {
+                desktop_file.actions.push(action);
             }
         }
 
@@ -142,6 +181,16 @@ pub struct DesktopFile {
     pub categories: Vec<String>,
     pub keywords: Vec<String>,
     pub no_display: Option<bool>,
+
+    pub actions: Vec<DesktopAction>
+}
+
+#[derive(Debug, Clone, Serialize, TS)]
+#[ts(export, export_to = "../../bindings/DesktopFile.ts")]
+pub struct DesktopAction {
+    pub name: Option<String>,
+    pub exec: Option<String>,
+    pub icon: Option<String>
 }
 
 impl DesktopFile {
@@ -157,6 +206,7 @@ impl DesktopFile {
             categories: vec![],
             keywords: vec![],
             no_display: None,
+            actions: vec![]
         }
     }
 }
@@ -226,20 +276,30 @@ impl DesktopFiles {
                     return None; // Skip files marked as NoDisplay
                 }
 
-                // Match name or keywords
+                // Match name, action names, or keywords
                 let name_score = matcher.fuzzy_match(
                     &file.name.as_ref().unwrap(),
                     &query,
                 ).map(|v| v * 3 / 2); // Boost name matches
+
+                let action_score = file.actions.iter()
+                    .filter_map(|action| action.name.as_ref().and_then(|n| matcher.fuzzy_match(n, &query)))
+                    .max()
+                    .map(|v| v * 5 / 4); // Slightly boost action matches over keywords
+
                 let keywords_score = file.keywords.iter()
                     .filter_map(|keyword| matcher.fuzzy_match(keyword, &query))
                     .max();
 
-                if name_score.is_none() && keywords_score.is_none() {
+                if name_score.is_none() && action_score.is_none() && keywords_score.is_none() {
                     return None;
                 }
 
-                Some((file, name_score.unwrap_or(0).max(keywords_score.unwrap_or(0))))
+                let max_score = name_score.unwrap_or(0)
+                    .max(keywords_score.unwrap_or(0))
+                    .max(action_score.unwrap_or(0));
+
+                Some((file, max_score))
             })
             .collect::<Vec<_>>();
         
