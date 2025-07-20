@@ -1,7 +1,7 @@
 import { invokePayload } from "../utils";
 import { SystemTrayItems } from "@bindings/SystemTray";
 import { listen } from "@tauri-apps/api/event";
-import { createSystrayIconElement } from "../components/systrayIcon";
+// import { createSystrayIconElement } from "../components/systrayIcon";
 
 let systrayItems: HTMLDivElement | null = null;
 
@@ -19,7 +19,7 @@ export function initSystray() {
     });
 }
 
-function updateItems(items: SystemTrayItems) {
+function updateItems(_items: SystemTrayItems) {
     if(!systrayItems) return;
 
     // console.log(items);

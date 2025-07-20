@@ -16,6 +16,11 @@ alias search="yay -Ss"
 alias remove="yay -Rns"
 alias clean="yay -Rns $(pacman -Qdtq)"
 
+alias view="qimgv"
+alias show="qimgv"
+
+alias open="xdg-open"
+
 alias shit="fuck"
 
 alias neofetch="fastfetch"
