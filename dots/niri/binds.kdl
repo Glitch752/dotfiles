@@ -211,6 +211,8 @@ binds {
     Mod+Z       { toggle-window-floating; }
     Mod+Shift+Z { switch-focus-between-floating-and-tiling; }
 
+    Mod+M { spawn "wooz"; }
+
     // Toggle tabbed column display mode.
     // Windows in this column will appear as vertical tabs,
     // rather than stacked on top of each other.
