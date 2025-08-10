@@ -24,6 +24,7 @@ def expand_user_to(user: str, path: str) -> str:
 # Write content to a temporary file, then move it atomically to the destination.
 def write_atomic(filepath: Path, content: str):
     dirpath = filepath.parent
+    dirpath.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile('w', dir=dirpath, delete=False) as tf:
         tf.write(content)
         tempname = tf.name

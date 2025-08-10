@@ -23,7 +23,7 @@ binds {
     // uh oh
     Mod+Shift+R allow-inhibiting=false repeat=false { spawn "bash" "-c" "pkill desktop; desktop & disown"; }
 
-    Mod+L repeat=false hotkey-overlay-title="Lock" { spawn "swaylock"; }
+    Mod+L repeat=false hotkey-overlay-title="Lock" { spawn "hyprlock"; }
 
     // You can also use a shell. Do this if you need pipes, multiple commands, etc.
     // Note: the entire command goes as a single argument in the end.
