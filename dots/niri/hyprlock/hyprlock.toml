@@ -1,6 +1,7 @@
 [configurations.hyprlock]
 render = [
     { source = "hyprlock.conf", destination = "~/.config/hypr/hyprlock.conf" },
+    { source = "hypridle.conf", destination = "~/.config/hypr/hypridle.conf" },
     { source = "scripts/userInfo.sh", destination = "~/.local/bin/userInfo.sh" },
     { source = "scripts/battery.sh", destination = "~/.local/bin/battery.sh" }
 ]

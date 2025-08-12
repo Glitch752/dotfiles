@@ -14,6 +14,7 @@ spawn-at-startup "xwayland-satellite" ":0"
 spawn-at-startup "/usr/lib/policykit-1-pantheon/io.elementary.desktop.agent-polkit"
 
 spawn-at-startup "hyprlock --no-fade-in --immediate-render"
+spawn-at-startup "hypridle"
 
 hotkey-overlay {
     skip-at-startup
