@@ -1,0 +1,12 @@
+[Unit]
+Description=Set ALSA card profile to analog-stereo
+Wants=pipewire.service pipewire-pulse.service
+After=pipewire.service pipewire-pulse.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/pactl set-card-profile alsa_card.pci-0000_00_1f.3 output:analog-stereo+input:analog-stereo
+RemainAfterExit=yes
+
+[Install]
+WantedBy=default.target
