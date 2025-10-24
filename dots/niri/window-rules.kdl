@@ -5,11 +5,33 @@
 // Open a few windows as maximized by default: VSCode, Firefox, Discord, and probably others I forgot.
 window-rule {
     match app-id=r#"firefox$"#
+    match app-id=r#"^brave-browser$"#
     match app-id=r#"^code$"#
     match app-id=r#"^com\.discordapp\.Discord$"#
 
     open-maximized true
 }
+
+window-rule {
+    match app-id=r#"^brave-browser$"#
+
+    // Chromium browsers (but not electron??) have a stupidly high
+    // and unconfigurable scroll speed by default on Wayland.
+    scroll-factor 0.4
+}
+
+window-rule {
+    // Temporary, keep my Godot games maximized and never float
+    match app-id=r#"^Sushi Factory$"#
+
+    open-maximized true
+    open-floating false
+
+    default-window-height { proportion 1.0; }
+    default-column-width { proportion 1.0; }
+}
+
+// 
 
 // Example: block out two password managers from screen capture.
 // (This example rule is commented out with a "/-" in front.)

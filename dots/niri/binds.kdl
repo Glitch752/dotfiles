@@ -13,8 +13,8 @@ binds {
 
     Mod+Shift+Slash { show-hotkey-overlay; }
 
-    // Suggested binds for running programs: terminal, app launcher, screen locker.
     Mod+Q repeat=false hotkey-overlay-title="Open kitty" { spawn "kitty"; }
+    Mod+E repeat=false hotkey-overlay-title="Open files" { spawn "nautilus" "-w"; } // -w creates a new window no matter what
     
     // TODO: Implement release bindings and use just mod instead
     // Mod+Space repeat=false hotkey-overlay-title="Run fuzzel" { spawn "fuzzel"; }
