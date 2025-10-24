@@ -6,7 +6,7 @@ links = "bar"
 
 [dependencies]
 futures = "0.3.31"
-niri-ipc = { version = "25.5.1" }
+niri-ipc = { version = "25.8.0" }
 serde = { workspace = true }
 tauri = { workspace = true }
 tokio = { workspace = true }
@@ -17,7 +17,7 @@ system-tray = "0.8.1"
 
 [build-dependencies]
 # Use the same schemars version as niri-ipc
-schemars = { version = "=0.8.22" }
+schemars = { version = "=1.0.4" }
 tauri-plugin = { version = "2.2.0", features = ["build"] }
-niri-ipc = { version = "=25.5.1", features = ["json-schema"] }
+niri-ipc = { version = "=25.8.0", features = ["json-schema"] }
 serde_json = "1.0.140"

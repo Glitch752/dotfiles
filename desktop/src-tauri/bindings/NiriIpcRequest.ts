@@ -25,13 +25,71 @@ export type Request =
   | {
       Output: {
         /**
+         * Configuration to apply.
+         */
+        action:
+          | "Off"
+          | "On"
+          | {
+              Mode: {
+                /**
+                 * Mode to set, or "auto" for automatic selection.
+                 *
+                 * Run `niri msg outputs` to see the available modes.
+                 */
+                mode:
+                  | "Automatic"
+                  | {
+                      Specific: ConfiguredMode;
+                    };
+                [k: string]: unknown;
+              };
+            }
+          | {
+              Scale: {
+                /**
+                 * Scale factor to set, or "auto" for automatic selection.
+                 */
+                scale:
+                  | "Automatic"
+                  | {
+                      Specific: number;
+                    };
+                [k: string]: unknown;
+              };
+            }
+          | {
+              Transform: {
+                /**
+                 * Transform to set, counter-clockwise.
+                 */
+                transform: "Normal" | "90" | "180" | "270" | "Flipped" | "Flipped90" | "Flipped180" | "Flipped270";
+                [k: string]: unknown;
+              };
+            }
+          | {
+              Position: {
+                /**
+                 * Position to set, or "auto" for automatic selection.
+                 */
+                position:
+                  | "Automatic"
+                  | {
+                      Specific: ConfiguredPosition;
+                    };
+                [k: string]: unknown;
+              };
+            }
+          | {
+              Vrr: {
+                vrr: VrrToSet;
+                [k: string]: unknown;
+              };
+            };
+        /**
          * Output name.
          */
         output: string;
-        /**
-         * Configuration to apply.
-         */
-        action: OutputAction;
         [k: string]: unknown;
       };
     }
@@ -71,6 +129,15 @@ export type Action =
       };
     }
   | {
+      SpawnSh: {
+        /**
+         * Command to run.
+         */
+        command: string;
+        [k: string]: unknown;
+      };
+    }
+  | {
       DoScreenTransition: {
         /**
          * Delay in milliseconds for the screen to freeze before starting the transition.
@@ -91,15 +158,15 @@ export type Action =
   | {
       ScreenshotScreen: {
         /**
+         * Whether to include the mouse pointer in the screenshot.
+         */
+        show_pointer: boolean;
+        /**
          * Write the screenshot to disk in addition to putting it in your clipboard.
          *
          * The screenshot is saved according to the `screenshot-path` config setting.
          */
         write_to_disk: boolean;
-        /**
-         * Whether to include the mouse pointer in the screenshot.
-         */
-        show_pointer: boolean;
         [k: string]: unknown;
       };
     }
@@ -417,7 +484,7 @@ export type Action =
         /**
          * Display mode to set.
          */
-        display: ColumnDisplay;
+        display: "Normal" | "Tabbed";
         [k: string]: unknown;
       };
     }
@@ -457,7 +524,16 @@ export type Action =
         /**
          * Reference (index or name) of the workspace to focus.
          */
-        reference: WorkspaceReferenceArg;
+        reference:
+          | {
+              Id: number;
+            }
+          | {
+              Index: number;
+            }
+          | {
+              Name: string;
+            };
         [k: string]: unknown;
       };
     }
@@ -468,32 +544,57 @@ export type Action =
     }
   | {
       MoveWindowToWorkspaceDown: {
+        /**
+         * Whether the focus should follow the target workspace.
+         *
+         * If `true` (the default), the focus will follow the window to the new workspace. If
+         * `false`, the focus will remain on the original workspace.
+         */
+        focus: boolean;
         [k: string]: unknown;
       };
     }
   | {
       MoveWindowToWorkspaceUp: {
+        /**
+         * Whether the focus should follow the target workspace.
+         *
+         * If `true` (the default), the focus will follow the window to the new workspace. If
+         * `false`, the focus will remain on the original workspace.
+         */
+        focus: boolean;
         [k: string]: unknown;
       };
     }
   | {
       MoveWindowToWorkspace: {
         /**
+         * Whether the focus should follow the moved window.
+         *
+         * If `true` (the default) and the window to move is focused, the focus will follow the
+         * window to the new workspace. If `false`, the focus will remain on the original
+         * workspace.
+         */
+        focus: boolean;
+        /**
+         * Reference (index or name) of the workspace to move the window to.
+         */
+        reference:
+          | {
+              Id: number;
+            }
+          | {
+              Index: number;
+            }
+          | {
+              Name: string;
+            };
+        /**
          * Id of the window to move.
          *
          * If `None`, uses the focused window.
          */
         window_id?: number | null;
-        /**
-         * Reference (index or name) of the workspace to move the window to.
-         */
-        reference: WorkspaceReferenceArg;
-        /**
-         * Whether the focus should follow the moved window.
-         *
-         * If `true` (the default) and the window to move is focused, the focus will follow the window to the new workspace. If `false`, the focus will remain on the original workspace.
-         */
-        focus: boolean;
         [k: string]: unknown;
       };
     }
@@ -502,7 +603,8 @@ export type Action =
         /**
          * Whether the focus should follow the target workspace.
          *
-         * If `true` (the default), the focus will follow the column to the new workspace. If `false`, the focus will remain on the original workspace.
+         * If `true` (the default), the focus will follow the column to the new workspace. If
+         * `false`, the focus will remain on the original workspace.
          */
         focus: boolean;
         [k: string]: unknown;
@@ -513,7 +615,8 @@ export type Action =
         /**
          * Whether the focus should follow the target workspace.
          *
-         * If `true` (the default), the focus will follow the column to the new workspace. If `false`, the focus will remain on the original workspace.
+         * If `true` (the default), the focus will follow the column to the new workspace. If
+         * `false`, the focus will remain on the original workspace.
          */
         focus: boolean;
         [k: string]: unknown;
@@ -522,15 +625,25 @@ export type Action =
   | {
       MoveColumnToWorkspace: {
         /**
-         * Reference (index or name) of the workspace to move the column to.
-         */
-        reference: WorkspaceReferenceArg;
-        /**
          * Whether the focus should follow the target workspace.
          *
-         * If `true` (the default), the focus will follow the column to the new workspace. If `false`, the focus will remain on the original workspace.
+         * If `true` (the default), the focus will follow the column to the new workspace. If
+         * `false`, the focus will remain on the original workspace.
          */
         focus: boolean;
+        /**
+         * Reference (index or name) of the workspace to move the column to.
+         */
+        reference:
+          | {
+              Id: number;
+            }
+          | {
+              Index: number;
+            }
+          | {
+              Name: string;
+            };
         [k: string]: unknown;
       };
     }
@@ -711,30 +824,54 @@ export type Action =
   | {
       SetWindowWidth: {
         /**
+         * How to change the width.
+         */
+        change:
+          | {
+              SetFixed: number;
+            }
+          | {
+              SetProportion: number;
+            }
+          | {
+              AdjustFixed: number;
+            }
+          | {
+              AdjustProportion: number;
+            };
+        /**
          * Id of the window whose width to set.
          *
          * If `None`, uses the focused window.
          */
         id?: number | null;
-        /**
-         * How to change the width.
-         */
-        change: SizeChange;
         [k: string]: unknown;
       };
     }
   | {
       SetWindowHeight: {
         /**
+         * How to change the height.
+         */
+        change:
+          | {
+              SetFixed: number;
+            }
+          | {
+              SetProportion: number;
+            }
+          | {
+              AdjustFixed: number;
+            }
+          | {
+              AdjustProportion: number;
+            };
+        /**
          * Id of the window whose height to set.
          *
          * If `None`, uses the focused window.
          */
         id?: number | null;
-        /**
-         * How to change the height.
-         */
-        change: SizeChange;
         [k: string]: unknown;
       };
     }
@@ -755,7 +892,23 @@ export type Action =
       };
     }
   | {
+      SwitchPresetColumnWidthBack: {
+        [k: string]: unknown;
+      };
+    }
+  | {
       SwitchPresetWindowWidth: {
+        /**
+         * Id of the window whose width to switch.
+         *
+         * If `None`, uses the focused window.
+         */
+        id?: number | null;
+        [k: string]: unknown;
+      };
+    }
+  | {
+      SwitchPresetWindowWidthBack: {
         /**
          * Id of the window whose width to switch.
          *
@@ -777,6 +930,17 @@ export type Action =
       };
     }
   | {
+      SwitchPresetWindowHeightBack: {
+        /**
+         * Id of the window whose height to switch.
+         *
+         * If `None`, uses the focused window.
+         */
+        id?: number | null;
+        [k: string]: unknown;
+      };
+    }
+  | {
       MaximizeColumn: {
         [k: string]: unknown;
       };
@@ -786,7 +950,19 @@ export type Action =
         /**
          * How to change the width.
          */
-        change: SizeChange;
+        change:
+          | {
+              SetFixed: number;
+            }
+          | {
+              SetProportion: number;
+            }
+          | {
+              AdjustFixed: number;
+            }
+          | {
+              AdjustProportion: number;
+            };
         [k: string]: unknown;
       };
     }
@@ -800,7 +976,12 @@ export type Action =
         /**
          * Layout to switch to.
          */
-        layout: LayoutSwitchTarget;
+        layout:
+          | "Next"
+          | "Prev"
+          | {
+              Index: number;
+            };
         [k: string]: unknown;
       };
     }
@@ -926,11 +1107,23 @@ export type Action =
         /**
          * How to change the X position.
          */
-        x: PositionChange;
+        x:
+          | {
+              SetFixed: number;
+            }
+          | {
+              AdjustFixed: number;
+            };
         /**
          * How to change the Y position.
          */
-        y: PositionChange;
+        y:
+          | {
+              SetFixed: number;
+            }
+          | {
+              AdjustFixed: number;
+            };
         [k: string]: unknown;
       };
     }
@@ -1013,11 +1206,12 @@ export type Action =
         id: number;
         [k: string]: unknown;
       };
+    }
+  | {
+      LoadConfigFile: {
+        [k: string]: unknown;
+      };
     };
-/**
- * How windows display in a column.
- */
-export type ColumnDisplay = "Normal" | "Tabbed";
 /**
  * Workspace reference (id, index or name) to operate on.
  */
@@ -1031,131 +1225,11 @@ export type WorkspaceReferenceArg =
   | {
       Name: string;
     };
-/**
- * Change in window or column size.
- */
-export type SizeChange =
-  | {
-      SetFixed: number;
-    }
-  | {
-      SetProportion: number;
-    }
-  | {
-      AdjustFixed: number;
-    }
-  | {
-      AdjustProportion: number;
-    };
-/**
- * Layout to switch to.
- */
-export type LayoutSwitchTarget =
-  | "Next"
-  | "Prev"
-  | {
-      Index: number;
-    };
-/**
- * Change in floating window position.
- */
-export type PositionChange =
-  | {
-      SetFixed: number;
-    }
-  | {
-      AdjustFixed: number;
-    };
-/**
- * Output actions that niri can perform.
- */
-export type OutputAction =
-  | "Off"
-  | "On"
-  | {
-      Mode: {
-        /**
-         * Mode to set, or "auto" for automatic selection.
-         *
-         * Run `niri msg outputs` to see the available modes.
-         */
-        mode: ModeToSet;
-        [k: string]: unknown;
-      };
-    }
-  | {
-      Scale: {
-        /**
-         * Scale factor to set, or "auto" for automatic selection.
-         */
-        scale: ScaleToSet;
-        [k: string]: unknown;
-      };
-    }
-  | {
-      Transform: {
-        /**
-         * Transform to set, counter-clockwise.
-         */
-        transform: Transform;
-        [k: string]: unknown;
-      };
-    }
-  | {
-      Position: {
-        /**
-         * Position to set, or "auto" for automatic selection.
-         */
-        position: PositionToSet;
-        [k: string]: unknown;
-      };
-    }
-  | {
-      Vrr: {
-        /**
-         * Variable refresh rate mode to set.
-         */
-        vrr: VrrToSet;
-        [k: string]: unknown;
-      };
-    };
-/**
- * Output mode to set.
- */
-export type ModeToSet =
-  | "Automatic"
-  | {
-      Specific: ConfiguredMode;
-    };
-/**
- * Output scale to set.
- */
-export type ScaleToSet =
-  | "Automatic"
-  | {
-      Specific: number;
-    };
-/**
- * Output transform, which goes counter-clockwise.
- */
-export type Transform = "Normal" | "90" | "180" | "270" | "Flipped" | "Flipped90" | "Flipped180" | "Flipped270";
-/**
- * Output position to set.
- */
-export type PositionToSet =
-  | "Automatic"
-  | {
-      Specific: ConfiguredPosition;
-    };
 
 /**
  * Output mode as set in the config file.
  */
 export interface ConfiguredMode {
-  /**
-   * Width in physical pixels.
-   */
-  width: number;
   /**
    * Height in physical pixels.
    */
@@ -1164,6 +1238,10 @@ export interface ConfiguredMode {
    * Refresh rate.
    */
   refresh?: number | null;
+  /**
+   * Width in physical pixels.
+   */
+  width: number;
   [k: string]: unknown;
 }
 /**
@@ -1181,16 +1259,16 @@ export interface ConfiguredPosition {
   [k: string]: unknown;
 }
 /**
- * Output VRR to set.
+ * Variable refresh rate mode to set.
  */
 export interface VrrToSet {
-  /**
-   * Whether to enable variable refresh rate.
-   */
-  vrr: boolean;
   /**
    * Only enable when the output shows a window matching the variable-refresh-rate window rule.
    */
   on_demand: boolean;
+  /**
+   * Whether to enable variable refresh rate.
+   */
+  vrr: boolean;
   [k: string]: unknown;
 }

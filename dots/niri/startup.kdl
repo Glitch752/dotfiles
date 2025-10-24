@@ -15,6 +15,8 @@ spawn-at-startup "/usr/lib/policykit-1-pantheon/io.elementary.desktop.agent-polk
 spawn-at-startup "hyprlock --no-fade-in --immediate-render"
 spawn-at-startup "hypridle"
 
+spawn-at-startup "niri-float-sticky"
+
 hotkey-overlay {
     skip-at-startup
 }

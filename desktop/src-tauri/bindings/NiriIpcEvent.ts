@@ -14,7 +14,8 @@ export type Event =
         /**
          * The new workspace configuration.
          *
-         * This configuration completely replaces the previous configuration. I.e. if any workspaces are missing from here, then they were deleted.
+         * This configuration completely replaces the previous configuration. I.e. if any
+         * workspaces are missing from here, then they were deleted.
          */
         workspaces: Workspace[];
         [k: string]: unknown;
@@ -36,28 +37,29 @@ export type Event =
   | {
       WorkspaceActivated: {
         /**
+         * Whether this workspace also became focused.
+         *
+         * If `true`, this is now the single focused workspace. All other workspaces are no longer
+         * focused, but they may remain active on their respective outputs.
+         */
+        focused: boolean;
+        /**
          * Id of the newly active workspace.
          */
         id: number;
-        /**
-         * Whether this workspace also became focused.
-         *
-         * If `true`, this is now the single focused workspace. All other workspaces are no longer focused, but they may remain active on their respective outputs.
-         */
-        focused: boolean;
         [k: string]: unknown;
       };
     }
   | {
       WorkspaceActiveWindowChanged: {
         /**
-         * Id of the workspace on which the active window changed.
-         */
-        workspace_id: number;
-        /**
          * Id of the new active window, if any.
          */
         active_window_id?: number | null;
+        /**
+         * Id of the workspace on which the active window changed.
+         */
+        workspace_id: number;
         [k: string]: unknown;
       };
     }
@@ -66,7 +68,8 @@ export type Event =
         /**
          * The new window configuration.
          *
-         * This configuration completely replaces the previous configuration. I.e. if any windows are missing from here, then they were closed.
+         * This configuration completely replaces the previous configuration. I.e. if any windows
+         * are missing from here, then they were closed.
          */
         windows: Window[];
         [k: string]: unknown;
@@ -74,12 +77,7 @@ export type Event =
     }
   | {
       WindowOpenedOrChanged: {
-        /**
-         * The new or updated window.
-         *
-         * If the window is focused, all other windows are no longer focused.
-         */
-        window: Window;
+        window: Window1;
         [k: string]: unknown;
       };
     }
@@ -115,10 +113,16 @@ export type Event =
       };
     }
   | {
-      KeyboardLayoutsChanged: {
+      WindowLayoutsChanged: {
         /**
-         * The new keyboard layout configuration.
+         * Pairs consisting of a window id and new layout information for the window.
          */
+        changes: [unknown, unknown][];
+        [k: string]: unknown;
+      };
+    }
+  | {
+      KeyboardLayoutsChanged: {
         keyboard_layouts: KeyboardLayouts;
         [k: string]: unknown;
       };
@@ -140,6 +144,17 @@ export type Event =
         is_open: boolean;
         [k: string]: unknown;
       };
+    }
+  | {
+      ConfigLoaded: {
+        /**
+         * Whether the loading failed.
+         *
+         * For example, the config file couldn't be parsed.
+         */
+        failed: boolean;
+        [k: string]: unknown;
+      };
     };
 
 /**
@@ -147,11 +162,17 @@ export type Event =
  */
 export interface Workspace {
   /**
+   * Id of the active window on this workspace, if any.
+   */
+  active_window_id?: number | null;
+  /**
    * Unique id of this workspace.
    *
    * This id remains constant regardless of the workspace moving around and across monitors.
    *
-   * Do not assume that workspace ids will always increase without wrapping, or start at 1. That is an implementation detail subject to change. For example, ids may change to be randomly generated for each new workspace.
+   * Do not assume that workspace ids will always increase without wrapping, or start at 1. That
+   * is an implementation detail subject to change. For example, ids may change to be randomly
+   * generated for each new workspace.
    */
   id: number;
   /**
@@ -159,25 +180,12 @@ export interface Workspace {
    *
    * This is the same index you can use for requests like `niri msg action focus-workspace`.
    *
-   * This index *will change* as you move and re-order workspace. It is merely the workspace's current position on its monitor. Workspaces on different monitors can have the same index.
+   * This index *will change* as you move and re-order workspace. It is merely the workspace's
+   * current position on its monitor. Workspaces on different monitors can have the same index.
    *
    * If you need a unique workspace id that doesn't change, see [`Self::id`].
    */
   idx: number;
-  /**
-   * Optional name of the workspace.
-   */
-  name?: string | null;
-  /**
-   * Name of the output that the workspace is on.
-   *
-   * Can be `None` if no outputs are currently connected.
-   */
-  output?: string | null;
-  /**
-   * Whether the workspace currently has an urgent window in its output.
-   */
-  is_urgent: boolean;
   /**
    * Whether the workspace is currently active on its output.
    *
@@ -191,9 +199,19 @@ export interface Workspace {
    */
   is_focused: boolean;
   /**
-   * Id of the active window on this workspace, if any.
+   * Whether the workspace currently has an urgent window in its output.
    */
-  active_window_id?: number | null;
+  is_urgent: boolean;
+  /**
+   * Optional name of the workspace.
+   */
+  name?: string | null;
+  /**
+   * Name of the output that the workspace is on.
+   *
+   * Can be `None` if no outputs are currently connected.
+   */
+  output?: string | null;
   [k: string]: unknown;
 }
 /**
@@ -201,37 +219,19 @@ export interface Workspace {
  */
 export interface Window {
   /**
-   * Unique id of this window.
-   *
-   * This id remains constant while this window is open.
-   *
-   * Do not assume that window ids will always increase without wrapping, or start at 1. That is an implementation detail subject to change. For example, ids may change to be randomly generated for each new window.
-   */
-  id: number;
-  /**
-   * Title, if set.
-   */
-  title?: string | null;
-  /**
    * Application ID, if set.
    */
   app_id?: string | null;
   /**
-   * Process ID that created the Wayland connection for this window, if known.
+   * Unique id of this window.
    *
-   * Currently, windows created by xdg-desktop-portal-gnome will have a `None` PID, but this may change in the future.
-   */
-  pid?: number | null;
-  /**
-   * Id of the workspace this window is on, if any.
-   */
-  workspace_id?: number | null;
-  /**
-   * Whether this window is currently focused.
+   * This id remains constant while this window is open.
    *
-   * There can be either one focused window or zero (e.g. when a layer-shell surface has focus).
+   * Do not assume that window ids will always increase without wrapping, or start at 1. That is
+   * an implementation detail subject to change. For example, ids may change to be randomly
+   * generated for each new window.
    */
-  is_focused: boolean;
+  id: number;
   /**
    * Whether this window is currently floating.
    *
@@ -239,22 +239,152 @@ export interface Window {
    */
   is_floating: boolean;
   /**
+   * Whether this window is currently focused.
+   *
+   * There can be either one focused window or zero (e.g. when a layer-shell surface has focus).
+   */
+  is_focused: boolean;
+  /**
    * Whether this window requests your attention.
    */
   is_urgent: boolean;
+  layout: WindowLayout;
+  /**
+   * Process ID that created the Wayland connection for this window, if known.
+   *
+   * Currently, windows created by xdg-desktop-portal-gnome will have a `None` PID, but this may
+   * change in the future.
+   */
+  pid?: number | null;
+  /**
+   * Title, if set.
+   */
+  title?: string | null;
+  /**
+   * Id of the workspace this window is on, if any.
+   */
+  workspace_id?: number | null;
   [k: string]: unknown;
 }
 /**
- * Configured keyboard layouts.
+ * Position- and size-related properties of the window.
+ */
+export interface WindowLayout {
+  /**
+   * Location of a tiled window within a workspace: (column index, tile index in column).
+   *
+   * The indices are 1-based, i.e. the leftmost column is at index 1 and the topmost tile in a
+   * column is at index 1. This is consistent with [`Action::FocusColumn`] and
+   * [`Action::FocusWindowInColumn`].
+   *
+   * @minItems 2
+   * @maxItems 2
+   */
+  pos_in_scrolling_layout?: [unknown, unknown] | null;
+  /**
+   * Tile position within the current view of the workspace.
+   *
+   * This is the same "workspace view" as in gradients' `relative-to` in the niri config.
+   *
+   * @minItems 2
+   * @maxItems 2
+   */
+  tile_pos_in_workspace_view?: [unknown, unknown] | null;
+  /**
+   * Size of the tile this window is in, including decorations like borders.
+   *
+   * @minItems 2
+   * @maxItems 2
+   */
+  tile_size: [unknown, unknown];
+  /**
+   * Location of the window's visual geometry within its tile.
+   *
+   * This includes things like border sizes. For fullscreened fixed-size windows this includes
+   * the distance from the corner of the black backdrop to the corner of the (centered) window
+   * contents.
+   *
+   * @minItems 2
+   * @maxItems 2
+   */
+  window_offset_in_tile: [unknown, unknown];
+  /**
+   * Size of the window's visual geometry itself.
+   *
+   * Does not include niri decorations like borders.
+   *
+   * Currently, Wayland toplevel windows can only be integer-sized in logical pixels, even
+   * though it doesn't necessarily align to physical pixels.
+   *
+   * @minItems 2
+   * @maxItems 2
+   */
+  window_size: [unknown, unknown];
+  [k: string]: unknown;
+}
+/**
+ * Toplevel window.
+ */
+export interface Window1 {
+  /**
+   * Application ID, if set.
+   */
+  app_id?: string | null;
+  /**
+   * Unique id of this window.
+   *
+   * This id remains constant while this window is open.
+   *
+   * Do not assume that window ids will always increase without wrapping, or start at 1. That is
+   * an implementation detail subject to change. For example, ids may change to be randomly
+   * generated for each new window.
+   */
+  id: number;
+  /**
+   * Whether this window is currently floating.
+   *
+   * If the window isn't floating then it is in the tiling layout.
+   */
+  is_floating: boolean;
+  /**
+   * Whether this window is currently focused.
+   *
+   * There can be either one focused window or zero (e.g. when a layer-shell surface has focus).
+   */
+  is_focused: boolean;
+  /**
+   * Whether this window requests your attention.
+   */
+  is_urgent: boolean;
+  layout: WindowLayout;
+  /**
+   * Process ID that created the Wayland connection for this window, if known.
+   *
+   * Currently, windows created by xdg-desktop-portal-gnome will have a `None` PID, but this may
+   * change in the future.
+   */
+  pid?: number | null;
+  /**
+   * Title, if set.
+   */
+  title?: string | null;
+  /**
+   * Id of the workspace this window is on, if any.
+   */
+  workspace_id?: number | null;
+  [k: string]: unknown;
+}
+/**
+ * The new keyboard layout configuration.
  */
 export interface KeyboardLayouts {
-  /**
-   * XKB names of the configured layouts.
-   */
-  names: string[];
   /**
    * Index of the currently active layout in `names`.
    */
   current_idx: number;
+  /**
+   * XKB names of the configured layouts.
+   */
+  names: string[];
   [k: string]: unknown;
 }

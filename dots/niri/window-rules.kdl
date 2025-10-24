@@ -21,6 +21,14 @@ window-rule {
 }
 
 window-rule {
+    match app-id="firefox$" title="^Picture-in-Picture$"
+
+    open-floating true
+    default-column-width { fixed 480; }
+    default-window-height { fixed 270; }
+}
+
+window-rule {
     // Temporary, keep my Godot games maximized and never float
     match app-id=r#"^Sushi Factory$"#
 
