@@ -34,5 +34,24 @@ output "eDP-1" {
     // If the position is unset or results in an overlap, the output is instead placed
     // automatically.
     position x=0 y=0
+
+    focus-at-startup
+}
+
+// Left USB-C DP output
+output "DP-4" {
+    // mode "1920x1080@60.000"
+
+    scale 1.25
+
+    position x=-1280 y=0
+}
+// Right USB-C DP output
+output "DP-1" {
+    // mode "1920x1080@60.000"
+
+    scale 1.25
+
+    position x=1504 y=0
 }
 {% endif %}
