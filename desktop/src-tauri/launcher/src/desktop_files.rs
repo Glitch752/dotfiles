@@ -241,6 +241,16 @@ impl DesktopFiles {
             })
             .collect();
         
+        // Hacky, but add /var/lib/flatpak/exports/share/ to XDG_DATA_DIRS if it isn't already there
+        let xdg_data_dirs = env::var("XDG_DATA_DIRS").unwrap_or(
+            "/usr/local/share:/usr/share".to_string()
+        );
+        let flatpak_path = "/var/lib/flatpak/exports/share";
+        if !xdg_data_dirs.split(':').any(|p| p == flatpak_path) {
+            let new_xdg_data_dirs = format!("{}:{}", flatpak_path, xdg_data_dirs);
+            unsafe { env::set_var("XDG_DATA_DIRS", new_xdg_data_dirs); };
+        }
+
         let mut cache = Cache::new().expect("Failed to create icon cache");
         cache.load_default().expect("Failed to load icons from theme");
         
@@ -336,7 +346,7 @@ impl DesktopFiles {
 }
 
 /// Gets a list of paths to all directories
-/// containing `.applications` files.
+/// containing `.desktop` files.
 fn dirs() -> Vec<PathBuf> {
     let mut dirs = vec![
         PathBuf::from("/usr/share/applications"), // system installed apps
@@ -360,7 +370,7 @@ fn dirs() -> Vec<PathBuf> {
     dirs.into_iter().filter(|dir| dir.exists()).collect()
 }
 
-/// Gets a list of all `.applications` files in the provided directory.
+/// Gets a list of all `.desktop` files in the provided directory.
 ///
 /// The directory is recursed to a maximum depth of 5.
 fn files(dir: &Path) -> Vec<PathBuf> {
@@ -370,6 +380,7 @@ fn files(dir: &Path) -> Vec<PathBuf> {
         .filter_map(|entry| {
             match entry {
                 Ok(e) if e.file_type().is_file() => Some(e),
+                Ok(e) if e.file_type().is_symlink() => Some(e),
                 _ => None,
             }
         })
