@@ -3,7 +3,9 @@ from pathlib import Path
 
 from .manager import DotfileManager
 
-# TODO: Better system for initializing the config
+# I have NO idea why this is required wtf
+import codecs
+codecs.lookup("unicode-escape")
 
 def main():
     parser = argparse.ArgumentParser(description="Dotfile Manager with templating and hot-reload.")

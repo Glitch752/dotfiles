@@ -3,7 +3,7 @@ import subprocess
 import toml
 import time
 
-from .logging import PrettyLogger
+from .logging import ANSI_GREEN, ANSI_RED, ANSI_RESET, PrettyLogger
 from .config import DotsConfig, ResolvedConfig
 from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
@@ -151,19 +151,18 @@ class DotfileManager:
                         try:
                             rendered = self.env.get_template(to_render.source.as_posix()).render(self.config.variables)
                         except Exception as e:
-                            self.log.error(f"Error rendering template {to_render.source}: {e}")
+                            self.log.error(f"Error rendering template {to_render.source}: {e} ({e.__cause__})")
                             continue
 
                         # Write to temp file and rename atomically
                         write_atomic(output_path, rendered)
-                        self.log.info(f"Rendered and updated: {output_path}")
                     
                     if to_render.permissions:
                         try:
                             os.chmod(output_path, int(to_render.permissions, 8))
                             self.log.info(f"Set permissions for {output_path} to {to_render.permissions}")
                         except Exception as e:
-                            self.log.error(f"Error setting permissions for {output_path}: {e}")        
+                            self.log.error(f"Error setting permissions for {output_path}: {e} ({e.__cause__})")        
     
 
     def get_packages(self):
@@ -189,29 +188,65 @@ class DotfileManager:
             "system": sorted(pacman_pkgs),
             "aur": sorted(aur_pkgs)
         }
+    
+    def get_saved_packages(self):
+        pkgfile = self.dots_dir / "packages.toml"
+        if not pkgfile.exists():
+            return None
+
+        try:
+            with open(pkgfile, "r") as f:
+                return toml.load(f)
+        except Exception as e:
+            self.log.error(f"Failed to load packages.toml: {e}")
+            return None
 
     def save_packages(self):
+        old_packages = self.get_saved_packages()
         packages = self.get_packages()
+        
+        # Show diffs
+        if old_packages:
+            old_system = set(old_packages.get("system", []))
+            old_aur = set(old_packages.get("aur", []))
+            new_system = set(packages.get("system", []))
+            new_aur = set(packages.get("aur", []))
+
+            added_system = new_system - old_system
+            removed_system = old_system - new_system
+            added_aur = new_aur - old_aur
+            removed_aur = old_aur - new_aur
+
+            if added_system or removed_system:
+                with self.log.info("System package changes:"):
+                    for pkg in added_system:
+                        self.log.info(f"{ANSI_GREEN}+ {pkg}{ANSI_RESET}")
+                    for pkg in removed_system:
+                        self.log.info(f"{ANSI_RED}- {pkg}{ANSI_RESET}")
+            if added_aur or removed_aur:
+                with self.log.info("AUR package changes:"):
+                    for pkg in added_aur:
+                        self.log.info(f"{ANSI_GREEN}+ {pkg}{ANSI_RESET}")
+                    for pkg in removed_aur:
+                        self.log.info(f"{ANSI_RED}- {pkg}{ANSI_RESET}")
+
+            if not (added_system or removed_system or added_aur or removed_aur):
+                self.log.info("No package changes detected.")
 
         pkgfile = self.dots_dir / "packages.toml"
         try:
             with open(pkgfile, "w") as f:
                 toml.dump(packages, f)
+            # Allow all users to change this file
+            os.chmod(pkgfile, 0o666)
             self.log.info(f"Saved packages to {pkgfile}")
         except Exception as e:
             self.log.error(f"Failed to save packages.toml: {e}")
 
     def load_packages(self):
-        pkgfile = self.dots_dir / "packages.toml"
-        if not pkgfile.exists():
-            self.log.error(f"No packages.toml found at {pkgfile}")
-            return
-
-        try:
-            with open(pkgfile, "r") as f:
-                packages = toml.load(f)
-        except Exception as e:
-            self.log.error(f"Failed to load packages.toml: {e}")
+        packages = self.get_saved_packages()
+        if packages == None:
+            self.log.error(f"No packages.toml found")
             return
 
         system_pkgs = packages.get("system", [])

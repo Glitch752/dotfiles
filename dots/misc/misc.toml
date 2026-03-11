@@ -6,8 +6,10 @@ render = [
     { source = "mimeapps.list", destination = "~/.local/share/applications/mimeapps.list" },
 
     # TODO: This could presumably be a wireplumber policy?
-    { source = "systemd/set-audio-profile.service", destination = "~/.config/systemd/user/set-audio-profile.service" }
+    { source = "systemd/set-audio-profile.service", destination = "~/.config/systemd/user/set-audio-profile.service" },
     # TODO: Post-update script `systemctl --user daemon-reload` and `systemctl --user enable --now set-audio-profile.service`
+
+    { source = "pacman.conf", destination = "/etc/pacman.conf", as = "root", owner = "root", permissions = "644" }
 ]
 
 # TODO: Post-render script update-desktop-database ~/.local/share/applications/

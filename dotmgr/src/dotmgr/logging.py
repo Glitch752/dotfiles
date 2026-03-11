@@ -9,6 +9,7 @@ ANSI_BLUE = "\033[94m"
 ANSI_YELLOW = "\033[93m"
 ANSI_RED = "\033[91m"
 ANSI_MAGENTA = "\033[95m"
+ANSI_GREEN = "\033[92m"
 ANSI_RESET = "\033[0m"
 
 class PrettyFormatter(logging.Formatter):
