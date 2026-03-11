@@ -25,9 +25,6 @@ alias shit="fuck"
 
 alias neofetch="fastfetch"
 
-alias saveconf="aconfmgr save -c ~/dotfiles/aconfmgr"
-alias applyconf="aconfmgr apply -c ~/dotfiles/aconfmgr"
-
 {% if device == "laptop" %}
 alias batt="upower -i /org/freedesktop/UPower/devices/battery_BAT1 | grep \"percentage:\" | awk '{print \$2}'"
 {% endif %}

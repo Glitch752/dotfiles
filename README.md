@@ -6,7 +6,7 @@ https://github.com/user-attachments/assets/ffd2b299-e94b-4478-bac2-42e37e773990
 
 
 
-My personal Arch Linux configuration, setup using [aconfmgr](https://github.com/CyberShadow/aconfmgr) and a custom lightweight templating engine written in Python (not because I could make something better than the alternatives, but because I wanted to).
+My personal Arch Linux configuration, setup using a custom lightweight templating engine written in Python (not because I could make something better than the alternatives, but because I wanted to).
 
 I also got a little distracted and wrote a low-level kernel input intercepting tool to make niri work with the LWin+LAlt+LMB gesture I'm used to. It's _insanely_ hacky, but it works surprisingly well.
 
@@ -25,7 +25,6 @@ I also got a little distracted and wrote a low-level kernel input intercepting t
 
 ## TODO
 - [ ] Add more documentation
-- [ ] Organize aconfmgr files
 - [ ] Set up dotmgr to build and install custom theme instead of using shell script
 - [ ] Support multiple monitors
 - [ ] Launcher
@@ -54,6 +53,4 @@ I also got a little distracted and wrote a low-level kernel input intercepting t
 - [ ] Track generated files and delete if no longer managed
 - [ ] Better persistent per-machine configuration
 - [ ] Change to something other than TOML since I'm unsatisfied with it (KDL?)
-- [ ] Implement a more generic solution for the aconfmgr generated ignore list
-  - [ ] ...or replace aconfmgr with dotmgr by adding a few more features for package management
 - [ ] Allow using variables in paths?
