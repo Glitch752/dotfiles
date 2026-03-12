@@ -47,6 +47,7 @@ struct AppState {
 
 impl AppState {
     fn add_exclusive_zone(&mut self, edge: Edge, thickness: i32) {
+        // Create an empty window for this exclusive zone
         let window = gtk::ApplicationWindow::new(self.gtk_application.deref());
         window.init_layer_shell();
 
@@ -55,7 +56,7 @@ impl AppState {
         window.set_anchor(Edge::Left, edge != Edge::Right);
         window.set_anchor(Edge::Right, edge != Edge::Left);
 
-        window.set_layer(Layer::Top);
+        window.set_layer(Layer::Bottom);
 
         window.set_exclusive_zone(thickness);
 
@@ -104,7 +105,7 @@ fn devtools(payload: bool, app_handle: tauri::AppHandle) {
 }
 
 #[tauri::command]
-fn create_exclusive_regions(payload: ExclusiveRegions, state: State<'_, Mutex<AppState>>) {
+fn init_layer_shell(payload: ExclusiveRegions, state: State<'_, Mutex<AppState>>) {
     // TODO: Exclusive region logic needs to be updated once we support multiple monitors
     let mut state = state.lock().unwrap();
 
@@ -117,6 +118,10 @@ fn create_exclusive_regions(payload: ExclusiveRegions, state: State<'_, Mutex<Ap
     state.add_exclusive_zone(Edge::Left, payload.left);
     state.add_exclusive_zone(Edge::Right, payload.right);
     state.add_exclusive_zone(Edge::Bottom, payload.bottom);
+
+    let main_window = state.gtk_window.deref();
+    main_window.set_exclusive_zone(-1);
+    main_window.show_all();
 }
 
 #[tauri::command]
@@ -139,7 +144,7 @@ pub fn run() {
         .plugin(notifications::init())
         .invoke_handler(tauri::generate_handler![
             set_input_shape,
-            create_exclusive_regions,
+            init_layer_shell,
             set_keyboard_exclusivity,
             inspect,
             devtools
@@ -178,8 +183,6 @@ pub fn run() {
             gtk_window.set_anchor(Edge::Bottom, true);
             gtk_window.set_anchor(Edge::Left, true);
             gtk_window.set_anchor(Edge::Right, true);
-
-            gtk_window.show_all();
 
             // Before the UI starts, clear the input region so we don't eat mouse inputs immediately
             gtk_window.input_shape_combine_region(Some(&cairo::Region::create_rectangles(&[])));

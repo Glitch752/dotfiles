@@ -47,7 +47,7 @@ window.addEventListener("DOMContentLoaded", () => {
     initNotifications();
     initNiri();
 
-    invokePayload<ExclusiveRegions>("create_exclusive_regions", {
+    invokePayload<ExclusiveRegions>("init_layer_shell", {
         top: barThickness,
         bottom: nonBorderBarThickness,
         left: barThickness,
