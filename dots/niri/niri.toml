@@ -1,6 +1,6 @@
 imports = [
     "interception-tools/window-binds.toml",
-    "wallpaper/swww.toml",
+    "wallpaper/awww.toml",
     "lightdm/lightdm.toml",
     "bar/bar.toml",
     "hyprlock/hyprlock.toml"
@@ -11,4 +11,4 @@ render = [
     { source = "config.kdl", destination = "~/.config/niri/config.kdl" },
     { source = "compat/brave-flags.conf", destination = "~/.config/brave-flags.conf" }
 ]
-subconfigs = ["window-binds", "swww", "lightdm", "bar", "hyprlock"]
+subconfigs = ["window-binds", "awww", "lightdm", "bar", "hyprlock"]

@@ -120,8 +120,8 @@ convert "$selectedWallpaper" \
   # -blur 1x30 \
 selectedWallpaper="/tmp/processed_wallpaper.bmp"
 
-# Update the wallpaper using the swww img command
-swww img "$selectedWallpaper" --transition-step 20 --transition-fps 60\
+# Update the wallpaper using the awww img command
+awww img "$selectedWallpaper" --transition-step 20 --transition-fps 60\
   --transition-type wipe --transition-angle $((RANDOM % 360))
 
 # TODO: automatic wallpaper-based theming with https://codeberg.org/explosion-mental/wallust/ or similar?

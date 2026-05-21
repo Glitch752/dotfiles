@@ -5,7 +5,7 @@
 
 // spawn-at-startup "waybar"
 
-spawn-at-startup "swww-daemon" "--no-cache"
+spawn-at-startup "awww-daemon" "--no-cache"
 spawn-at-startup "sh" "{{randomize_wallpaper_script}}"
 
 spawn-at-startup "desktop"

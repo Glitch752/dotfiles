@@ -1,10 +1,10 @@
-[configurations.swww]
+[configurations.awww]
 render = [
     { source = "randomize_wallpaper.sh", destination = "/usr/local/bin/randomize_wallpaper.sh", action = "copy", as = "root", owner = "kit", permissions = "0755" },
     { source = "wallpapers/", destination = "~/Pictures/Wallpapers", action = "link" } # TODO: Create a symlink instead
 ]
 
-[configurations.swww.variables]
+[configurations.awww.variables]
 randomize_wallpaper_script = "/usr/local/bin/randomize_wallpaper.sh"
 wallpapers_directory = "~/Pictures/Wallpapers"
 

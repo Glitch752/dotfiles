@@ -14,7 +14,7 @@ I also got a little distracted and wrote a low-level kernel input intercepting t
 - Custom Niri configuration
 - Nvidia support
 - Relatively consistent system-wide theming
-- Wallpaper manager script using [swww](https://github.com/LGFae/swww) that changes and animates wallpaper transitions
+- Wallpaper manager script using [awww](https://github.com/LGFae/awww) that changes and animates wallpaper transitions
 - Custom layer-shell "bar" (though it goes around the whole screen) with launcher, notifications, and more
 - Consistent system-wide themeing with custom themes for GTK 3, GTK 4, VSCode, Discord, Firefox, and more
 
