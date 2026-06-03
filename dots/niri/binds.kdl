@@ -233,6 +233,7 @@ binds {
     Mod+Shift+C { spawn "bash" "-c" "hyprpicker --autocopy"; }
 
     Mod+Grave { spawn "sh" "{{randomize_wallpaper_script}}"; }
+    Mod+Shift+Grave { spawn "sh" "-c" "DISABLE_WALLPAPERS=invert {{randomize_wallpaper_script}}"; }
 
     // Applications such as remote-desktop clients and software KVM switches may
     // request that niri stops processing the keyboard shortcuts defined here

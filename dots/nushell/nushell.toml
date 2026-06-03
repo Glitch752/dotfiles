@@ -1,0 +1,10 @@
+[configurations.nushell]
+render = [
+    { source = "config.nu", destination = "/home/kit/.config/nushell/config.nu" },
+    { source = "aliases.nu", destination = "/home/kit/.config/nushell/aliases.nu" },
+    { source = "theme.nu", destination = "/home/kit/.config/nushell/theme.nu", action = "copy" },
+    { source = "oh-my.nu", destination = "/home/kit/.config/nushell/oh-my.nu", action = "copy" }
+]
+
+    [configurations.nushell.variables]
+    shell = "nu"

@@ -1,6 +1,7 @@
 # Import merges the configuration from the specified file.
 imports = [
     "./zsh/zsh.toml",
+    "./nushell/nushell.toml",
     "./kitty/kitty.toml",
     "./niri/niri.toml",
     "./misc/misc.toml"
@@ -8,7 +9,10 @@ imports = [
 
 # Configurations are a set of dotfiles and variables that will be managed. Each profile can have multiple active configurations.
 [configurations.default]
-subconfigs = ["zsh", "niri", "kitty", "misc"]
+subconfigs = [
+    "nushell", "zsh", # for now, intentionally override the default shell with zsh :)
+    "niri", "kitty", "misc"
+]
 
 [configurations.laptop.variables]
 device = "laptop"
