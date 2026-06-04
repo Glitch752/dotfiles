@@ -74,7 +74,6 @@ plugins=(
     git
     fzf
     thefuck
-    zsh-wakatime
     enhancd
     # zsh-autosuggestions
 )
